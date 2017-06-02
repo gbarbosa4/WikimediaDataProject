@@ -1,0 +1,166 @@
+<html>
+<head>
+    <title>Wikimedia Data LG Project</title>
+<style>
+.button {
+    padding: 16px 32px;
+    font-family: sans-serif;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 14px;
+    margin: 4px 4px;
+    -webkit-transition-duration: 0.4s; /* Safari */
+    transition-duration: 0.4s;
+    cursor: pointer;
+}
+
+.button_combo {
+    background-color: white;
+    border: 6px solid #008CBA;
+    border-radius: 4px;
+    width: 30%;
+    font-size: 18px;
+    font-style: italic;
+}
+
+.button1 {
+    background-color: white;
+    color: black;
+    border: 2px solid #4CAF50;
+    border-radius: 12px;
+    width: 50%;
+}
+
+.button1:hover {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.button2 {
+    background-color: white;
+    color: black;
+    border: 2px solid #008CBA;
+    border-radius: 12px;
+    width: 50%;
+}
+
+.button2:hover {
+    background-color: #008CBA;
+    color: white;
+}
+
+.button3 {
+    background-color: white;
+    color: black;
+    border: 2px solid #f44336;
+    border-radius: 12px;
+    width: 50%;
+}
+
+.button3:hover {
+    background-color: #f44336;
+    color: white;
+}
+
+.button4 {
+    background-color: white;
+    color: black;
+    border: 5px solid #008CBA;
+    border-radius: 50%;
+}
+
+.button4:hover {
+  background-color: #555555;
+  color: black;
+}
+
+.button5 {
+    background-color: white;
+    color: black;
+    border: 2px solid #555555;
+    border-radius: 12px;
+    width: 24.5%;
+}
+
+.button5:hover {
+    background-color: #555555;
+    color: white;
+}
+
+</style>
+</head>
+
+    <body>
+        <div>
+            <h2>WIKIMEDIA DATA VISUALIZED IN LIQUID GALAXY</h2>
+        </div>
+
+        <div id="wrapper">
+          <div id="button1">
+            <form id="tour_cities" action="/tour_cities">
+      		      <input class="button button1" type="submit" value="MOST POPULATED CITIES IN THE WORLD">
+                <input id="start_tour_cities" class="button button4" style="visibility:visible" type="submit" value="START TOUR" onclick="form.action='/start_tour_cities';">
+                <input id="stop_tour_cities" class="button button4" style="visibility:visible" type="submit" value="STOP TOUR" onclick="form.action='/stop_tour_cities';">
+            </form>
+          </div>
+        </div>
+
+        <div>
+          <form id="premierLeague_stadiums" action="/premierLeague_stadiums">
+      		    <input class="button button2" onclick='showClubsList()' type="submit" value="PREMIER LEAGUE STADIUMS">
+    	    </form>
+        </div>
+        <form method = "post" action = "/premierLeague_stadiums">{% csrf_token %}
+          <select id='combo_list' name="combo_list" class="button button_combo" style="visibility:visible">
+              <option selected="selected" disabled>Select the team</option>
+              {% for club in clubs_list %}
+                <option value='{{club}}'>{{club}}</option>
+              {% endfor %}
+          </select>
+          <input class="button button5" style="visibility:visible" id="get_stadium" type="submit" value="GET STADIUM">
+        </form>
+
+
+        <div>
+          <form id="longest_rivers" action="/longest_rivers">
+      		    <input class="button button3" type="submit" value="THE LONGEST RIVERS IN THE WORLD">
+          </form>
+        </div>
+
+        <div>
+        	<form id="nile_experience">
+        		  <input class="button button5" type="submit" value="NILE RIVER TOUR EXPERIENCE" onclick="form.action='/nile_tour_experience';">
+              <input class="button button5" type="submit" value="NILE RIVER LINE TRACK EXPERIENCE" onclick="form.action='/nile_line_experience';">
+              <input id="start_nile_experience" class="button button4" style="visibility:visible" type="submit" value="START NILE EXPERIENCE" onclick="form.action='/start_nile_experience';">
+              <input id="stop_nile_experience" class="button button4" style="visibility:visible" type="submit" value="STOP NILE EXPERIENCE" onclick="form.action='/stop_nile_experience';">
+          </form>
+        </div>
+
+        <div>
+          <form id="spanish_airports" action="/spanish_airports">
+              <input class="button button3" type="submit" value="SPANISH AIRPORTS">
+          </form>
+        </div>
+        <div>
+          <form id="olympic_games" action="/olympic_games">
+              <input class="button button2" type="submit" value="SUMMER OLYMPIC GAMES">
+          </form>
+        </div>
+
+
+        <script type="text/javascript">
+          $(document).ready(function() {
+              $.ajax({
+                      type: "POST",
+                      url: "getPaises.php",
+                      success: function(response)
+                      {
+                          $('.selector-pais select').html(response).fadeIn();
+                      }
+              });
+          });
+        </script>
+
+    </body>
+</html>

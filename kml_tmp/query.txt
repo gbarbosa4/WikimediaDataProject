@@ -1,1 +1,1 @@
-exittour=true
+playtour=Nile Experience

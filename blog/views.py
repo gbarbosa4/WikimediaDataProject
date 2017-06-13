@@ -11,6 +11,7 @@ from WDLG_Project.clubstadium import ClubStadium
 from WDLG_Project.river import River
 from WDLG_Project.airport import Airport
 from WDLG_Project.olympicgame import OlympicGame
+from WDLG_Project.informationList import InformationList
 from WDLG_Project.kml_generator import GeneratorKML
 from WDLG_Project.wikiapi import WikiApi
 
@@ -31,6 +32,7 @@ kml_file_name_longest_rivers = "kml_file_longest_rivers"
 kml_file_name_river_tour= "kml_file_nile_tour_experience"
 kml_file_name_river_line = "kml_file_nile_line_experience"
 kml_file_name_spanish_airports = "kml_file_spanish_airports"
+kml_file_name_summer_olympic_games = "kml_file_summer_olympic_game"
 
 file_kmls_txt_path = "kml_tmp/kmls.txt"
 file_query_txt_path = "kml_tmp/query.txt"
@@ -38,12 +40,13 @@ serverPath = "/var/www/html/"
 serverPath_query = "/tmp/"
 
 wikiapi = WikiApi({ 'locale' : 'en'})
+informationList = InformationList()
 
 def post_list(request):
     return render(request, 'blog/post_list.html', {})
 
-
 def generate_kml(use_case, data_set, kml_name):
+	print("Generating KML file ...")
 	generator_kml = GeneratorKML(data_set, kml_name ,"")
 
 	if use_case == "Tour Cities":
@@ -64,6 +67,10 @@ def generate_kml(use_case, data_set, kml_name):
 
 	elif use_case == "Spanish Airports":
 		kml_file = generator_kml.generateKML_Spanish_Airports()
+
+	elif use_case == "Summer Olympic Games":
+		print("Summer Olympic Games ",data_set.hostCity)
+		kml_file = generator_kml.generateKML_Olympic_Games()
 
 	sendKML_ToGalaxy(kml_file, kml_name)
 
@@ -92,13 +99,12 @@ def sendKML_ToGalaxy(kml_file, kml_name):
 	print ("KML send!!")
 
 def write_galaxy_ip(galaxy_ip):
-    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +
-             '/galaxy_ip', 'w+')
+    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/galaxy_ip', 'w+')
     f.write(galaxy_ip)
     f.close()
 
 def get_galaxy_ip():
-    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) +'/galaxy_ip', 'r')
+    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/galaxy_ip', 'r')
     ip_galaxy_master = f.read()
     f.close()
     print(ip_galaxy_master)
@@ -363,9 +369,7 @@ def premierLeague_stadiums_query(request):
 	                     clubstadium_selected = clubstadium
 	                     club_short_name = clubstadium.clubShortName
 	                     response_xml = wikiapi.find(club_short_name)
-	                     print(response_xml)
 	                     club_shield_image = getClubShieldImage(response_xml)
-	                     print(club_shield_image)
 	                     clubstadium.addClubShield(club_shield_image)
 
 	       generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
@@ -566,20 +570,82 @@ def spanish_airports_query(request):
 
 def olympic_games_query(request):
     print("OLYMPIC GAMES obtaining data...")
+
     olympic_games_list = []
-    year = 2016
-    while year > 1990:
-        result_xml = wikiapi.find(str(year)+" Summer Olympics")
-        hash_data = wikiapi.scraping_infobox(result_xml)
-        data_list = do_data_list(hash_data)
-        olympic_games_list.append(OlympicGame(data_list[0],data_list[1],data_list[2],data_list[3],data_list[4],data_list[5],data_list[6],data_list[7]))
-        get_city_coordenates(city)
+    host_city_list = []
 
-        year = year - 4
+    if len(request.POST) == 0:
+        year = 2016
+        i=0
+        while year > 1990:
+            result_xml = wikiapi.find(str(year)+" Summer Olympics")
+            hash_data = wikiapi.scraping_infobox(result_xml)
+            data_list = do_data_list(hash_data)
+            olympic_games_list.append(OlympicGame(data_list[0],year,data_list[1],data_list[2],data_list[3],data_list[4],data_list[5],data_list[6],data_list[7]))
+            #coord = get_city_coordenates(data_list[0])
+            file = open("static/coord_olympic_games.txt", 'r+')
+            with open("static/coord_olympic_games.txt", 'r+') as file:
+                for line in file:
+                    if line.split(" =")[0] == data_list[0]:
+                        print (line.split(" =")[1])
 
-    return HttpResponseRedirect('/')
+            longitude = coord.split("(")[1].split(" ")[0]
+            latitude = coord.split("(")[1].split(" ")[1]
+            latitude = latitude[:len(latitude) - 1]
+
+            olympic_games_list[i].coordinates(longitude,latitude)
+            host_city_list.append(data_list[0]+" "+str(year))
+            print ("Wait a moment please... year-> ",year)
+            year = year - 4
+            i = i+1
+
+        informationList.set_information_list("Olympic_Games",olympic_games_list)
+
+    else:
+        olympic_games_list = informationList.get_information_list("Olympic_Games")
+
+        for key,value in request.POST.items():
+            if key == "host_city":
+                host_city_selected = value
+
+        for olympic_game in olympic_games_list:
+            if (olympic_game.hostCity+" "+str(olympic_game.year)) == host_city_selected:
+                olympic_game_selected = olympic_game
+                break
+
+        generate_kml("Summer Olympic Games", olympic_game_selected, kml_file_name_summer_olympic_games)
+
+    return render(request, 'blog/post_list.html', {"host_city_list": host_city_list})
+
 
 def get_city_coordenates(city):
+    city = "\""+city+"\""
+    sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+
+    sparql.setReturnFormat(JSON)
+
+    sparql.setQuery("""SELECT DISTINCT ?coord
+                        WHERE
+                        {
+                          ?city wdt:P31/wdt:P279* wd:Q515 .
+                          ?city wdt:P625 ?coord .
+                          ?city rdfs:label ?cityname .
+
+                          FILTER (regex(?cityname,"""+city+"""))
+                          FILTER (lang(?cityname) = "en")
+
+                          SERVICE wikibase:label {
+                            bd:serviceParam wikibase:language "en" .
+                          }
+
+                        }
+                        LIMIT 1""")
+
+    queryResults = sparql.query().convert()
+    for result in queryResults["results"]["bindings"]:
+        coord = result["coord"]["value"]
+
+    return coord
 
 
 def do_data_list(hash_data):
@@ -2073,5 +2139,364 @@ def get_nile_dynamic_points():
     data_points.append("30.565687,9.502495"),
     data_points.append("30.573127,9.504511"),
     data_points.append("30.581321,9.505072"),
+    data_points.append("30.590647,9.504623"),
+    data_points.append("30.599670,9.506432"),
+    data_points.append("30.602609,9.506165"),
+    data_points.append("30.625423,9.498376"),
+    data_points.append("30.632822,9.498117"),
+    data_points.append("30.644298,9.497770"),
+    data_points.append("30.651358,9.498870"),
+    data_points.append("30.660864,9.498627"),
+    data_points.append("30.670871,9.497252"),
+    data_points.append("30.676944,9.498141"),
+    data_points.append("30.689802,9.497984"),
+    data_points.append("30.697358,9.496366"),
+    data_points.append("30.702079,9.493858"),
+    data_points.append("30.706102,9.490398"),
+    data_points.append("30.716410,9.480103"),
+    data_points.append("30.722568,9.476061"),
+    data_points.append("30.739079,9.465525"),
+    data_points.append("30.741611,9.465059"),
+    data_points.append("30.748397,9.468077"),
+    data_points.append("30.749406,9.470299"),
+    data_points.append("30.750307,9.474246"),
+    data_points.append("30.751895,9.475823"),
+    data_points.append("30.754545,9.476035"),
+    data_points.append("30.761873,9.473421"),
+    data_points.append("30.772975,9.466159"),
+    data_points.append("30.778411,9.464114"),
+    data_points.append("30.780889,9.463257"),
+    data_points.append("30.788228,9.457341"),
+    data_points.append("30.797466,9.455023"),
+    data_points.append("30.808173,9.458388"),
+    data_points.append("30.817003,9.460113"),
+    data_points.append("30.839029,9.452779"),
+    data_points.append("30.869485,9.459964"),
+    data_points.append("30.881442,9.460601"),
+    data_points.append("30.893682,9.464493"),
+    data_points.append("30.901063,9.463805"),
+    data_points.append("30.909068,9.461154"),
+    data_points.append("30.914046,9.461641"),
+    data_points.append("30.917275,9.464202"),
+    data_points.append("30.918660,9.467991"),
+    data_points.append("30.918762,9.474410"),
+    data_points.append("30.920361,9.477712"),
+    data_points.append("30.922571,9.479077"),
+    data_points.append("30.936632,9.485049"),
+    data_points.append("30.940205,9.485324"),
+    data_points.append("30.944379,9.483927"),
+    data_points.append("30.952222,9.478869"),
+    data_points.append("30.957576,9.477102"),
+    data_points.append("30.967339,9.475388"),
+    data_points.append("30.973412,9.473769"),
+    data_points.append("30.977843,9.473875"),
+    data_points.append("30.985148,9.475788"),
+    data_points.append("30.994546,9.476772"),
+    data_points.append("31.018449,9.470735"),
+    data_points.append("31.040010,9.466786"),
+    data_points.append("31.044473,9.464045"),
+    data_points.append("31.052905,9.456313"),
+    data_points.append("31.055716,9.455784"),
+    data_points.append("31.063451,9.456578"),
+    data_points.append("31.069899,9.455319"),
+    data_points.append("31.075585,9.452853"),
+    data_points.append("31.085927,9.445118"),
+    data_points.append("31.101677,9.438186"),
+    data_points.append("31.114997,9.434261"),
+    data_points.append("31.125843,9.433027"),
+    data_points.append("31.140217,9.425123"),
+    data_points.append("31.152175,9.416555"),
+    data_points.append("31.163966,9.413824"),
+    data_points.append("31.175210,9.416184"),
+    data_points.append("31.189957,9.414246"),
+    data_points.append("31.210279,9.406302"),
+    data_points.append("31.229986,9.402457"),
+    data_points.append("31.245720,9.398168"),
+    data_points.append("31.268033,9.388892"),
+    data_points.append("31.275232,9.389019"),
+    data_points.append("31.293743,9.384337"),
+    data_points.append("31.321784,9.375392"),
+    data_points.append("31.332716,9.375280"),
+    data_points.append("31.347781,9.371368"),
+    data_points.append("31.355059,9.366341"),
+    data_points.append("31.362089,9.358888"),
+    data_points.append("31.370471,9.354269"),
+    data_points.append("31.389365,9.347350"),
+    data_points.append("31.399935,9.344653"),
+    data_points.append("31.421058,9.336760"),
+    data_points.append("31.437626,9.335360"),
+    data_points.append("31.459899,9.332787"),
+    data_points.append("31.479558,9.341156"),
+    data_points.append("31.485790,9.346797"),
+    data_points.append("31.490169,9.354148"),
+    data_points.append("31.498009,9.358594"),
+    data_points.append("31.508106,9.360377"),
+    data_points.append("31.520513,9.363388"),
+    data_points.append("31.529095,9.365711"),
+    data_points.append("31.535086,9.367105"),
+    data_points.append("31.545939,9.371334"),
+    data_points.append("31.549378,9.375249"),
+    data_points.append("31.552980,9.377440"),
+    data_points.append("31.560799,9.380106"),
+    data_points.append("31.567649,9.390183"),
+    data_points.append("31.571547,9.394159"),
+    data_points.append("31.578160,9.397636"),
+    data_points.append("31.590109,9.407799"),
+    data_points.append("31.594235,9.410989"),
+    data_points.append("31.607873,9.429752"),
+    data_points.append("31.614705,9.444489"),
+    data_points.append("31.617206,9.448577"),
+    data_points.append("31.619809,9.455622"),
+    data_points.append("31.621900,9.457787"),
+    data_points.append("31.623960,9.459681"),
+    data_points.append("31.630183,9.464232"),
+    data_points.append("31.636003,9.474104"),
+    data_points.append("31.639442,9.478269"),
+    data_points.append("31.645149,9.485491"),
+    data_points.append("31.647052,9.489664"),
+    data_points.append("31.650447,9.498992"),
+    data_points.append("31.653588,9.505883"),
+    data_points.append("31.653847,9.512255"),
+    data_points.append("31.651191,9.522428"),
+    data_points.append("31.644636,9.534978"),
+    data_points.append("31.639954,9.556670"),
+    data_points.append("31.644758,9.572383"),
+    data_points.append("31.658424,9.584238"),
+    data_points.append("31.671976,9.602623"),
+    data_points.append("31.684654,9.618183"),
+    data_points.append("31.694402,9.622709"),
+    data_points.append("31.705684,9.624833"),
+    data_points.append("31.721756,9.643494"),
+    data_points.append("31.737614,9.656499"),
+    data_points.append("31.757655,9.661290"),
+    data_points.append("31.779750,9.667700"),
+    data_points.append("31.786465,9.670562"),
+    data_points.append("31.829673,9.678907"),
+    data_points.append("31.847079,9.691867"),
+    data_points.append("31.860421,9.703644"),
+    data_points.append("31.889626,9.722160"),
+    data_points.append("31.902283,9.726477"),
+    data_points.append("31.909646,9.734351"),
+    data_points.append("31.932928,9.746808"),
+    data_points.append("31.942970,9.748719"),
+    data_points.append("31.965882,9.754955"),
+    data_points.append("31.976259,9.764426"),
+    data_points.append("31.990738,9.777507"),
+    data_points.append("31.997052,9.782919"),
+    data_points.append("32.001444,9.790492"),
+    data_points.append("32.012465,9.797663"),
+    data_points.append("32.022370,9.813981"),
+    data_points.append("32.027198,9.818738"),
+    data_points.append("32.036311,9.839386"),
+    data_points.append("32.063353,9.860971"),
+    data_points.append("32.073614,9.861469"),
+    data_points.append("32.083226,9.864472"),
+    data_points.append("32.097436,9.866673"),
+    data_points.append("32.106620,9.874236"),
+    data_points.append("32.117336,9.880422"),
+    data_points.append("32.133887,9.902941"),
+    data_points.append("32.144517,9.910529"),
+    data_points.append("32.163904,9.944172"),
+    data_points.append("32.169443,9.950142"),
+    data_points.append("32.172393,9.960703"),
+    data_points.append("32.176007,9.966292"),
+    data_points.append("32.184989,9.976383"),
+    data_points.append("32.192450,9.994682"),
+    data_points.append("32.201246,10.003277"),
+    data_points.append("32.211312,10.008377"),
+    data_points.append("32.221601,10.018096"),
+    data_points.append("32.231845,10.022492"),
+    data_points.append("32.237310,10.034007"),
+    data_points.append("32.241372,10.040548"),
+    data_points.append("32.243280,10.060862"),
+    data_points.append("32.251379,10.071324"),
+    data_points.append("32.267604,10.086510"),
+    data_points.append("32.272696,10.091203"),
+    data_points.append("32.278287,10.100968"),
+    data_points.append("32.289584,10.127175"),
+    data_points.append("32.299018,10.146604"),
+    data_points.append("32.285401,10.213234"),
+    data_points.append("32.279169,10.230266"),
+    data_points.append("32.262709,10.256331"),
+    data_points.append("32.263822,10.279023"),
+    data_points.append("32.261248,10.294554"),
+    data_points.append("32.264208,10.331939"),
+    data_points.append("32.250317,10.356809"),
+    data_points.append("32.252164,10.382645"),
+    data_points.append("32.256748,10.397041"),
+    data_points.append("32.251064,10.413507"),
+    data_points.append("32.243864,10.426506"),
+    data_points.append("32.230206,10.436303"),
+    data_points.append("32.201963,10.434258"),
+    data_points.append("32.181523,10.429202"),
+    data_points.append("32.160717,10.429055"),
+    data_points.append("32.130663,10.445973"),
+    data_points.append("32.123432,10.466177"),
+    data_points.append("32.123425,10.499374"),
+    data_points.append("32.123078,10.515494"),
+    data_points.append("32.130381,10.544151"),
+    data_points.append("32.139138,10.548820"),
+    data_points.append("32.151653,10.571207"),
+    data_points.append("32.161076,10.577882"),
+    data_points.append("32.173819,10.597724"),
+    data_points.append("32.181355,10.606328"),
+    data_points.append("32.198543,10.615430"),
+    data_points.append("32.214273,10.626693"),
+    data_points.append("32.242206,10.645216"),
+    data_points.append("32.257790,10.656850"),
+    data_points.append("32.264005,10.666293"),
+    data_points.append("32.288681,10.703216"),
+    data_points.append("32.311520,10.721621"),
+    data_points.append("32.324411,10.740780"),
+    data_points.append("32.337337,10.769568"),
+    data_points.append("32.353549,10.787728"),
+    data_points.append("32.359056,10.796625"),
+    data_points.append("32.388625,10.798754"),
+    data_points.append("32.408288,10.808194"),
+    data_points.append("32.445350,10.819296"),
+    data_points.append("32.457736,10.832389"),
+    data_points.append("32.474526,10.842977"),
+    data_points.append("32.489444,10.871386"),
+    data_points.append("32.511953,10.894797"),
+    data_points.append("32.523729,10.917918"),
+    data_points.append("32.528765,10.931513"),
+    data_points.append("32.544576,10.948015"),
+    data_points.append("32.551078,10.948950"),
+    data_points.append("32.560399,10.945346"),
+    data_points.append("32.568703,10.949903"),
+    data_points.append("32.574583,10.960613"),
+    data_points.append("32.581753,10.968050"),
+    data_points.append("32.595010,10.974068"),
+    data_points.append("32.599159,10.976767"),
+    data_points.append("32.602761,10.977810"),
+    data_points.append("32.615806,10.976972"),
+    data_points.append("32.630281,10.981695"),
+    data_points.append("32.664648,11.017636"),
+    data_points.append("32.665168,11.028290"),
+    data_points.append("32.665020,11.059441"),
+    data_points.append("32.660114,11.113869"),
+    data_points.append("32.665553,11.130857"),
+    data_points.append("32.662232,11.149072"),
+    data_points.append("32.663541,11.200124"),
+    data_points.append("32.655924,11.221475"),
+    data_points.append("32.660851,11.231624"),
+    data_points.append("32.652837,11.258318"),
+    data_points.append("32.651893,11.270105"),
+    data_points.append("32.639330,11.294918"),
+    data_points.append("32.648863,11.313664"),
+    data_points.append("32.663411,11.354389"),
+    data_points.append("32.679534,11.391499"),
+    data_points.append("32.680159,11.408477"),
+    data_points.append("32.687048,11.432584"),
+    data_points.append("32.693748,11.462718"),
+    data_points.append("32.695311,11.494085"),
+    data_points.append("32.700008,11.514856"),
+    data_points.append("32.705366,11.536367"),
+    data_points.append("32.709651,11.564258"),
+    data_points.append("32.723294,11.583663"),
+    data_points.append("32.736749,11.609741"),
+    data_points.append("32.746420,11.639637"),
+    data_points.append("32.764128,11.654368"),
+    data_points.append("32.786554,11.714062"),
+    data_points.append("32.784477,11.746811"),
+    data_points.append("32.785335,11.761410"),
+    data_points.append("32.763951,11.813735"),
+    data_points.append("32.749953,11.833337"),
+    data_points.append("32.750541,11.848197"),
+    data_points.append("32.743093,11.870861"),
+    data_points.append("32.736596,11.882262"),
+    data_points.append("32.738640,11.914093"),
+    data_points.append("32.745558,11.951209"),
+    data_points.append("32.757517,11.982842"),
+    data_points.append("32.757968,12.015409"),
+    data_points.append("32.757418,12.031146"),
+    data_points.append("32.750883,12.049262"),
+    data_points.append("32.756312,12.067875"),
+    data_points.append("32.747366,12.117575"),
+    data_points.append("32.738210,12.143597"),
+    data_points.append("32.743959,12.185942"),
+    data_points.append("32.743393,12.206835"),
+    data_points.append("32.731711,12.236429"),
+    data_points.append("32.751657,12.292921"),
+    data_points.append("32.767801,12.344770"),
+    data_points.append("32.774832,12.350646"),
+    data_points.append("32.795754,12.401931"),
+    data_points.append("32.798373,12.423815"),
+    data_points.append("32.813687,12.470167"),
+    data_points.append("32.813693,12.487907"),
+    data_points.append("32.820828,12.503030"),
+    data_points.append("32.822304,12.529468"),
+    data_points.append("32.811644,12.556356"),
+    data_points.append("32.803909,12.574560"),
+    data_points.append("32.792818,12.593065"),
+    data_points.append("32.787896,12.633289"),
+    data_points.append("32.756116,12.738700"),
+    data_points.append("32.769275,12.821772"),
+    data_points.append("32.760308,12.872509"),
+    data_points.append("32.807614,12.948985"),
+    data_points.append("32.825300,12.993267"),
+    data_points.append("32.256992,14.128014"),
+    data_points.append("32.233606,14.775490"),
+    data_points.append("32.447688,15.462572"),
+    data_points.append("32.534137,15.827350"),
+    data_points.append("32.555985,15.979540"),
+    data_points.append("32.606200,16.252844"),
+    data_points.append("32.691420,16.298705"),
+    data_points.append("32.735230,16.401065"),
+    data_points.append("32.876603,16.507621"),
+    data_points.append("33.003062,16.545000"),
+    data_points.append("33.261007,16.660322"),
+    data_points.append("33.422618,16.697153"),
+    data_points.append("33.613871,16.812488"),
+    data_points.append("33.682769,17.124852"),
+    data_points.append("33.836987,17.385793"),
+    data_points.append("33.910032,18.287541"),
+    data_points.append("33.608946,18.738363"),
+    data_points.append("33.229080,19.528776"),
+    data_points.append("32.905717,19.465126"),
+    data_points.append("32.074152,18.844713"),
+    data_points.append("31.485268,18.061586"),
+    data_points.append("30.769189,18.152132"),
+    data_points.append("30.662441,18.516789"),
+    data_points.append("30.488566,19.199225"),
+    data_points.append("30.304901,19.940748"),
+    data_points.append("30.535651,19.937983"),
+    data_points.append("30.578123,20.296739"),
+    data_points.append("30.385922,20.346564"),
+    data_points.append("30.335960,20.807481"),
+    data_points.append("30.530797,20.830870"),
+    data_points.append("30.656743,21.179723"),
+    data_points.append("30.956847,21.484617"),
+    data_points.append("32.895308,24.115619"),
+    data_points.append("32.917034,24.458874"),
+    data_points.append("32.868381,24.879522"),
+    data_points.append("32.566098,25.274257"),
+    data_points.append("32.612513,25.657618"),
+    data_points.append("32.757812,26.108294"),
+    data_points.append("32.114840,26.206594"),
+    data_points.append("31.764916,26.567864"),
+    data_points.append("31.083130,27.276175"),
+    data_points.append("30.895969,27.682936"),
+    data_points.append("30.784139,28.384844"),
+    data_points.append("30.932028,28.885757"),
+    data_points.append("31.131317,29.080701"),
+    data_points.append("31.217286,29.267223"),
+    data_points.append("31.250680,29.491004"),
+    data_points.append("31.268597,29.625115"),
+    data_points.append("31.268255,29.944050"),
+    data_points.append("31.239317,30.106250"),
+    data_points.append("31.064125,30.219892"),
+    data_points.append("30.970832,30.228635"),
+    data_points.append("30.914152,30.334980"),
+    data_points.append("30.836827,30.407924"),
+    data_points.append("30.829825,30.500183"),
+    data_points.append("30.810867,30.591736"),
+    data_points.append("30.763143,30.715815"),
+    data_points.append("30.779892,30.874593"),
+    data_points.append("30.700043,31.084952"),
+    data_points.append("30.497006,31.237802"),
+    data_points.append("30.517079,31.329670"),
+    data_points.append("30.391260,31.441391"),
+    data_points.append("30.365029,31.468443")
 
     return data_points

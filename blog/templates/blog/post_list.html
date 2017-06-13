@@ -88,9 +88,28 @@
     color: white;
 }
 
+.button_multi_selection {
+  padding: 6px 10px; /* Padding por defecto */
+  font-size: 12px;  /* Tamaño fuente por defecto */
+  text-align: center;
+  vertical-align: middle;
+
+  font-family: 'Helvetica Neue';
+  height: 80px;
+  width: 120px;
+  background-color: green; /* por si no se ve el gradiente, aunque si lo pruebo en Chrome nunca deberia verse este color*/
+  color: black;
+  border-radius: 12px;
+  border: 8px solid #00ff0f;
+}
+
+.button_multi_selection:hover {
+    background-color: #555555;
+    color: white;
+}
+
 </style>
 </head>
-
     <body>
         <div>
             <h2>WIKIMEDIA DATA VISUALIZED IN LIQUID GALAXY</h2>
@@ -146,21 +165,48 @@
           <form id="olympic_games" action="/olympic_games">
               <input class="button button2" type="submit" value="SUMMER OLYMPIC GAMES">
           </form>
+          <form method="POST" action=""> {% csrf_token %}
+          {% for host_city in host_city_list %}
+            <button class="button button_multi_selection" id='{{host_city}}' name='{{host_city}}' type="button" onclick="javascript:selected_button('{{host_city}}');" value='{{host_city}}'>{{host_city}}</button>
+          {% endfor %}
+          </form>
         </div>
 
-
-        <script type="text/javascript">
-          $(document).ready(function() {
-              $.ajax({
-                      type: "POST",
-                      url: "getPaises.php",
-                      success: function(response)
-                      {
-                          $('.selector-pais select').html(response).fadeIn();
-                      }
-              });
-          });
-        </script>
-
     </body>
+
+<script>
+var cookies;
+function readCookie(name,c,C,i){
+    if(cookies){ return cookies[name]; }
+
+    c = document.cookie.split('; ');
+    cookies = {};
+
+    for(i=c.length-1; i>=0; i--){
+       C = c[i].split('=');
+       cookies[C[0]] = C[1];
+    }
+
+    return cookies[name];
+}
+
+function selected_button(host_city) {
+
+    const csrfmiddlewaretoken = readCookie('csrftoken');
+    console.info(csrfmiddlewaretoken);
+
+    fetch('/olympic_games', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `csrfmiddlewaretoken=${csrfmiddlewaretoken}&host_city=${host_city}`,
+      credentials: 'include'
+    }).then(() => {
+      ///alert('done');
+    });
+}
+</script>
+
+
 </html>

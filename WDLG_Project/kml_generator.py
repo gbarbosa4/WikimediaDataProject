@@ -36,7 +36,7 @@ class GeneratorKML(object):
                                     KML.IconStyle(
                                         KML.scale('2.5'),
                                         KML.Icon(
-                                            KML.href('http://earth.google.com/images/kml-icons/track-directional/track-8.png')
+                                            KML.href('images/olympic_games.png')
                                         ),
                                     ),
                                     KML.LabelStyle(
@@ -453,7 +453,6 @@ class GeneratorKML(object):
 
         return outfile
 
-
     def generateKML_Longest_Rivers(self):
 
         stylename = "sn_shaded_dot"
@@ -772,7 +771,6 @@ class GeneratorKML(object):
 
         return outfile
 
-
     def generateKML_Spanish_Airports(self):
 
         # define a variable for the Google Extensions namespace URL string
@@ -782,32 +780,32 @@ class GeneratorKML(object):
         # start with a base KML tour and playlist
         airports_doc = KML.kml(
                         KML.Document(
-                                KML.Style(
-                                    KML.IconStyle(
-                                        KML.scale('2.5'),
-                                        KML.Icon(
-                                            KML.href('http://maps.google.com/mapfiles/kml/shapes/airports.png')
-                                        ),
+                            KML.Style(
+                                KML.IconStyle(
+                                    KML.scale('2.5'),
+                                    KML.Icon(
+                                        KML.href('http://maps.google.com/mapfiles/kml/shapes/airports.png')
                                     ),
-                                    KML.LabelStyle(
-                                        KML.color("FF4CBB17"),
-                                        KML.scale(2)
-                                    ),
-                                    KML.BalloonStyle(
-                                        KML.text("$[description]")
-                                    ),
-                                    id=stylename
                                 ),
-                                GX.Tour(
-                                    KML.name("Spanish Airports"),
-                                    GX.Playlist(),
+                                KML.LabelStyle(
+                                    KML.color("FF4CBB17"),
+                                    KML.scale(2)
                                 ),
-                                KML.Folder(
-                                    KML.name('Features'),
-                                    id='features',
+                                KML.BalloonStyle(
+                                    KML.text("$[description]")
                                 ),
-                        ),
-                    )
+                                id=stylename
+                            ),
+                            GX.Tour(
+                                KML.name("Spanish Airports"),
+                                GX.Playlist(),
+                            ),
+                            KML.Folder(
+                                KML.name('Features'),
+                                id='features',
+                            ),
+                    ),
+                )
 
         for data in self.data_set:
             # import ipdb; ipdb.set_trace()
@@ -1010,6 +1008,32 @@ class GeneratorKML(object):
         # output a KML file (named based on the Python script)
         outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(airports_doc, encoding="unicode"))
+        outfile.close()
+
+        return outfile
+
+    def generateKML_Olympic_Games(self):
+        # define a variable for the Google Extensions namespace URL string
+        gxns = '{' + nsmap['gx'] + '}'
+        stylename = "sn_shaded_dot"
+        stylename2 = "sn_shaded_dot2"
+        # start with a base KML tour and playlist
+        olympic_game_doc = KML.Placemark(
+                KML.name(self.data_set.hostCity),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates("{lon},{lat},{alt}".format(
+                        lon=float(self.data_set.longitude),
+                        lat=float(self.data_set.latitude),
+                        alt=50,
+                    )
+                    )
+                ),
+            )
+
+        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile.write(etree.tostring(olympic_game_doc, encoding="unicode"))
         outfile.close()
 
         return outfile

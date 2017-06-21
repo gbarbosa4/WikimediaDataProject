@@ -8,8 +8,8 @@ from pykml.factory import KML_ElementMaker as KML
 from pykml.factory import GX_ElementMaker as GX
 from pykml.parser import Schema
 from lxml import etree
+from WDLG_Project.cylinders import CylindersKml
 
-#from polycircles import polycircles
 
 class GeneratorKML(object):
 
@@ -1013,13 +1013,77 @@ class GeneratorKML(object):
         return outfile
 
     def generateKML_Olympic_Games(self):
-        # define a variable for the Google Extensions namespace URL string
+
         gxns = '{' + nsmap['gx'] + '}'
         stylename = "sn_shaded_dot"
         stylename2 = "sn_shaded_dot2"
-        # start with a base KML tour and playlist
-        olympic_game_doc = KML.Placemark(
-                KML.name(self.data_set.hostCity),
+
+        coordinates = {}
+        coordinates["lat"] = float(self.data_set.latitude)
+        coordinates["lng"] = float(self.data_set.longitude)
+
+        temps = []
+        temps.append("25")
+        temps.append("10")
+
+        data_dict = {}
+        data_dict["name"] = "name"
+        data_dict["description"] = temps
+        data_dict["coordinates"] = coordinates
+        data_dict["extra"] = "extra_information"
+
+        cilinders = CylindersKml("file_name",data_dict)
+        coord_to_kml = cilinders.makeKML()
+
+        #cylinders = CylindersKml("cylinders_kml","Hola")
+        #latlonaltcircle = cylinders.newCylinder("cylinder name", "cylinder description", self.data_set.longitude, self.data_set.latitude, "")
+
+        olympic_game_doc = KML.kml(
+                        KML.Document(
+                            KML.Style(
+                                KML.IconStyle(
+                                    KML.scale('3.5'),
+                                    KML.Icon(
+                                        KML.href('images/olympic_games.png')
+                                    ),
+                                ),
+                                KML.LabelStyle(
+                                    KML.color("FF4CBB17"),
+                                    KML.scale(2)
+                                ),
+                                KML.BalloonStyle(
+                                    KML.text("$[description]")
+                                ),
+                                id=stylename
+                            ),
+                            KML.Folder(
+                                KML.name('Features'),
+                                id='features',
+                            ),
+                    ),
+                )
+        # fly to the data
+        olympic_game_doc.Document.Folder.append(
+            GX.FlyTo(
+                GX.duration(6),
+                GX.flyToMode("bounce"),
+                KML.LookAt(
+                    KML.longitude(float(self.data_set.longitude)),
+                    KML.latitude(float(self.data_set.latitude)),
+                    KML.altitude(0),
+                    KML.heading(0),
+                    KML.tilt(70),
+                    KML.name((self.data_set.hostCity).upper()),
+                    KML.range(400),
+                    KML.altitudeMode("relativeToGround"),
+                )
+            ),
+        )
+
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name(self.data_set.hostCity+" "+str(self.data_set.year)),
+                KML.styleUrl('#{0}'.format(stylename)),
                 KML.Point(
                     KML.extrude(1),
                     KML.altitudeMode("relativeToGround"),
@@ -1030,7 +1094,22 @@ class GeneratorKML(object):
                     )
                     )
                 ),
-            )
+                KML.MultiGeometry(
+                    KML.Polygon(
+                        KML.extrude(5),
+                        KML.altitudeMode("relativeToGround"),
+                        KML.outerBoundaryIs(
+                            KML.LinearRing(
+                                KML.coordinates(coord_to_kml),
+                                id="linear"
+                            ),
+                        ),
+                        id="polyg"
+                    ),
+                    id="multigeo2"
+                ),
+            ),
+        )
 
         outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(olympic_game_doc, encoding="unicode"))

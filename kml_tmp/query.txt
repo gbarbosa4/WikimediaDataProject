@@ -1,1 +1,1 @@
-playtour=Nile Experience
+playtour=Stadium Tour

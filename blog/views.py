@@ -69,8 +69,8 @@ def generate_kml(use_case, data_set, kml_name):
 		kml_file = generator_kml.generateKML_Spanish_Airports()
 
 	elif use_case == "Summer Olympic Games":
-		print("Summer Olympic Games ",data_set.hostCity)
 		kml_file = generator_kml.generateKML_Olympic_Games()
+		write_FlyTo_andSend(kml_file.name)
 
 	sendKML_ToGalaxy(kml_file, kml_name)
 
@@ -155,11 +155,22 @@ def write_FlyTo_andSend(kml_file_name):
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
 	time.sleep(10)
+	start_tour_premier_league()
+	#file = open("kml_tmp/query.txt", 'w+')
+	#file.seek(0)
+	#file.truncate()
+	#file.write("playtour=Stadium Tour")
+	#file.close()
+	#os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+def start_tour_premier_league():
+	ip_galaxy_master = get_galaxy_ip()
+	ip_server = get_server_ip()
+
 	file = open("kml_tmp/query.txt", 'w+')
-	file.seek(0)
-	file.truncate()
 	file.write("playtour=Stadium Tour")
 	file.close()
+
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
 
 def start_nile_experience(request):
@@ -587,11 +598,8 @@ def olympic_games_query(request):
             with open("static/coord_olympic_games.txt", 'r+') as file:
                 for line in file:
                     if line.split(" =")[0] == data_list[0]:
-                        print (line.split(" =")[1])
-
-            longitude = coord.split("(")[1].split(" ")[0]
-            latitude = coord.split("(")[1].split(" ")[1]
-            latitude = latitude[:len(latitude) - 1]
+                        longitude = line.split(" =")[1].split(",")[0]
+                        latitude = line.split(" =")[1].split(",")[1]
 
             olympic_games_list[i].coordinates(longitude,latitude)
             host_city_list.append(data_list[0]+" "+str(year))

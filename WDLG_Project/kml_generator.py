@@ -36,7 +36,7 @@ class GeneratorKML(object):
                                     KML.IconStyle(
                                         KML.scale('2.5'),
                                         KML.Icon(
-                                            KML.href('images/olympic_games.png')
+                                            KML.href('images/city_icon.png')
                                         ),
                                     ),
                                     KML.LabelStyle(
@@ -317,6 +317,7 @@ class GeneratorKML(object):
                 )
             ),
         )
+        #GX.Wait(GX.duration(10.0))
 
         # show the placemark balloon
         airports_doc.Document[gxns + "Tour"].Playlist.append(
@@ -665,7 +666,7 @@ class GeneratorKML(object):
             # fly to the data
             tour_doc.Document[gxns + "Tour"].Playlist.append(
                 GX.FlyTo(
-                    GX.duration(0.5),
+                    GX.duration(1.75),
                     GX.flyToMode("smooth"),
                     KML.LookAt(
                         KML.longitude(data_points[i].split(",")[0]),
@@ -718,6 +719,24 @@ class GeneratorKML(object):
                                 ),
                         ),
                     )
+
+        # rota fins estar a sobre de la ciutat i apropar-se
+        river_doc.Document[gxns + "Tour"].Playlist.append(
+            GX.FlyTo(
+                GX.duration(2),
+                GX.flyToMode("smooth"),
+                KML.LookAt(
+                    KML.longitude(31.2560),
+                    KML.latitude(15.30302),
+                    KML.altitude(0),
+                    KML.heading(0),
+                    KML.tilt(0),
+                    KML.range(self.range),
+                    KML.altitudeMode("relativeToGround"),
+                )
+            ),
+        )
+
         i = 0
 
         while i < len(data_points)-1:
@@ -748,7 +767,7 @@ class GeneratorKML(object):
         i = 0
         while i < len(data_points)-1:
 
-            river_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(0.001)))
+            river_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(0.01)))
 
             river_doc.Document[gxns + "Tour"].Playlist.append(
                 GX.AnimatedUpdate(
@@ -1013,27 +1032,36 @@ class GeneratorKML(object):
         return outfile
 
     def generateKML_Olympic_Games(self):
-
         gxns = '{' + nsmap['gx'] + '}'
         stylename = "sn_shaded_dot"
         stylename2 = "sn_shaded_dot2"
 
         coordinates = {}
-        coordinates["lat"] = float(self.data_set.latitude)
-        coordinates["lng"] = float(self.data_set.longitude)
+        coordinates["lat"] = float(self.data_set.latitude)-float(0.02)
+        coordinates["lng"] = float(self.data_set.longitude)-float(0.05)
 
-        temps = []
-        temps.append("25")
-        temps.append("10")
+        values = []
+        values.append(self.data_set.numNations)
+        values.append(self.data_set.numAthletes)
+        values.append(self.data_set.numEvents)
 
         data_dict = {}
-        data_dict["name"] = "name"
-        data_dict["description"] = temps
+        data_dict["name"] = self.data_set.hostCity + " " + str(self.data_set.year)
+        data_dict["description"] = values
         data_dict["coordinates"] = coordinates
-        data_dict["extra"] = "extra_information"
+        data_dict["extra"] = ""
+        print ("coordinates ",coordinates," values ",values," data_dict ",data_dict)
+        cilinders = CylindersKml("",data_dict)
 
-        cilinders = CylindersKml("file_name",data_dict)
-        coord_to_kml = cilinders.makeKML()
+        coord_to_kml_dict = cilinders.makeKML()
+
+        pointer_nations = coord_to_kml_dict[0]["nations"]
+        pointer_athletes = coord_to_kml_dict[0]["athletes"]
+        pointer_events = coord_to_kml_dict[0]["events"]
+
+        coord_to_kml_nations = coord_to_kml_dict[1]["nations"]
+        coord_to_kml_athletes = coord_to_kml_dict[1]["athletes"]
+        coord_to_kml_events = coord_to_kml_dict[1]["events"]
 
         #cylinders = CylindersKml("cylinders_kml","Hola")
         #latlonaltcircle = cylinders.newCylinder("cylinder name", "cylinder description", self.data_set.longitude, self.data_set.latitude, "")
@@ -1056,12 +1084,59 @@ class GeneratorKML(object):
                                 ),
                                 id=stylename
                             ),
+                            KML.Style(
+                                KML.LabelStyle(
+                                    KML.color("FF4CBB17"),
+                                    KML.scale(2)
+                                ),
+                                KML.LineStyle(
+                                    KML.color("ffff0000"),
+                                    KML.colorMode("normal"),
+                                    KML.width(5000),
+                                ),
+                                KML.PolyStyle(
+                                    KML.color("ffff0000"),
+                                    KML.colorMode("normal"),
+                                    KML.fill(1),
+                                    KML.outline(1),
+                                ),
+                            id="style_nations",
+                            ),
+                            KML.Style(
+                                KML.LineStyle(
+                                    KML.color("ff00ff00"),
+                                    KML.colorMode("normal"),
+                                    KML.width(5000),
+                                ),
+                                KML.PolyStyle(
+                                    KML.color("ff00ff00"),
+                                    KML.colorMode("normal"),
+                                    KML.fill(1),
+                                    KML.outline(1),
+                                ),
+                            id="style_athletes",
+                            ),
+                            KML.Style(
+                                KML.LineStyle(
+                                    KML.color("ff00ffff"),
+                                    KML.colorMode("normal"),
+                                    KML.width(5000),
+                                ),
+                                KML.PolyStyle(
+                                    KML.color("ff00ffff"),
+                                    KML.colorMode("normal"),
+                                    KML.fill(1),
+                                    KML.outline(1),
+                                ),
+                            id="style_events",
+                            ),
                             KML.Folder(
                                 KML.name('Features'),
                                 id='features',
                             ),
-                    ),
+                    )
                 )
+        print(self.data_set.longitude," ",self.data_set.latitude)
         # fly to the data
         olympic_game_doc.Document.Folder.append(
             GX.FlyTo(
@@ -1074,11 +1149,11 @@ class GeneratorKML(object):
                     KML.heading(0),
                     KML.tilt(70),
                     KML.name((self.data_set.hostCity).upper()),
-                    KML.range(400),
+                    KML.range(45000),
                     KML.altitudeMode("relativeToGround"),
                 )
             ),
-        )
+        ),
 
         olympic_game_doc.Document.Folder.append(
             KML.Placemark(
@@ -1090,9 +1165,21 @@ class GeneratorKML(object):
                     KML.coordinates("{lon},{lat},{alt}".format(
                         lon=float(self.data_set.longitude),
                         lat=float(self.data_set.latitude),
-                        alt=50,
+                        alt=5000,
                     )
                     )
+                ),
+            ),
+        ),
+        print(pointer_nations," ",pointer_athletes," ",pointer_events)
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name(self.data_set.hostCity+" "+str(self.data_set.year)),
+                KML.styleUrl('#{0}'.format("style_nations")),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates(pointer_nations),
                 ),
                 KML.MultiGeometry(
                     KML.Polygon(
@@ -1100,17 +1187,60 @@ class GeneratorKML(object):
                         KML.altitudeMode("relativeToGround"),
                         KML.outerBoundaryIs(
                             KML.LinearRing(
-                                KML.coordinates(coord_to_kml),
-                                id="linear"
+                                KML.coordinates(coord_to_kml_nations),
                             ),
                         ),
-                        id="polyg"
                     ),
-                    id="multigeo2"
                 ),
             ),
-        )
+        ),
 
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name(self.data_set.hostCity+" "+str(self.data_set.year)),
+                KML.styleUrl('#{0}'.format("style_athletes")),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates(pointer_athletes),
+                ),
+                KML.MultiGeometry(
+                    KML.Polygon(
+                        KML.extrude(5),
+                        KML.altitudeMode("relativeToGround"),
+                        KML.outerBoundaryIs(
+                            KML.LinearRing(
+                                KML.coordinates(coord_to_kml_athletes),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name(self.data_set.hostCity+" "+str(self.data_set.year)),
+                KML.styleUrl('#{0}'.format("style_events")),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates(pointer_events),
+                ),
+                KML.MultiGeometry(
+                    KML.Polygon(
+                        KML.extrude(5),
+                        KML.altitudeMode("relativeToGround"),
+                        KML.outerBoundaryIs(
+                            KML.LinearRing(
+                                KML.coordinates(coord_to_kml_events),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+        print (self.kml_name)
         outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(olympic_game_doc, encoding="unicode"))
         outfile.close()

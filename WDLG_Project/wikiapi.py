@@ -82,7 +82,7 @@ class WikiApi(object):
         locale_sub = self.options['locale'],
         hostname_path = api_uri
         )
-
+        print (url)
         resp = self.get(url, search_params)
         logger.debug('find "%s" response: %s', terms, resp)
 

@@ -1,1 +1,1 @@
-flytoview=<LookAt><longitude>2.176944444</longitude><latitude>41.3825</latitude><altitude>0</altitude><heading>0</heading><tilt>70</tilt><name>BARCELONA</name><range>45000</range><altitudeMode>relativeToGround</altitudeMode></LookAt>
+flytoview=<LookAt><longitude>-0.127894</longitude><latitude>51.507336</latitude><altitude>0</altitude><heading>-50</heading><tilt>70</tilt><name>LONDON</name><range>45000</range><altitudeMode>relativeToGround</altitudeMode></LookAt>

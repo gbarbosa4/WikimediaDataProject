@@ -5,6 +5,7 @@ class OlympicGame(object):
     numNations = None
     numAthletes = None
     numEvents = None
+    medalTable = {}
     openingDate = None
     closingDate = None
     stadiumName = None
@@ -12,13 +13,14 @@ class OlympicGame(object):
     latitude = None
     longitude = None
 
-    def __init__(self, host_city, year, lema, num_nations, num_athletes, num_events, opening_date, closing_date, stadium):
+    def __init__(self, host_city, year, lema, num_nations, num_athletes, num_events, medal_table, opening_date, closing_date, stadium):
         self.hostCity = host_city
         self.year = year
         self.lema = lema
         self.numNations = num_nations
         self.numAthletes = num_athletes
         self.numEvents = num_events
+        self.medalTable = medal_table
         self.openingDate = opening_date
         self.closingDate = closing_date
         self.stadium = stadium

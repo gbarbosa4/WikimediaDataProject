@@ -7,6 +7,7 @@ import xml.etree.cElementTree as ET
 import six
 import requests
 from bs4 import BeautifulSoup
+from collections import OrderedDict
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ api_uri = 'wikipedia.org/w/api.php'
 
 _uri = 'wikipedia.org/wiki/'
 file_name = "olympic_games_tmp_file.xml"
+file_name_medals = "olympic_games_medals_tmp_file.xml"
 
 # common sub sections to exclude from output
 UNWANTED_SECTIONS = (
@@ -71,18 +73,27 @@ class WikiApi(object):
 
     def find(self, terms):
 
-        search_params = {
-        'action': 'parse',
-        'format': 'xml',
-        'page': terms
-        }
+        if "medal" in terms:
+            search_params = {
+            'action': 'query',
+            'format': 'xml',
+            'titles': terms,
+            'prop': 'revisions',
+            'rvprop': 'content'
+            }
+
+        else:
+            search_params = {
+            'action': 'parse',
+            'format': 'xml',
+            'page': terms
+            }
 
         url = "{scheme}://{locale_sub}.{hostname_path}".format(
         scheme = uri_scheme,
         locale_sub = self.options['locale'],
         hostname_path = api_uri
         )
-        print (url)
         resp = self.get(url, search_params)
         logger.debug('find "%s" response: %s', terms, resp)
 
@@ -133,6 +144,65 @@ class WikiApi(object):
 
         return hash_data
 
+    def scraping_medal_table(self, result_xml):
+        wiki = WikiApi()
+        hash_data_medals = {}
+        index_i = wiki.getIndex_substring(("|caption=").encode('utf-8'),result_xml)
+        if "2016 Summer Olympics" in str(result_xml):
+            index_f = index_i + 380
+        elif "2012 Summer Olympics" in str(result_xml):
+            index_f = index_i + 700
+        else:
+            index_f = wiki.getIndex_substring(("4 ||align").encode('utf-8'),result_xml)
+        result_xml = wiki.replace(result_xml[index_i:index_f])
+
+        with open(file_name_medals,'w') as f:
+            f.write(result_xml)
+
+        file = open(file_name_medals, 'r')
+
+        lines = file.readlines()
+        counter = 0
+        medal_table_dict = OrderedDict()
+        country = ""
+        for line in lines:
+            if re.match('|', line) is not None:
+                if "flag" in line:
+                    if counter < 4:
+                        if "scope" in line:
+                            country = line.split("|")[2]
+                        else:
+                            country = line.split("|")[5]
+
+                        counter = counter + 1
+                if "||" in line:
+                    if counter < 4:
+                        if "align" not in line:
+                            i = 0
+                            values = ""
+                            while i<4:
+                                values = values + line.split("||")[i].replace(" ","")+"|"
+                                i = i + 1
+
+                            medal_table_dict[country] = values.replace("\n","")
+                        else:
+                            i = 2
+                            values = "|"
+                            while i<6:
+                                if i == 5:
+                                    if len(line.split("||")[i]) > 3:
+                                        values = values + line.split("||")[i].split("<")[0].replace(" ","")+"|"
+                                    else:
+                                        values = values + line.split("||")[i].replace(" ","")+"|"
+                                else:
+                                    values = values + line.split("||")[i].replace(" ","")+"|"
+
+                                i = i + 1
+
+                            medal_table_dict[country] = values.replace("\n","")
+
+        return medal_table_dict
+
     def get_atributes_dbpedia_city(self, resp, attr):
         wiki = WikiApi()
         if attr == "latitude":
@@ -154,7 +224,6 @@ class WikiApi(object):
             area_index_i = wiki.getIndex_substring("<dbo:areaTotal",resp)
             area_index_f = wiki.getIndex_substring("</dbo:areaTotal>",resp)
             area = resp[area_index_i:area_index_f].split(">")[1]
-            print (float(area))
             return float(area)/1000000.0
         elif attr == "image":
             image_index_i = wiki.getIndex_substring("<foaf:depiction",resp)

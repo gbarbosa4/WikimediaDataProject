@@ -4,6 +4,8 @@ from polycircles import polycircles
 import time
 from subprocess import call
 
+value_separation = 0.035
+
 class CylindersKml(object):
 
     def __init__(self, name, data):
@@ -33,17 +35,17 @@ class CylindersKml(object):
     def newPointer(self, name, description, coordinates, extra):
         coord_to_kml_dict = {}
 
-        point_nations = self.kml_var.newpoint(name=str(description[0]))
-        point_athletes = self.kml_var.newpoint(name=str(description[1]))
-        point_events = self.kml_var.newpoint(name=str(description[2]))
+        point_first = self.kml_var.newpoint(name=str(description[0]))
+        point_second = self.kml_var.newpoint(name=str(description[2]))
+        point_third = self.kml_var.newpoint(name=str(description[4]))
 
-        pointer_nations = self.generatePointer(point_nations, description[0], coordinates, 'nations')
-        pointer_athletes = self.generatePointer(point_athletes, description[1], coordinates, 'athletes')
-        pointer_events = self.generatePointer(point_events, description[2], coordinates, 'events')
+        pointer_first = self.generatePointer(point_first, description[1], coordinates, 'first')
+        pointer_second = self.generatePointer(point_second, description[3], coordinates, 'second')
+        pointer_third = self.generatePointer(point_third, description[5], coordinates, 'third')
 
-        coord_to_kml_dict["nations"] = pointer_nations
-        coord_to_kml_dict["athletes"] = pointer_athletes
-        coord_to_kml_dict["events"] = pointer_events
+        coord_to_kml_dict["first"] = pointer_first
+        coord_to_kml_dict["second"] = pointer_second
+        coord_to_kml_dict["third"] = pointer_third
 
         if extra:
             print ('There is extra !')
@@ -68,16 +70,16 @@ class CylindersKml(object):
             value = int(value)
 
         multiplier = 60.0
-
-        if flag == 'nations':
+        print(value)
+        if flag == 'first':
             point.style.labelstyle.color = simplekml.Color.lightblue
-            point.coords = [(float(coordinates['lng']), float(coordinates['lat']), multiplier*value)]
-        elif flag == 'athletes':
+            point.coords = [(float(coordinates['lng']), float(coordinates['lat']), multiplier*120.0)]
+        elif flag == 'second':
             point.style.labelstyle.color = simplekml.Color.lightblue
-            point.coords = [(float(coordinates['lng'])+0.025, float(coordinates['lat'])+0.025, multiplier*value)]
-        elif flag == 'events':
+            point.coords = [(float(coordinates['lng'])-float(value_separation), float(coordinates['lat'])-float(value_separation), multiplier*90.0)]
+        elif flag == 'third':
             point.style.labelstyle.color = simplekml.Color.red
-            point.coords = [(float(coordinates['lng'])-0.025, float(coordinates['lat'])-0.025, multiplier*value)]
+            point.coords = [(float(coordinates['lng'])+float(value_separation), float(coordinates['lat'])+float(value_separation), multiplier*60.0)]
 
         return point.coords
 
@@ -86,13 +88,13 @@ class CylindersKml(object):
         coord_to_kml_dict = {}
         shape_polycircle_max = self.kml_var.newmultigeometry(name=name)
 
-        coords_nations = self.generateCylinder(shape_polycircle_max, description[0], coordinates, 'nations')
-        coords_athletes = self.generateCylinder(shape_polycircle_max, description[1], coordinates, 'athletes')
-        coords_events =self.generateCylinder(shape_polycircle_max, description[2], coordinates, 'events')
+        coords_first = self.generateCylinder(shape_polycircle_max, description[1], coordinates, 'first')
+        coords_second = self.generateCylinder(shape_polycircle_max, description[3], coordinates, 'second')
+        coords_third =self.generateCylinder(shape_polycircle_max, description[5], coordinates, 'third')
 
-        coord_to_kml_dict["nations"] = coords_nations
-        coord_to_kml_dict["athletes"] = coords_athletes
-        coord_to_kml_dict["events"] = coords_events
+        coord_to_kml_dict["first"] = coords_first
+        coord_to_kml_dict["second"] = coords_second
+        coord_to_kml_dict["third"] = coords_third
 
         if extra:
             print ('There is extra !')
@@ -103,20 +105,22 @@ class CylindersKml(object):
         print("generateCylinder")
         latitude = coordinates['lat']
         longitude = coordinates['lng']
-        radius = 1000
+        radius = 2000
         vertices = 200
         if "," in value:
             value = value.replace(",",".")
             value = int(float(value))
         else:
             value = int(value)
-
-        if flag == "athletes":
-            latitude = latitude + float(0.025)
-            longitude = longitude + float(0.025)
-        elif flag == "events":
-            latitude = latitude - float(0.025)
-            longitude = longitude - float(0.025)
+        value = 120.0
+        if flag == "second":
+            latitude = latitude - float(value_separation)
+            longitude = longitude - float(value_separation)
+            value = 90.0
+        elif flag == "third":
+            latitude = latitude + float(value_separation)
+            longitude = longitude + float(value_separation)
+            value = 60.0
 
         polycircle = polycircles.Polycircle(latitude,longitude,radius,vertices)
 
@@ -187,16 +191,16 @@ class CylindersKml(object):
 
             else:
                 coord_to_kml = coord_to_kml + " " + str(element[0])  + "," + str(element[1])  + "," + str(element[2])
-        #print (coord_to_kml)
+
         return coord_to_kml
 
     def addColor(self, polygon, flag):
-        if flag == 'nations':
+        if flag == 'first':
             polygon.style.polystyle.color = simplekml.Color.blue
             polygon.style.linestyle.color = simplekml.Color.blue
-        elif flag =='athletes':
+        elif flag =='second':
             polygon.style.polystyle.color = simplekml.Color.red
             polygon.style.linestyle.color = simplekml.Color.red
-        elif flag =='events':
+        elif flag =='third':
             polygon.style.polystyle.color = simplekml.Color.red
             polygon.style.linestyle.color = simplekml.Color.red

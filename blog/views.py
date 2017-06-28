@@ -32,7 +32,7 @@ kml_file_name_longest_rivers = "kml_file_longest_rivers"
 kml_file_name_river_tour= "kml_file_nile_tour_experience"
 kml_file_name_river_line = "kml_file_nile_line_experience"
 kml_file_name_spanish_airports = "kml_file_spanish_airports"
-kml_file_name_summer_olympic_games = "kml_filee_summer_olympic_game"
+kml_file_name_summer_olympic_games = "kml_file_summer_olympic_game"
 
 file_kmls_txt_path = "kml_tmp/kmls.txt"
 file_query_txt_path = "kml_tmp/query.txt"
@@ -592,12 +592,33 @@ def olympic_games_query(request):
         year = 2016
         i=0
         while year > 1990:
+            medal_country_code_list = []
+            medal_country_name_list = []
             result_xml = wikiapi.find(str(year)+" Summer Olympics")
+            medals_result_xml = wikiapi.find(str(year)+" Summer Olympics medal table")
             hash_data = wikiapi.scraping_infobox(result_xml)
+            hash_data_medals = wikiapi.scraping_medal_table(medals_result_xml)
+
             data_list = do_data_list(hash_data)
-            olympic_games_list.append(OlympicGame(data_list[0],year,data_list[1],data_list[2],data_list[3],data_list[4],data_list[5],data_list[6],data_list[7]))
-            #coord = get_city_coordenates(data_list[0])
-            file = open("static/coord_olympic_games.txt", 'r+')
+
+            for key,value in hash_data_medals.items():
+                medal_country_code_list.append(key)
+
+            counter = 0
+
+            with open("static/country_3code.txt", 'r+') as file:
+                while counter<3:
+                    for line in file:
+                        if str(medal_country_code_list[counter]) in line:
+                            hash_data_medals[line.split("|")[1].replace("\n","")] = hash_data_medals.pop(str(medal_country_code_list[counter]))
+                            counter = counter + 1
+                            if counter == 3:
+                                break
+                            else:
+                                file.seek(0)
+
+            olympic_games_list.append(OlympicGame(data_list[0],year,data_list[1],data_list[2],data_list[3],data_list[4],hash_data_medals,data_list[5],data_list[6],data_list[7]))
+
             with open("static/coord_olympic_games.txt", 'r+') as file:
                 for line in file:
                     if line.split(" =")[0] == data_list[0]:
@@ -669,13 +690,10 @@ def do_data_list(hash_data):
             num_nations = hash_data[key]
             if len(num_nations)>3:
                 num_nations = num_nations.split(" ")[0]
-            print(num_nations)
         if "Athletes" in key:
             num_athletes = hash_data[key]
-            print(num_athletes)
             if len(num_athletes)>6:
                 num_athletes = num_athletes.split(" (")[0]
-            print(num_athletes)
         if "Events" in key:
             num_events = hash_data[key].split(" in")[0]
         if "Opening" in key:

@@ -4,7 +4,10 @@ from polycircles import polycircles
 import time
 from subprocess import call
 
-value_separation = 0.035
+value_separation = 0.044
+radius = 2500
+vertices = 200
+multiplier = 100.0
 
 class CylindersKml(object):
 
@@ -35,6 +38,11 @@ class CylindersKml(object):
     def newPointer(self, name, description, coordinates, extra):
         coord_to_kml_dict = {}
 
+        if extra == "medals":
+            radius = 800
+            vertices = 100
+            multiplier = 60.0
+
         point_first = self.kml_var.newpoint(name=str(description[0]))
         point_second = self.kml_var.newpoint(name=str(description[2]))
         point_third = self.kml_var.newpoint(name=str(description[4]))
@@ -46,9 +54,6 @@ class CylindersKml(object):
         coord_to_kml_dict["first"] = pointer_first
         coord_to_kml_dict["second"] = pointer_second
         coord_to_kml_dict["third"] = pointer_third
-
-        if extra:
-            print ('There is extra !')
 
         return coord_to_kml_dict
 
@@ -69,7 +74,6 @@ class CylindersKml(object):
         else:
             value = int(value)
 
-        multiplier = 60.0
         print(value)
         if flag == 'first':
             point.style.labelstyle.color = simplekml.Color.lightblue
@@ -105,8 +109,6 @@ class CylindersKml(object):
         print("generateCylinder")
         latitude = coordinates['lat']
         longitude = coordinates['lng']
-        radius = 2000
-        vertices = 200
         if "," in value:
             value = value.replace(",",".")
             value = int(float(value))
@@ -128,7 +130,7 @@ class CylindersKml(object):
         latlonaltcircle = []
         polygon_circle = []
 
-        multiplier = 60.0
+        multiplier = 100.0
 
         # 'Pal' cap a dalt i cercle al final del pal (a dalt de tot)
         for element in latloncircle:

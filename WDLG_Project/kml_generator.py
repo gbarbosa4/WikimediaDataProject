@@ -1053,7 +1053,7 @@ class GeneratorKML(object):
         data_dict["name"] = self.data_set.hostCity + " " + str(self.data_set.year)
         data_dict["description"] = values
         data_dict["coordinates"] = coordinates
-        data_dict["extra"] = ""
+        data_dict["extra"] = "podium"
 
         cilinders = CylindersKml("",data_dict)
 
@@ -1066,16 +1066,21 @@ class GeneratorKML(object):
         alt_first = str(pointer_first).split(",")[2]
         alt_second = str(pointer_second).split(",")[2]
         alt_third = str(pointer_third).split(",")[2]
+
         num_alt1 = float(alt_first)+3500.0
         num_alt1m = float(alt_first)+2500.0
         num_alt2 = float(alt_second)+3500.0
+        num_alt2m = float(alt_second)+2500.0
         num_alt3 = float(alt_third)+3500.0
+        num_alt3m = float(alt_third)+2500.0
         #pointer_first = str(pointer_first).replace(str(a),str(b))
         pointer_first_label = str(pointer_first).replace(str(alt_first),str(num_alt1))
         pointer_second_label = str(pointer_second).replace(str(alt_second),str(num_alt2))
         pointer_third_label = str(pointer_third).replace(str(alt_third),str(num_alt3))
         pointer_first_medals = str(pointer_first).replace(str(alt_first),str(num_alt1m))
-        
+        pointer_second_medals = str(pointer_second).replace(str(alt_second),str(num_alt2m))
+        pointer_third_medals = str(pointer_third).replace(str(alt_third),str(num_alt3m))
+
         print (pointer_first," ",pointer_second," ",pointer_third)
 
         coord_to_kml_first = coord_to_kml_dict[1]["first"]
@@ -1087,6 +1092,26 @@ class GeneratorKML(object):
         flag_third = "images/flags/"+str(values[4]).replace(" ","")+".png"
         print(flag_first+" "+flag_second+" "+flag_third)
 
+        #Little cylinders.. every country number of separated medals.
+        coordinates = {}
+        coordinates["lat"] = float(self.data_set.latitude)-float(0.08)
+        coordinates["lng"] = float(self.data_set.longitude)-float(0.12)
+
+        values = self.getValues_countryName(self.data_set.medalTable)
+
+        data_dict = {}
+        data_dict["name"] = self.data_set.hostCity + " " + str(self.data_set.year)
+        data_dict["description"] = values
+        data_dict["coordinates"] = coordinates
+        data_dict["extra"] = "medals"
+
+        cilinders = CylindersKml("",data_dict)
+
+        coord_to_kml_dict2 = cilinders.makeKML()
+
+        pointer_first2 = coord_to_kml_dict2[0]["first"]
+        pointer_second2 = coord_to_kml_dict2[0]["second"]
+        pointer_third2 = coord_to_kml_dict2[0]["third"]
         #cylinders = CylindersKml("cylinders_kml","Hola")
         #latlonaltcircle = cylinders.newCylinder("cylinder name", "cylinder description", self.data_set.longitude, self.data_set.latitude, "")
 
@@ -1096,14 +1121,24 @@ class GeneratorKML(object):
                                 KML.IconStyle(
                                     KML.scale('3.5'),
                                     KML.Icon(
-                                        KML.href('images/olympic_games.png')
+                                        KML.hide(True)
                                     ),
                                 ),
                                 KML.LabelStyle(
                                     KML.color("FF4CBB17"),
-                                    KML.scale(2)
+                                    KML.scale(2.5)
                                 ),
-                                id=stylename
+                                id="style_labelJJOO"
+                            ),
+
+                            KML.Style(
+                                KML.IconStyle(
+                                    KML.scale('3.5'),
+                                    KML.Icon(
+                                        KML.href('images/olympic_games.png')
+                                    ),
+                                ),
+                                id="style_iconJJOO"
                             ),
 
                             KML.Style(
@@ -1140,8 +1175,8 @@ class GeneratorKML(object):
 
                             KML.Style(
                                 KML.LabelStyle(
-                                    KML.color("ffffeef4"),
-                                    KML.scale(2)
+                                    KML.color("ffd86a16"),
+                                    KML.scale(1.75)
                                 ),
                                 KML.Icon(
                                     KML.hide(True)
@@ -1182,6 +1217,17 @@ class GeneratorKML(object):
                             ),
 
                             KML.Style(
+                                KML.LabelStyle(
+                                    KML.color("ffd86a16"),
+                                    KML.scale(1.75)
+                                ),
+                                KML.Icon(
+                                    KML.hide(True)
+                                ),
+                                id="style_second_medals",
+                            ),
+
+                            KML.Style(
                                 KML.IconStyle(
                                     KML.scale('4.0'),
                                     KML.Icon(
@@ -1213,6 +1259,17 @@ class GeneratorKML(object):
                                 id="style_third_label",
                             ),
 
+                            KML.Style(
+                                KML.LabelStyle(
+                                    KML.color("ffd86a16"),
+                                    KML.scale(1.75)
+                                ),
+                                KML.Icon(
+                                    KML.hide(True)
+                                ),
+                                id="style_third_medals",
+                            ),
+
                             KML.Folder(
                                 KML.name('Features'),
                                 id='features',
@@ -1241,13 +1298,13 @@ class GeneratorKML(object):
         olympic_game_doc.Document.Folder.append(
             KML.Placemark(
                 KML.name(self.data_set.hostCity+" "+str(self.data_set.year)),
-                KML.styleUrl('#{0}'.format(stylename)),
+                KML.styleUrl('#{0}'.format("style_labelJJOO")),
                 KML.Point(
                     KML.extrude(1),
                     KML.altitudeMode("relativeToGround"),
                     KML.coordinates("{lon},{lat},{alt}".format(
-                        lon=float(self.data_set.longitude)+float(0.05),
-                        lat=float(self.data_set.latitude),
+                        lon=float(self.data_set.longitude),
+                        lat=float(self.data_set.latitude)+float(0.093),
                         alt=15000,
                     )
                     )
@@ -1257,12 +1314,40 @@ class GeneratorKML(object):
 
         olympic_game_doc.Document.Folder.append(
             KML.Placemark(
-                KML.name(str(values[0])),
+                KML.styleUrl('#{0}'.format("style_iconJJOO")),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates("{lon},{lat},{alt}".format(
+                        lon=float(self.data_set.longitude),
+                        lat=float(self.data_set.latitude)+float(0.093),
+                        alt=15500,
+                    )
+                    )
+                ),
+            ),
+        ),
+
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name(str(values[0]).upper()),
                 KML.styleUrl('#{0}'.format("style_first_label")),
                 KML.Point(
                     KML.extrude(1),
                     KML.altitudeMode("relativeToGround"),
                     KML.coordinates(pointer_first_label),
+                ),
+            ),
+        ),
+
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name("ffffffffffffffffffffffffff"),
+                KML.styleUrl('#{0}'.format("style_first_label")),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates(pointer_first2),
                 ),
             ),
         ),
@@ -1309,12 +1394,24 @@ class GeneratorKML(object):
 
         olympic_game_doc.Document.Folder.append(
             KML.Placemark(
-                KML.name(str(values[2])+" -> "+str(values[3])+" total medals"),
+                KML.name(str(values[2]).upper()),
                 KML.styleUrl('#{0}'.format("style_second_label")),
                 KML.Point(
                     KML.extrude(1),
                     KML.altitudeMode("relativeToGround"),
                     KML.coordinates(pointer_second_label),
+                ),
+            ),
+        ),
+
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name("Total medals: "+str(values[3])),
+                KML.styleUrl('#{0}'.format("style_second_medals")),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates(pointer_second_medals),
                 ),
             ),
         ),
@@ -1349,12 +1446,24 @@ class GeneratorKML(object):
 
         olympic_game_doc.Document.Folder.append(
             KML.Placemark(
-                KML.name(str(values[4])+" -> "+str(values[5])+" total medals"),
+                KML.name(str(values[4]).upper()),
                 KML.styleUrl('#{0}'.format("style_third_label")),
                 KML.Point(
                     KML.extrude(1),
                     KML.altitudeMode("relativeToGround"),
                     KML.coordinates(pointer_third_label),
+                ),
+            ),
+        ),
+
+        olympic_game_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name("Total medals: "+str(values[5])),
+                KML.styleUrl('#{0}'.format("style_third_medals")),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates(pointer_third_medals),
                 ),
             ),
         ),

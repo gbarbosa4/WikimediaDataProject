@@ -1,0 +1,28 @@
+{% include "floybd/header.html" %}
+{% load static %}
+<script>
+  $( function() {
+      markActive("item8")
+  });
+</script>
+<div id="content-wrapper">
+	<div class="mui--appbar-height"></div>
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
+            <div class="mui--text-center">
+                <form action="{% url 'floybd:uploadGTFS' %}" method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <p>
+                        Title: <input type="text" name="title" required>
+                        {{ form.file.errors }}
+                        {{ form.file }}
+                    </p>
+                   <input type="submit" class="mui-btn mui-btn--primary" value="Upload" />
+                </form>
+            </div>
+        </div>
+        </div>
+        </div>
+</div>
+{% include "floybd/footer.html" %}

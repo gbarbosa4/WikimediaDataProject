@@ -1,0 +1,135 @@
+{% include "floybd/header.html" %}
+
+{% load i18n %}
+{% trans "Get Values" as getValues %}
+{% trans "Send Values to LG" as sendValues %}
+
+<script>
+  $( function() {
+    markActive("earthquakes");
+    });
+</script>
+
+
+{% load static %}
+<script src="{% static 'js/geoxml3.js' %}"></script>
+<div id="content-wrapper">
+	<div class="mui--appbar-height"></div>
+<div class="mui-container-fluid">
+    <div class="mui-row">
+        <div class="mui-col-md-12">
+			 {% if noData %}
+                <div class="mui--text-center">
+                    <div class="mui--text-display2">No Earthquakes for the requested data</b></div>
+                     <a href="{% url 'floybd:earthquakes' %}">
+                         <input type="button" value="Go Back" class="mui-btn mui-btn--primary"/>
+                     </a>
+                </div>
+                {% else %}
+		<div class="mui--text-center">
+			<div class="mui--text-display2">Viewing earthquakes since <b>{{  date }}</b> </div>
+
+		<form name="form" action="{% url 'floybd:sendConcreteEarthquakesValuesToLG' %}" method="post" class="form">
+			{% csrf_token %}
+			<input type="hidden" name="date" value="{{  date }}">
+			<input type="hidden" name="showAll" value="{{  showAll }}">
+			<input type="hidden" name="millis" value="{{  millis }}">
+			<input type="hidden" name="center_lat" value="{{ center_lat }}">
+			<input type="hidden" name="center_lon" value="{{ center_lon }}">
+			<input type="submit" value="{{ sendValues }}" class="mui-btn mui-btn--primary"/>
+			<a href="{% url 'floybd:earthquakes' %}"><input type="button" value="Go Back" class="mui-btn mui-btn--primary"/></a>
+		</form>
+		</div>
+		<div class="span6 center-block" id="map" style="height: 75%;width: 100%;"></div>
+	{% if kml != None %}
+		<script>
+		  var map;
+		  function initMap() {
+			map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 5,
+			 mapTypeId: google.maps.MapTypeId.HYBRID,
+		   	center: {lat: {{ center_lat}}, lng:  {{ center_lon}} }
+			});
+
+			var myParser = new geoXML3.parser({map: map});
+			myParser.parse('{{ kml }}');
+		}
+
+		</script>
+	{% endif %}
+	{% if data != None %}
+		<script>
+		  var map;
+		  function initMap() {
+			map = new google.maps.Map(document.getElementById('map'), {
+			zoom: 5,
+			 mapTypeId: google.maps.MapTypeId.HYBRID,
+		   	center: {lat: {{ center_lat}}, lng:  {{ center_lon}} }
+			});
+
+        var script = document.createElement('script');
+        script.src = '{{ data }}';
+        document.getElementsByTagName('head')[0].appendChild(script);
+
+			map.data.setStyle(function(feature) {
+
+				var infoWindow = new google.maps.InfoWindow({
+        			content: feature.getProperty('place'),
+        			maxWidth: 500
+   				 });
+
+				var magnitude = feature.getProperty('mag');
+				circle = getCircle(magnitude);
+				google.maps.event.addListener(circle, 'click', function(ev) {
+				 infoWindow.setPosition(circle.getCenter());
+				 infoWindow.open(map);
+				});
+
+          		return {
+           	 		icon: circle
+          		};
+        	});
+            }
+
+            function getCircle(magnitude) {
+				return {
+					path: google.maps.SymbolPath.CIRCLE,
+					fillColor: 'red',
+					fillOpacity: .4,
+					scale: Math.pow(2, magnitude) / 2,
+					//scale : 2000 * magnitude
+					strokeColor: 'white',
+					strokeWeight: .5,
+					clickable:true
+        	};
+      }
+
+      function eqfeed_callback(results) {
+			map.data.addGeoJson(results);
+      }
+
+    /*function eqfeed_callback(results) {
+        var heatmapData = [];
+        for (var i = 0; i < results.features.length; i++) {
+          var coords = results.features[i].geometry.coordinates;
+          var latLng = new google.maps.LatLng(coords[1], coords[0]);
+          heatmapData.push(latLng);
+        }
+        var heatmap = new google.maps.visualization.HeatmapLayer({
+          data: heatmapData,
+          dissipating: false,
+          map: map
+        });
+      }*/
+		</script>
+	 {% endif %}
+
+
+		<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCL-aQfXs4a0-BSGR3VmoIYdvknXMVh-W8&libraries=visualization&callback=initMap"
+		  async defer></script>
+			 {% endif %}
+		</div>
+	</div>
+</div>
+</div>
+{% include "floybd/footer.html" %}

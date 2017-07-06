@@ -1,0 +1,42 @@
+{% include "floybd/header.html" %}
+{% load static %}
+
+<script>
+  $( function() {
+    markActive("item3");
+   });
+</script>
+{% load static %}
+<script src="{% static 'js/geoxml3.js' %}"></script>
+
+{% load coma_point %}
+
+<div id="content-wrapper">
+		<div class="mui--text-center mui--text-display3">Weather Prediction</div>
+	<div class="mui--appbar-height"></div>
+	<div class="mui-container-fluid">
+		<div class="mui-row">
+			<div class="mui-col-md-12">
+				<form name="form" action="{% url 'floybd:getPrediction' %}" method="post" class="form">
+					{% csrf_token %}
+					<select id="combobox" name="station">
+					{% for entry in stations %}
+						<option value="{{ entry.station_id }}">{{  entry.name }} - {{  entry.station_id }} ( {{  entry.province }})</option>
+					{% endfor %}
+					</select>
+					<br/>
+
+					{% for entry in columnsList %}
+						<input type="checkbox" id="{{ entry }}" name="columnToPredict" value="{{ entry }}"><label for="{{ entry }}">{{ entry }}</label><br/>
+					{% endfor %}
+					 <div class="mui--text-center">
+						<div class="col-xs-12">
+							<input type="submit" value="Predict Values" class="mui-btn mui-btn--primary"/>
+						</div>
+					 </div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% include "floybd/footer.html" %}

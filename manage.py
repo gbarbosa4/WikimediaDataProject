@@ -3,7 +3,7 @@ import os
 import sys
 
 os.environ['DJANGO_SETTINGS_MODULE'] = 'mysite.settings'
-from blog.views import write_galaxy_ip
+from WDLG.views import write_galaxy_ip
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "mysite.settings")

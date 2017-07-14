@@ -36,7 +36,7 @@ class GeneratorKML(object):
                                     KML.IconStyle(
                                         KML.scale('2.5'),
                                         KML.Icon(
-                                            KML.href('images/city_icon.png')
+                                            KML.href('img/city_icon.png')
                                         ),
                                     ),
                                     KML.LabelStyle(
@@ -135,7 +135,7 @@ class GeneratorKML(object):
             for aspect in range(0, 360, 10):
                 tour_doc.Document[gxns + "Tour"].Playlist.append(
                     GX.FlyTo(
-                        GX.duration(1.25),
+                        GX.duration(0.75),
                         GX.flyToMode("smooth"),
                         KML.LookAt(
                             KML.longitude(float(data.longitude)),
@@ -1101,9 +1101,9 @@ class GeneratorKML(object):
         coord_to_kml_second = coord_to_kml_dict[1]["second"]
         coord_to_kml_third = coord_to_kml_dict[1]["third"]
 
-        flag_first = "images/flags/"+str(values[0]).replace(" ","")+".png"
-        flag_second = "images/flags/"+str(values[2]).replace(" ","")+".png"
-        flag_third = "images/flags/"+str(values[4]).replace(" ","")+".png"
+        flag_first = "img/flags/"+str(values[0]).replace(" ","")+".png"
+        flag_second = "img/flags/"+str(values[2]).replace(" ","")+".png"
+        flag_third = "img/flags/"+str(values[4]).replace(" ","")+".png"
 
         #------ Little cylinders.. every country number of separated medals. Bucle 3 voltes -------
         i = 1 #i=1 first, i=2, second i=3, third
@@ -1233,7 +1233,7 @@ class GeneratorKML(object):
                                 KML.IconStyle(
                                     KML.scale('3.5'),
                                     KML.Icon(
-                                        KML.href("images/"+str(self.data_set.year)+" Summer Olympics.png")
+                                        KML.href("img/"+str(self.data_set.year)+" Summer Olympics.png")
                                     ),
                                 ),
                                 id="style_iconJJOO"

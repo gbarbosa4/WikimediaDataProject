@@ -1,1 +1,1 @@
-playtour=Stadium Tour
+exittour=true

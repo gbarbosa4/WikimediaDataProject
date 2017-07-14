@@ -43,8 +43,8 @@ serverPath_query = "/tmp/"
 wikiapi = WikiApi({ 'locale' : 'en'})
 informationList = InformationList()
 
-def post_list(request):
-    return render(request, 'WDLG/post_list.html', {})
+def index(request):
+    return render(request, 'WDLG/index.html', {})
 
 def generate_kml(use_case, data_set, kml_name):
 	print("Generating KML file ...")
@@ -129,7 +129,7 @@ def start_tour_cities(request):
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
 
-	return HttpResponseRedirect('/')
+	return render(request, 'WDLG/indexPopulatedCities.html')
 
 def stop_tour_cities(request):
 	ip_galaxy_master = get_galaxy_ip()
@@ -141,7 +141,7 @@ def stop_tour_cities(request):
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
 
-	return HttpResponseRedirect('/')
+	return render(request, 'WDLG/indexPopulatedCities.html')
 
 
 def write_FlyTo_andSend(kml_file_name):
@@ -298,7 +298,8 @@ def populated_cities_query(request):
 	print ("ELEVATION: ",list_cities[i].elevation)
 
 	generate_kml("Tour Cities", list_cities, kml_file_name_tour_city)
-	return HttpResponseRedirect('/')
+	#time.sleep(5)
+	return render(request, 'WDLG/indexPopulatedCities.html')
 
 def premierLeague_stadiums_query(request):
 
@@ -389,7 +390,7 @@ def premierLeague_stadiums_query(request):
 
 	       generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
 
-	return render(request, 'WDLG/post_list.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image})
+	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image})
 
 def getStadiumByClub(club, hash_stadium_club):
     for key, value in hash_stadium_club.items():
@@ -500,7 +501,7 @@ def longest_rivers_query(request):
 
 	generate_kml("Longest Rivers", list_rivers, kml_file_name_longest_rivers)
 
-	return HttpResponseRedirect('/')
+	return render(request, 'WDLG/indexLongestRivers.html')
 
 def nile_tour_experience(request):
 
@@ -581,7 +582,7 @@ def spanish_airports_query(request):
 
 	generate_kml("Spanish Airports", list_airports, kml_file_name_spanish_airports)
 
-	return HttpResponseRedirect('/')
+	return render(request, 'WDLG/indexSpanishAirports.html')
 
 def olympic_games_query(request):
     print("OLYMPIC GAMES obtaining data...")
@@ -650,7 +651,7 @@ def olympic_games_query(request):
 
         generate_kml("Summer Olympic Games", olympic_game_selected, kml_file_name_summer_olympic_games)
 
-    return render(request, 'WDLG/post_list.html', {"host_city_list": host_city_list})
+    return render(request, 'WDLG/indexSummerOlympicGames.html', {"host_city_list": host_city_list})
 
 
 def get_city_coordenates(city):

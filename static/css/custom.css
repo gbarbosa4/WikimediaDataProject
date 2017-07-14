@@ -3,13 +3,14 @@
 }
 
 .mui-appbar{
-    background-color: #162955;
+    background-color: #2B7C00;
+    color : #E7FC3B
 }
 
 .mui-btn--primary{
-    background-color:#4F628E;
+    background-color:#45C700;
 }
 
 .context-wrapper{
-    background-color:#FFE3AA;
+    background-color:#45C700;
 }

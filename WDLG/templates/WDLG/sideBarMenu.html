@@ -1,119 +1,180 @@
 {% load static %}
+<style>
+.modal {
+  background: rgba(255, 255, 255, .8);
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  overflow: hidden;
+  z-index: 9000; // z-index: map-get($z-index, overlay);
+  padding: 1em;
+}
 
-<script>
-  function activateAboutModal() {
-    // initialize modal element
-    var modalEl = document.createElement('div');
-    modalEl.style.width = '400px';
-    modalEl.style.height = '300px';
-    modalEl.style.margin = '100px auto';
-    modalEl.style.backgroundColor = '#fff';
 
-    var center = document.createElement("center");
-    var para = document.createElement("p");
-    var node = document.createTextNode("GSOC 2017 - Ivan Josa");
+[class*="overlay"] {
+    position: fixed;
+    z-index: 11000; // z-index: map-get($z-index, modal);
+    background: #fff;
+    border-radius: 3px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
 
-    para.appendChild(node);
-    center.appendChild(para)
-
-    var para1 = document.createElement("p");
-    var a = document.createElement('a');
-    var linkText = document.createTextNode("Github");
-    a.appendChild(linkText);
-    a.title = "GitHub";
-    a.href = "https://github.com/LiquidGalaxyLAB/FLOYBD";
-    a.target = "_blank"
-    para1.appendChild(a);
-
-    center.appendChild(para1)
-
-    var paraThanks = document.createElement("p");
-    var nodeThanks = document.createTextNode("Thanks to...");
-    paraThanks.appendChild(nodeThanks);
-
-    center.appendChild(paraThanks)
-
-    modalEl.appendChild(center);
-
-    // show modal
-    mui.overlay('on', modalEl);
+.overlay {
+  &--top-left {
+    left: 0;
+    top: 0;
+    margin-top: 1em;
+    margin-left: 1em;
+    transform: translate(0, 0);
   }
 
-  function activateHelpModal() {
-    // initialize modal element
-    var modalEl = document.createElement('div');
-    modalEl.style.width = '400px';
-    modalEl.style.height = '300px';
-    modalEl.style.margin = '100px auto';
-    modalEl.style.backgroundColor = '#fff';
-
-    var para = document.createElement("p");
-    var node = document.createTextNode("Help Me!");
-    para.appendChild(node);
-
-    modalEl.appendChild(para);
-
-    // show modal
-    mui.overlay('on', modalEl);
+  &--top {
+    left: 50%;
+    top: 0;
+    margin-top: 1em;
+    transform: translate(-50%, 0);
   }
 
-  function markActive(className){
-    $("li."+className).parent().show()
-    $("li."+className+" > a").css("color", "white")
+  &--top-right {
+    left: inherit;
+    right: 0;
+    top: 0;
+    margin-top: 1em;
+    margin-right: 1em;
+    transform: translate(0, 0);
   }
-</script>
+
+  &--left {
+    left: 0;
+    margin-left: 1em;
+    transform: translate(0, -50%);
+  }
+
+  &--right {
+    left: inherit;
+    right: 0;
+    margin-right: 1em;
+    transform: translate(0, -50%);
+  }
+
+  &--bottom {
+    left: 50%;
+    top: inherit;
+    bottom: 0;
+    margin-bottom: 1em;
+    transform: translate(-50%, 0);
+  }
+
+  &--bottom-left {
+    left: 0;
+    top: inherit;
+    bottom: 0;
+    margin-bottom: 1em;
+    margin-left: 1em;
+    transform: translate(0, 0);
+  }
+
+  &--bottom-right {
+    top: inherit;
+    left: inherit;
+    right: 0;
+    bottom: 0;
+    margin-bottom: 1em;
+    margin-right: 1em;
+    transform: translate(0, 0);
+  }
+}
+
+.loading-indicator {
+  background-color: rgba(255, 255, 255, .8);
+  color: #000;
+  padding: 1em;
+  text-align: center;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 <div id="sidedrawer" class="mui--no-user-select">
   <div id="sidedrawer-brand" class="mui--appbar-line-height">
-      <center><span class="mui--text-title"><a href="/floybd"><img style="width: 50%;" src="{% static 'img/logo.png' %}"/></a></span></center>
+      <center><span class="mui--text-title"><a href="/"><img style="width: 43%;" src="{% static 'img/logoWD.png' %}"/></a></span></center>
+  </div>
+  <div class="mui-divider"></div>
+  <ul>
+    <strong id="menu_item1"><li class="menu item2"><img src="{% static 'img/city.png' %}" title="city" width="20%"><a href="{% url 'populated_cities' %}"><b>  Most Populated Cities</b></a></li></strong>
+  </ul>
+  <ul>
+    <strong id="menu_item2"><li class="menu item2"><img src="{% static 'img/stadium.png' %}" title="stadium" width="20%"><a href="{% url 'premierLeague_stadiums' %}"><b>  Premier League Stadiums</b></a></li></strong>
+  </ul>
+  <ul>
+    <strong id="menu_item3"><li class="menu item2"><img src="{% static 'img/river.png' %}" title="river" width="20%"><a href="{% url 'longest_rivers' %}"><b>  The Longest Rivers</b></a></li></strong>
+  </ul>
+  <ul>
+    <strong id="menu_item4"><li class="menu item2"><img src="{% static 'img/airport.png' %}" title="airport" width="20%"><a href="{% url 'spanish_airports' %}"><b>  Spanish Airports</b></a></li></strong>
+  </ul>
+  <ul>
+    <strong id="menu_item5"><li class="menu item2"><img src="{% static 'img/olympicgames.png' %}" title="olympicgame" width="20%"><a href="{% url 'summer_olympic_games' %}"><b>  Summer Olympic Games</b></a></li></strong>
+  </ul>
 </div>
-<div class="mui-divider"></div>
-<ul>
-  <li>
-    <strong><img src="https://png.icons8.com/partly-cloudy-day/color/24" title="Weather" width="20%">
-     Weather</strong>
-    <ul>
-        <li class="menu item1"><a href="{% url 'floybd:weather' %}">Weather Index</a></li>
-        <li class="menu item2"><a href="{% url 'floybd:dayWeather' %}">Weather Concrete Day</a></li>
-        <li class="menu item3"><a href="{% url 'floybd:predictWeather' %}">Weather Predictions</a></li>
-        <li class="menu item4"><a href="{% url 'floybd:predictWeatherStats' %}">Weather Predictions based on stats</a></li>
-        <li class="menu item5"><a href="{% url 'floybd:weatherStats' %}">Weather Stats</a></li>
-        <li class="menu item6"><a href="{% url 'floybd:citydashboard' %}">City Dashboard</a></li>
-    </ul>
-  </li>
-  <li>
-    <strong><img src="https://png.icons8.com/earthquakes/color/24" title="Earthquakes"
-                 width="20%"> Earthquakes</strong>
-    <ul>
-      <li class="menu earthquakes"><a href="{% url 'floybd:earthquakes' %}">Earthquakes</a></li>
-        <li class="menu earthquakesHeatMap"><a href="{% url 'floybd:heatMapEarthquakes' %}">Earthquakes Heat Map</a></li>
-    </ul>
-  </li>
-  <li>
-    <strong><img src="https://png.icons8.com/in-transit/color/24" title="GTFS"
-                 width="20%"> GTFS</strong>
-    <ul>
-        <li class="menu item7"><a href="{% url 'floybd:viewgtfs' %}">View GTFS</a></li>
-        <li class="menu item8"><a href="{% url 'floybd:uploadgtfs' %}">Upload New GTFS</a></li>
-    </ul>
-  </li>
-    <li>
-        <strong><img src="{% static 'img/more.png' %}" width="20%"/>More</strong>
-        <ul>
-            <li class="menu item9"><a href="#" onclick="activateHelpModal()">Help</a></li>
-            <li class="menu item10"><a href="#" onclick="activateAboutModal()">About</a></li>
-            <li class="menu item11"><a target="_blank" href="{% url 'floybd:settings' %}">Settings</a></li>
-            <li class="menu item12"><a href="{% url 'floybd:clearKML' %}">Clear KMLs Folder</a></li>
-        </ul>
-    </li>
-</ul>
-</div>
+
 <header id="header">
   <div class="mui-appbar mui--appbar-line-height">
     <div class="mui-container-fluid">
-      <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
-      <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
-      <span class="mui--text-title mui--visible-xs-inline-block">Fly Over Your Big Data</span>
+      <table width="100%" height="50%">
+        <tr style="vertical-align:middle;">
+          <td class="mui--appbar-height" align="left">
+            <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
+            <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
+            <span class="mui--text-title" align="center">Wikidata Liquid Galaxy Visualization</span>
+          </td>
+          <td class="mui--appbar-height" align="right">
+            <a class="mui-appbar"><i class="material-icons">more_vert</i></a>
+          </td>
+        </tr>
+      </table>
     </div>
   </div>
 </header>
+
+<div id="modal" class="modal" style="display: none;"></div>
+  <div id="modal2" class="overlay loading-indicator" style="display: none;">
+    <h2 id="header1" class="mui-m-n">Please wait...</h2>
+    <h2></h2>
+    <h2></h2>
+    <h2></h2>
+    <h2></h2>
+    <img id="image" src="static/img/wikidata.png" title="river" width="40%">
+    <h2></h2>
+    <h2 id="header2" class="mui-m-n">Wikidata query</h2>
+  </div>
+
+<script>
+
+$("#menu_item1").click(function () {
+  count = 0;
+  $("#modal").fadeOut(0, function () {
+    $(this).css("display", "block").fadeIn(0);
+  });
+  $("#modal2").fadeOut(0, function () {
+    $(this).css("display", "block").fadeIn(0);
+  });
+
+  imagesArray = ["static/img/wikidata.png", "static/img/dataanalysis.png", "static/img/kmlfile.png"];
+  labelArray = ["Wikidata query", "Analyzing data", "Generating KML file"];
+
+  setInterval(function () {
+    count = count + 1;
+    $("#image").fadeOut(0, function () {
+      $(this).attr("src", imagesArray[count]).fadeIn(0);
+    });
+    $("#header2").fadeOut(0, function () {
+      $(this).text(labelArray[count]).fadeIn(0);
+    });
+  }, 1600);
+});
+
+</script>

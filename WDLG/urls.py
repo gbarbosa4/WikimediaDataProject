@@ -2,8 +2,8 @@ from django.conf.urls import include, url
 from . import views
 
 urlpatterns = [
-    url(r'^$', views.post_list, name='post_list'),
-    url(r'^tour_cities', views.populated_cities_query, name ='tour_cities'),
+    url(r'^$', views.index, name='index'),
+    url(r'^populated_cities', views.populated_cities_query, name ='populated_cities'),
     url(r'^start_tour_cities', views.start_tour_cities, name ='start_tour_cities'),
     url(r'^stop_tour_cities', views.stop_tour_cities, name ='stop_tour_cities'),
     url(r'^premierLeague_stadiums', views.premierLeague_stadiums_query, name ='premierLeague_stadiums'),
@@ -13,5 +13,5 @@ urlpatterns = [
     url(r'^start_nile_experience', views.start_nile_experience, name ='start_nile_experience'),
     url(r'^stop_nile_experience', views.stop_nile_experience, name ='stop_nile_experience'),
     url(r'^spanish_airports', views.spanish_airports_query, name ='spanish_airports'),
-    url(r'^olympic_games', views.olympic_games_query, name ='olympic_games')
+    url(r'^summer_olympic_games', views.olympic_games_query, name ='summer_olympic_games')
 ]

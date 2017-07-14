@@ -1,20 +1,17 @@
 {% include "WDLG/header.html" %}
-{# Display a form #}
-
+{% load static %}
+<html>
 <div id="content-wrapper">
-    <div class="mui--appbar-height"></div>
-    <div class="mui-container-fluid">
-        <div class="mui-row">
-        <div class="mui-col-md-12">
-            <div class="mui--text-center">
-                <h1>Fly Over Your Big Data</h1>
-                <a href="{% url 'floybd:weather' %}" class="mui-btn mui-btn--primary">Weather</a>
-                <a href="{% url 'floybd:earthquakes' %}" class="mui-btn mui-btn--primary">Earthquakes</a>
-                <a href="{% url 'floybd:gtfs' %}" class="mui-btn mui-btn--primary">GTFS</a>
-            </div>
-        </div>
-        </div>
-    </div>
+  <div class="mui--appbar-height"></div>
+  <div class="mui-container-fluid">
+  <br>
+  <h1>Wikidata Liquid Galaxy Visualization</h1>
+  <p>
+    This project has been developed by Guillem Barbosa, student of University of Lleida.
+  </p>
+
+  </div>
 </div>
 
+</html>
 {% include "WDLG/footer.html" %}

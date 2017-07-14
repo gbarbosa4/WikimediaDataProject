@@ -1,0 +1,27 @@
+{% include "WDLG/header.html" %}
+{% load static %}
+
+<div id="content-wrapper">
+     <div class="mui--appbar-height"></div>
+      <div class="mui--text-center">
+        <div class="mui--text-display2">Most Populated Cities In The World</div>
+      </div>
+      <div class="mui-container-fluid">
+                <div class="mui-row">
+                     <div class="col-xs-12">
+                           <div id="spinnerDiv" style="display:none">
+                           <div class="modal"> </div>
+                              <div class="overlay loading-indicator">
+                               <div id="spinner-target"></div>
+                             </div>
+                          </div>
+                          <div class="mui--text-center">
+                            <a href="{% url 'start_tour_cities' %}" class="btn btn-default">Start Tour</a>
+                            <a href="{% url 'stop_tour_cities' %}" class="btn btn-default">Stop Tour</a>
+                        </div>
+                     </div>
+                </div>
+      </div>
+</div>
+
+{% include "WDLG/footer.html" %}

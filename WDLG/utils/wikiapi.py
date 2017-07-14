@@ -92,16 +92,16 @@ class WikiApi(object):
         sydney = "http://www.bahamasolympiccommittee.org/UserFiles/HTMLeditor/Sydney_2000_Logo_svg.png"
         url = ""
 
-        for file in os.listdir(str(os.getcwd())+"/static/images"):
+        for file in os.listdir(str(os.getcwd())+"/static/img"):
             if "Summer" in file:
-                os.remove(str(os.getcwd())+"/static/images/"+file)
+                os.remove(str(os.getcwd())+"/static/img/"+file)
 
         if "1992" in page:
             urllib.request.urlretrieve(barcelona, page+".png")
-            os.rename(str(os.getcwd())+"/"+page+".png", "static/images/"+page+".png")
+            os.rename(str(os.getcwd())+"/"+page+".png", "static/img/"+page+".png")
         elif "2000" in page:
             urllib.request.urlretrieve(sydney, page+".png")
-            os.rename(str(os.getcwd())+"/"+page+".png", "static/images/"+page+".png")
+            os.rename(str(os.getcwd())+"/"+page+".png", "static/img/"+page+".png")
         else:
             wikipage = wikipedia.page(page)
             for image in wikipage.images:
@@ -110,7 +110,7 @@ class WikiApi(object):
                         url_image = image
                         print ("image-> ",image)
             cairosvg.svg2png(url=url_image, write_to=page+".png")
-            os.rename(str(os.getcwd())+"/"+page+".png", "static/images/"+page+".png")
+            os.rename(str(os.getcwd())+"/"+page+".png", "static/img/"+page+".png")
 
     def dbpedia(self, city_name):
 

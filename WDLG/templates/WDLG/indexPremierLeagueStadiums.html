@@ -4,19 +4,38 @@
 <div id="content-wrapper">
      <div class="mui--appbar-height"></div>
       <div class="mui--text-center">
-        <div class="mui--text-display2">Premier League Stadiums</div>
+        <h1> <img src="{% static 'img/stadium.png' %}" title="city" width="6%" align="middle">  Premier League Stadiums
       </div>
-      <div class="mui-container-fluid">
-                <div class="mui-row">
-                     <div class="col-xs-12">
-                           <div id="spinnerDiv" style="display:none">
-                           <div class="modal"> </div>
-                              <div class="overlay loading-indicator">
-                               <div id="spinner-target"></div>
-                             </div>
-                          </div>
-                     </div>
-                </div>
+
+      <div class="mui--text-center">
+        <h4> 1. Select the Premier League team you want.</h4>
+        <h4> 2. Click "Get Stadium" button.</h4>
+        <h4> 3. The application will generate a KML file to show in the Liquid Galaxy.</h4>
+        <h4> 4. Once everything is ready, the application will automatically show you the selected stadium.</h4>
+        <h4> 5. Please, wait for the end of the tour to select another stadium or change the menu.</h4>
+      </div>
+
+      <br>
+
+      <form method = "post" action = "{% url 'premierLeague_stadiums' %}">{% csrf_token %}
+        <div class="mui--text-center">
+         <select class = "mui-btn mui-btn--green" id="combo_list" name="combo_list">
+             <option selected="selected" disabled>Select the team</option>
+             {% for club in clubs_list %}
+                 <option value="{{club}}">
+                     {{club}}
+                 </option>
+             {% endfor %}
+         </select>
+         <input class="mui-btn mui-btn--raised mui-btn--danger" style="visibility:visible" id="get_stadium" type="submit" value="GET STADIUM">
+      </div>
+      </form>
+      <br>
+      <div>
+        <tr>
+          <img src={{club_shield_image}} title="city" width="15%" align="center">
+          <h2> {{stadium_name}} </h2>
+        </tr>
       </div>
 </div>
 

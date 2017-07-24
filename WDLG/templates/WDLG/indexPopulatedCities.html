@@ -2,26 +2,31 @@
 {% load static %}
 
 <div id="content-wrapper">
-     <div class="mui--appbar-height"></div>
+  <br>
+  <div class="mui--text-center">
+    <tr>
+      <h1><img src="{% static 'img/city.png' %}" title="city" width="6%" align="middle">  Most Populated Cities In The World</h1>
+    </tr>
+  </div>
+  <div class="mui-container-fluid">
+    <div class="mui-row">
       <div class="mui--text-center">
-        <div class="mui--text-display2">Most Populated Cities In The World</div>
+        <div class="mui-content">
+          <form method="POST" action=""> {% csrf_token %}
+            {% for city in list_cities %}
+              <div>
+                <h4 class="button button_multi_selection" id='{{city.city}}' type="text" value='{{city.city}}'>{{city.rank}}. {{city.city}} ->  {{city.population}} people.</h4>
+              </div>
+            {% endfor %}
+          </form>
+          <br>
+          <div>
+            <input type="button" href="{% url 'start_tour_cities' %}" class="mui-btn mui-btn--raised mui-btn--primary" value="Start Tour"</input>
+            <input type="button" href="{% url 'stop_tour_cities' %}" class="mui-btn mui-btn--raised mui-btn--danger" value="Stop Tour"</input>
+          </div>
+        </div>
       </div>
-      <div class="mui-container-fluid">
-                <div class="mui-row">
-                     <div class="col-xs-12">
-                           <div id="spinnerDiv" style="display:none">
-                           <div class="modal"> </div>
-                              <div class="overlay loading-indicator">
-                               <div id="spinner-target"></div>
-                             </div>
-                          </div>
-                          <div class="mui--text-center">
-                            <a href="{% url 'start_tour_cities' %}" class="btn btn-default">Start Tour</a>
-                            <a href="{% url 'stop_tour_cities' %}" class="btn btn-default">Stop Tour</a>
-                        </div>
-                     </div>
-                </div>
-      </div>
+    </div>
+  </div>
 </div>
-
 {% include "WDLG/footer.html" %}

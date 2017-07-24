@@ -5,6 +5,19 @@ html,
 body {
   height: 80%;
   background-color: #fff;
+  font-family: Patrick Hand;
+  font-size: 15px;
+  font-style: normal;
+  font-variant: normal;
+
+}
+h1 {
+  background-color: #fff;
+  color : #fff,
+}
+
+h3 {
+  background-color: #ccc000;
 }
 
 html,
@@ -30,6 +43,8 @@ buttons {
   color: #45C700;
   transition: left 0.2s;
 }
+
+
 /**menu esquerra*/
 #sidedrawer {
   position: fixed;
@@ -121,11 +136,10 @@ buttons {
 /**
  * Footer CSS
  */
-
 #footer {
     background-color: #79E440;
-    color: #000;
-    font: bold 14px/30px New Century Schoolbook, serif;
+    color: #004C00;
+    font: bold 12px New Century Schoolbook, serif;
     position : fixed;
     left:0px;
     bottom:0px;
@@ -181,12 +195,11 @@ buttons {
 }
 
 #sidedrawer .menu a {
-   font-family: Permanent Marker;
-   font-size: 12px;
-   font-style: normal;
-   font-variant: normal;
-   color : #000;
-   text-decoration: none;
+    font-family: Merienda One;
+  	font-size: 12px;
+  	font-style: normal;
+  	font-variant: normal;
+    color: inherit;
 }
 
 #sidedrawer #sidedrawer-brand span {

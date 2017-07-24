@@ -5,6 +5,7 @@ from SPARQLWrapper import SPARQLWrapper, JSON, XML, N3, RDF
 import os
 import time
 import netifaces as ni
+import locale
 
 from .objects.airport import *
 from .objects.city import *
@@ -129,7 +130,7 @@ def start_tour_cities(request):
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
 
-	return render(request, 'WDLG/indexPopulatedCities.html')
+	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": informationList.get_information_list("Populated_Cities")})
 
 def stop_tour_cities(request):
 	ip_galaxy_master = get_galaxy_ip()
@@ -141,7 +142,7 @@ def stop_tour_cities(request):
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
 
-	return render(request, 'WDLG/indexPopulatedCities.html')
+	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": informationList.get_information_list("Populated_Cities")})
 
 
 def write_FlyTo_andSend(kml_file_name):
@@ -264,10 +265,11 @@ def populated_cities_query(request):
 	    city = result["cityLabel"]["value"]
 
 	    population = result["population"]["value"]
+	    population = '{0:,}'.format(int(float(population)))
 
 	    area = result["area"]["value"]
 	    if (float(area) > 100000):
-            	area = float(area)/1000000.0
+            	area = int(float(area))/1000000.0
 
 	    coord = result["coord"]["value"]
 	    longitude = coord.split("(")[1].split(" ")[0]
@@ -297,9 +299,11 @@ def populated_cities_query(request):
 	print ("COUNTRY: ",list_cities[i].country)
 	print ("ELEVATION: ",list_cities[i].elevation)
 
+	informationList.set_information_list("Populated_Cities",list_cities)
+
 	generate_kml("Tour Cities", list_cities, kml_file_name_tour_city)
 	#time.sleep(5)
-	return render(request, 'WDLG/indexPopulatedCities.html')
+	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": list_cities})
 
 def premierLeague_stadiums_query(request):
 
@@ -371,13 +375,14 @@ def premierLeague_stadiums_query(request):
 	for club in hash_stadium_club:
 	       clubs_list.append(club)
 	clubs_list.sort()
-
+	print("hereeeee")
 	club_selected = request.POST.get('combo_list')
+	print(club_selected)
 	stadium_name = getStadiumByClub(club_selected, hash_stadium_club)
 
 	clubstadium_selected = ""
 	club_short_name = ""
-	club_shield_image = ""
+	club_shield_image = "https://upload.wikimedia.org/wikipedia/commons/d/d2/Solid_white.png"
 
 	if club_selected != None:
 	       for clubstadium in clubstadium_list:
@@ -389,7 +394,7 @@ def premierLeague_stadiums_query(request):
 	                     clubstadium.addClubShield(club_shield_image)
 
 	       generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
-
+	       print(club_shield_image)
 	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image})
 
 def getStadiumByClub(club, hash_stadium_club):

@@ -36,7 +36,7 @@ class GeneratorKML(object):
                                     KML.IconStyle(
                                         KML.scale('2.5'),
                                         KML.Icon(
-                                            KML.href('img/city_icon.png')
+                                            KML.href('img/city.png')
                                         ),
                                     ),
                                     KML.LabelStyle(
@@ -212,7 +212,7 @@ class GeneratorKML(object):
                             ranking=data.rank,
                             city_name=data.city,
                             image=data.image,
-                            population=round(float(data.population)/float(1000000),3),
+                            population=data.population,
                             country=data.country,
                             area=data.area,
                             elevation=data.elevation,

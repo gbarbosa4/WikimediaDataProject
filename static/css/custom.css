@@ -4,11 +4,14 @@
 
 .mui-appbar{
     background-color: #2B7C00;
-    color : #E7FC3B
 }
 
-.mui-btn--primary{
-    background-color:#45C700;
+.mui-btn--green{
+    background-color:#2B7C00;
+}
+
+.mui-btn--danger{
+  background-color:#2B7C00;
 }
 
 .context-wrapper{

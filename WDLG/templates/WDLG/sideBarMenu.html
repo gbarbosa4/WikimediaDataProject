@@ -1,103 +1,9 @@
 {% load static %}
-<style>
-.modal {
-  background: rgba(255, 255, 255, .8);
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  overflow: hidden;
-  z-index: 9000; // z-index: map-get($z-index, overlay);
-  padding: 1em;
-}
-
-
-[class*="overlay"] {
-    position: fixed;
-    z-index: 11000; // z-index: map-get($z-index, modal);
-    background: #fff;
-    border-radius: 3px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-
-.overlay {
-  &--top-left {
-    left: 0;
-    top: 0;
-    margin-top: 1em;
-    margin-left: 1em;
-    transform: translate(0, 0);
-  }
-
-  &--top {
-    left: 50%;
-    top: 0;
-    margin-top: 1em;
-    transform: translate(-50%, 0);
-  }
-
-  &--top-right {
-    left: inherit;
-    right: 0;
-    top: 0;
-    margin-top: 1em;
-    margin-right: 1em;
-    transform: translate(0, 0);
-  }
-
-  &--left {
-    left: 0;
-    margin-left: 1em;
-    transform: translate(0, -50%);
-  }
-
-  &--right {
-    left: inherit;
-    right: 0;
-    margin-right: 1em;
-    transform: translate(0, -50%);
-  }
-
-  &--bottom {
-    left: 50%;
-    top: inherit;
-    bottom: 0;
-    margin-bottom: 1em;
-    transform: translate(-50%, 0);
-  }
-
-  &--bottom-left {
-    left: 0;
-    top: inherit;
-    bottom: 0;
-    margin-bottom: 1em;
-    margin-left: 1em;
-    transform: translate(0, 0);
-  }
-
-  &--bottom-right {
-    top: inherit;
-    left: inherit;
-    right: 0;
-    bottom: 0;
-    margin-bottom: 1em;
-    margin-right: 1em;
-    transform: translate(0, 0);
-  }
-}
-
-.loading-indicator {
-  background-color: rgba(255, 255, 255, .8);
-  color: #000;
-  padding: 1em;
-  text-align: center;
-}
-</style>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Sigmar+One"/>
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merienda+One"/>
+<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Patrick+Hand"/>
 
 <div id="sidedrawer" class="mui--no-user-select">
   <div id="sidedrawer-brand" class="mui--appbar-line-height">
@@ -129,7 +35,7 @@
           <td class="mui--appbar-height" align="left">
             <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
             <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
-            <span class="mui--text-title" align="center">Wikidata Liquid Galaxy Visualization</span>
+            <span style="color:#E7FC3B;font-family: Sigmar One;font-size: 20px;" class="mui--text-title" align="center">Wikidata Liquid Galaxy Visualization</span>
           </td>
           <td class="mui--appbar-height" align="right">
             <a class="mui-appbar"><i class="material-icons">more_vert</i></a>

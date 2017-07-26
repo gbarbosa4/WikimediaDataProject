@@ -277,7 +277,7 @@ class GeneratorKML(object):
                                     KML.IconStyle(
                                         KML.scale('2.5'),
                                         KML.Icon(
-                                            KML.href('http://maps.google.com/mapfiles/kml/pal2/icon49.png')
+                                            KML.href('img/stadium.png')
                                         ),
                                     ),
                                     KML.LabelStyle(

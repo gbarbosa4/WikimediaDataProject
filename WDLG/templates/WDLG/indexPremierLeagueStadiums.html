@@ -12,14 +12,13 @@
         <h4> 2. Click "Get Stadium" button.</h4>
         <h4> 3. The application will generate a KML file to show in the Liquid Galaxy.</h4>
         <h4> 4. Once everything is ready, the application will automatically show you the selected stadium.</h4>
-        <h4> 5. Please, wait for the end of the tour to select another stadium or change the menu.</h4>
       </div>
 
       <br>
 
-      <form method = "post" action = "{% url 'premierLeague_stadiums' %}">{% csrf_token %}
+      <form method = "post" name="combo" action = "{% url 'premierLeague_stadiums' %}">{% csrf_token %}
         <div class="mui--text-center">
-         <select class = "mui-btn mui-btn--green" id="combo_list" name="combo_list">
+         <select class = "mui-btn mui-btn--blue" id="combo_list" name="combo_list">
              <option selected="selected" disabled>Select the team</option>
              {% for club in clubs_list %}
                  <option value="{{club}}">
@@ -27,16 +26,70 @@
                  </option>
              {% endfor %}
          </select>
-         <input class="mui-btn mui-btn--raised mui-btn--danger" style="visibility:visible" id="get_stadium" type="submit" value="GET STADIUM">
+         <input class="mui-btn mui-btn--red" style="visibility:visible" onclick="selected_option('{{hash_club_shield}}')" id="get_stadium" type="submit" value="GET STADIUM">
       </div>
       </form>
       <br>
-      <div>
+      <div class="mui--text-center">
         <tr>
-          <img src={{club_shield_image}} title="city" width="15%" align="center">
-          <h2> {{stadium_name}} </h2>
+          <img src={{club_shield_image}} title="city" width="6%" align="center">
+          <h4> {{club_selected}} - {{stadium_name}} </h4>
         </tr>
       </div>
 </div>
 
+<div id="modal" class="modal" style="display: none;"></div>
+  <div id="modal2" class="overlay loading-indicator" style="display: none;">
+    <h2 id="header1" class="mui-m-n">Please wait...</h2>
+    <h2></h2>
+    <h2></h2>
+    <h2></h2>
+    <h2></h2>
+    <img id="image" src="https://upload.wikimedia.org/wikipedia/commons/d/d2/Solid_white.png" title="shield" width="10" height="10">
+    <h2></h2>
+    <h2 id="header2" class="mui-m-n"></h2>
+  </div>
+
+<script>
+imagesArray = ["static/img/kmlfile.png"];
+labelArray = ["Generating KML file. \t The tour for the selected stadium will be ready in a moment."];
+
+function selected_option(hash_club_shield) {
+    var a = document.getElementById('combo_list').selectedIndex;
+    var club_selected = document.getElementById('combo_list')[a].text;
+
+    var i = 0;
+    while ( i<20 ){
+      club_name = hash_club_shield.split("|")[i].split("=")[0];
+      if ( club_name.localeCompare(club_selected) == 0 ){
+            club_shield = hash_club_shield.split("|")[i].split("=")[1];
+            i=20;
+      }
+      i++;
+    }
+    imagesArray.push(club_shield);
+    labelArray.push("Flying to the stadium ... "+club_selected);
+}
+
+$("#get_stadium").click(function () {
+  count = 0;
+  $("#modal").fadeOut(0, function () {
+    $(this).css("display", "block").fadeIn(0);
+  });
+  $("#modal2").fadeOut(0, function () {
+    $(this).css("display", "block").fadeIn(0);
+  });
+
+  setInterval(function () {
+    count = count + 1;
+    $("#image").fadeOut(0, function () {
+      $(this).attr("src", imagesArray[count]).fadeIn(0);
+    });
+    $("#header2").fadeOut(0, function () {
+      $(this).text(labelArray[count]).fadeIn(0);
+    });
+  }, 1500);
+});
+
+</script>
 {% include "WDLG/footer.html" %}

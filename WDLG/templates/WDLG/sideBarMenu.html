@@ -1,6 +1,8 @@
 {% load static %}
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="{% static "js/overlay.js" %}"></script>
+
 <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Sigmar+One"/>
 <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merienda+One"/>
 <link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Patrick+Hand"/>
@@ -53,14 +55,19 @@
     <h2></h2>
     <h2></h2>
     <h2></h2>
-    <img id="image" src="static/img/wikidata.png" title="river" width="40%">
+    <img id="image" src="https://upload.wikimedia.org/wikipedia/commons/d/d2/Solid_white.png" title="river" width="40%">
     <h2></h2>
-    <h2 id="header2" class="mui-m-n">Wikidata query</h2>
+    <h2 id="header2" class="mui-m-n"></h2>
   </div>
+</table>
 
 <script>
 
 $("#menu_item1").click(function () {
+
+  imagesArray = ["","static/img/wikidata.png", "static/img/dataanalysis.png", "static/img/kmlfile.png"];
+  labelArray = ["","Wikidata query. \t Most Populated Cities in the World", "Analyzing data. \t Getting information about the cities.", "Generating KML file. \t The tour will be ready in a moment."];
+
   count = 0;
   $("#modal").fadeOut(0, function () {
     $(this).css("display", "block").fadeIn(0);
@@ -68,9 +75,6 @@ $("#menu_item1").click(function () {
   $("#modal2").fadeOut(0, function () {
     $(this).css("display", "block").fadeIn(0);
   });
-
-  imagesArray = ["static/img/wikidata.png", "static/img/dataanalysis.png", "static/img/kmlfile.png"];
-  labelArray = ["Wikidata query", "Analyzing data", "Generating KML file"];
 
   setInterval(function () {
     count = count + 1;
@@ -80,7 +84,31 @@ $("#menu_item1").click(function () {
     $("#header2").fadeOut(0, function () {
       $(this).text(labelArray[count]).fadeIn(0);
     });
-  }, 1600);
+  }, 3400);
+});
+
+
+$("#menu_item2").click(function () {
+  count = 0;
+  $("#modal").fadeOut(0, function () {
+    $(this).css("display", "block").fadeIn(0);
+  });
+  $("#modal2").fadeOut(0, function () {
+    $(this).css("display", "block").fadeIn(0);
+  });
+
+  imagesArray = ["","static/img/wikidata.png","static/img/dataanalysis.png","static/img/premierleague.png"];
+  labelArray = ["","Wikidata query.\t Premier League 2016-2017 Stadiums","Analyzing Data.\t Getting information about clubs and stadiums.",""];
+
+  setInterval(function () {
+    count = count + 1;
+    $("#image").fadeOut(0, function () {
+      $(this).attr("src", imagesArray[count]).fadeIn(0);
+    });
+    $("#header2").fadeOut(0, function () {
+      $(this).text(labelArray[count]).fadeIn(0);
+    });
+  }, 3400);
 });
 
 </script>

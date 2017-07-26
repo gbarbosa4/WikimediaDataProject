@@ -309,93 +309,123 @@ def premierLeague_stadiums_query(request):
 
 	print ("Obtaining data ...\n")
 	clubstadium_list = []
+	hash_club_shield = ""
 	hash_stadium_club = {}
 	clubs_list = []
-	i = 0
-	sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
-
-	sparql.setReturnFormat(JSON)
-
-	sparql.setQuery("""SELECT DISTINCT ?clubs ?clubsLabel (SAMPLE (?clubName) AS ?clubName) (SAMPLE (?founded) AS ?founded) (SAMPLE (?coach) AS ?coach) ?coachLabel
-			  (SAMPLE (?city) AS ?city) ?cityLabel (SAMPLE (?stadium) AS ?stadium) (SAMPLE (?cityinstance) AS ?cityinstance) ?stadiumLabel
-			  (SAMPLE (?image) AS ?image) (SAMPLE (?coord) AS ?coord) (MAX (?capacity) AS ?capacity)
-                WHERE
-                {
-                    wd:Q23009701 wdt:P1923 ?clubs .
-                  	?clubs wdt:P1448 ?clubName .
-                  	?clubs wdt:P571 ?founded .
-                  	?clubs wdt:P286 ?coach .
-                    ?clubs wdt:P131 ?city .
-                  	?city wdt:P31 ?cityinstance .
-                  	?clubs wdt:P115 ?stadium .
-                    ?stadium wdt:P18 ?image .
-                    ?stadium wdt:P625 ?coord .
-                    ?stadium wdt:P1083 ?capacity .
-
-                    SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-                }
-                GROUP BY ?clubs ?clubsLabel ?coachLabel ?cityLabel ?stadiumLabel
-                ORDER BY DESC(?capacity) """)
-
-	queryResults = sparql.query().convert()
-	i = 0
-	for result in queryResults["results"]["bindings"]:
-	    cityinstance = result["cityinstance"]["value"]
-
-	    if(str(cityinstance) == wikidata_instance+"Q515" or str(cityinstance) == wikidata_instance+"Q3957"
-           or str(cityinstance) == wikidata_instance+"Q18511725"):
-
-	       stadium_name = result["stadiumLabel"]["value"]
-
-	       club_name = result["clubName"]["value"]
-	       hash_stadium_club[club_name] = stadium_name
-
-	       club_short_name = result["clubsLabel"]["value"]
-
-	       club_founded = result["founded"]["value"]
-	       club_founded = club_founded.split("-")[0]
-
-	       club_coach = result["coachLabel"]["value"]
-
-	       club_city = result["cityLabel"]["value"]
-
-	       stadium_image = result["image"]["value"]
-
-	       stadium_capacity = result["capacity"]["value"]
-
-	       coord = result["coord"]["value"]
-	       longitude = coord.split("(")[1].split(" ")[0]
-	       latitude = coord.split("(")[1].split(" ")[1]
-	       latitude = latitude[:len(latitude) - 1]
-
-	       clubstadium_list.append(ClubStadium(stadium_name, club_short_name, club_name, club_founded, club_coach, club_city, stadium_image, stadium_capacity))
-	       clubstadium_list[i].coordinates(longitude,latitude)
-	       i=i+1
-
-	for club in hash_stadium_club:
-	       clubs_list.append(club)
-	clubs_list.sort()
-	print("hereeeee")
-	club_selected = request.POST.get('combo_list')
-	print(club_selected)
-	stadium_name = getStadiumByClub(club_selected, hash_stadium_club)
-
-	clubstadium_selected = ""
-	club_short_name = ""
 	club_shield_image = "https://upload.wikimedia.org/wikipedia/commons/d/d2/Solid_white.png"
 
-	if club_selected != None:
-	       for clubstadium in clubstadium_list:
-	              if stadium_name == clubstadium.stadiumName:
-	                     clubstadium_selected = clubstadium
-	                     club_short_name = clubstadium.clubShortName
-	                     response_xml = wikiapi.find(club_short_name)
-	                     club_shield_image = getClubShieldImage(response_xml)
-	                     clubstadium.addClubShield(club_shield_image)
+	i = 0
 
-	       generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
-	       print(club_shield_image)
-	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image})
+	if len(request.POST) == 0:
+		club_selected = ""
+		sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+
+		sparql.setReturnFormat(JSON)
+
+		sparql.setQuery("""SELECT DISTINCT ?clubs ?clubsLabel (SAMPLE (?clubName) AS ?clubName) (SAMPLE (?founded) AS ?founded) (SAMPLE (?coach) AS ?coach) ?coachLabel
+		(SAMPLE (?city) AS ?city) ?cityLabel (SAMPLE (?stadium) AS ?stadium) (SAMPLE (?cityinstance) AS ?cityinstance) ?stadiumLabel
+		(SAMPLE (?image) AS ?image) (SAMPLE (?coord) AS ?coord) (MAX (?capacity) AS ?capacity)
+		WHERE
+		{
+			wd:Q23009701 wdt:P1923 ?clubs .
+			?clubs wdt:P1448 ?clubName .
+			?clubs wdt:P571 ?founded .
+			?clubs wdt:P286 ?coach .
+			?clubs wdt:P131 ?city .
+			?city wdt:P31 ?cityinstance .
+			?clubs wdt:P115 ?stadium .
+			?stadium wdt:P18 ?image .
+			?stadium wdt:P625 ?coord .
+			?stadium wdt:P1083 ?capacity .
+
+			SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+			}
+			GROUP BY ?clubs ?clubsLabel ?coachLabel ?cityLabel ?stadiumLabel
+			ORDER BY DESC(?capacity) """)
+
+		queryResults = sparql.query().convert()
+		i = 0
+		for result in queryResults["results"]["bindings"]:
+			cityinstance = result["cityinstance"]["value"]
+
+			if(str(cityinstance) == wikidata_instance+"Q515" or str(cityinstance) == wikidata_instance+"Q3957"
+			or str(cityinstance) == wikidata_instance+"Q18511725"):
+
+				stadium_name = result["stadiumLabel"]["value"]
+
+				club_name = result["clubName"]["value"]
+				club_short_name = result["clubsLabel"]["value"]
+				hash_stadium_club[club_name] = stadium_name
+
+				hash_club_shield = hash_club_shield + club_name + "=" + getClubShieldImage(wikiapi.find(club_short_name)) + "|"
+
+				club_founded = result["founded"]["value"]
+				club_founded = club_founded.split("-")[0]
+
+				club_coach = result["coachLabel"]["value"]
+
+				club_city = result["cityLabel"]["value"]
+
+				stadium_image = result["image"]["value"]
+
+				stadium_capacity = result["capacity"]["value"]
+
+				coord = result["coord"]["value"]
+				longitude = coord.split("(")[1].split(" ")[0]
+				latitude = coord.split("(")[1].split(" ")[1]
+				latitude = latitude[:len(latitude) - 1]
+
+				clubstadium_list.append(ClubStadium(stadium_name, club_short_name, club_name, club_founded, club_coach, club_city, stadium_image, stadium_capacity))
+				clubstadium_list[i].coordinates(longitude,latitude)
+				i=i+1
+
+		for club in hash_stadium_club:
+		   clubs_list.append(club)
+		clubs_list.sort()
+
+		informationList.set_information_list("Premier_League_Stadiums",clubstadium_list)
+		informationList.set_information_list("Premier_League_Stadiums_aux",hash_club_shield)
+		stadium_name = ""
+
+	else:
+		clubs_list = []
+		clubstadium_list = informationList.get_information_list("Premier_League_Stadiums")
+		hash_club_shield = informationList.get_information_list("Premier_League_Stadiums_aux")
+
+		club_selected = request.POST.get("combo_list")
+
+		for clubstadium in clubstadium_list:
+			clubs_list.append(clubstadium.clubName)
+			if clubstadium.clubName == club_selected:
+				stadium_name = clubstadium.stadiumName
+
+		clubs_list.sort()
+
+		if(stadium_name == None):
+			stadium_name = ""
+
+		clubstadium_selected = ""
+		club_short_name = ""
+		i=0
+
+		if club_selected != "":
+			for clubstadium in clubstadium_list:
+				if stadium_name == clubstadium.stadiumName:
+					clubstadium_selected = clubstadium
+					club_short_name = clubstadium.clubShortName
+
+					while i<20:
+					  club_name = hash_club_shield.split("|")[i].split("=")[0];
+					  if club_name == club_selected:
+					    print("equalssss")
+					    club_shield_image = hash_club_shield.split("|")[i].split("=")[1]
+					    i=20
+					  i=i+1
+					clubstadium.addClubShield(club_shield_image)
+
+		generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
+
+	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image , "club_selected": club_selected, "hash_club_shield": hash_club_shield} )
 
 def getStadiumByClub(club, hash_stadium_club):
     for key, value in hash_stadium_club.items():

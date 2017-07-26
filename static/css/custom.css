@@ -10,10 +10,38 @@
     background-color:#2B7C00;
 }
 
-.mui-btn--danger{
-  background-color:#2B7C00;
+.mui-btn--green:hover{
+     background: #92E565;
+}
+
+.mui-btn--red{
+  background-color:#FF0000;
+}
+
+.mui-btn--red:hover{
+     background: #F64E4E;
+}
+
+.mui-btn--blue{
+  background-color:#0A53C0;
+}
+
+.mui-btn--blue:hover{
+     background: #1E88C7;
 }
 
 .context-wrapper{
     background-color:#45C700;
+}
+
+.wrap {
+    float: left;
+    position: relative;
+    left: 50%;
+}
+
+.content {
+    float: left;
+    position: relative;
+    left: -50%;
 }

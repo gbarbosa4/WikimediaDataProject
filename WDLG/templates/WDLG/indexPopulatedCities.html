@@ -14,15 +14,15 @@
         <div class="mui-content">
           <form method="POST" action=""> {% csrf_token %}
             {% for city in list_cities %}
-              <div>
-                <h4 class="button button_multi_selection" id='{{city.city}}' type="text" value='{{city.city}}'>{{city.rank}}. {{city.city}} ->  {{city.population}} people.</h4>
-              </div>
+             <div>
+               <h4 text-align="left" vertical-align="middle" id='{{city.city}}' type="text" value='{{city.city}}'>{{city.rank}}. {{city.city}} ({{city.country}}) ->  {{city.population}} people.</h4>
+             </div>
             {% endfor %}
           </form>
           <br>
           <div>
-            <input type="button" href="{% url 'start_tour_cities' %}" class="mui-btn mui-btn--raised mui-btn--primary" value="Start Tour"</input>
-            <input type="button" href="{% url 'stop_tour_cities' %}" class="mui-btn mui-btn--raised mui-btn--danger" value="Stop Tour"</input>
+            <a class="mui-btn mui-btn--green" href="{% url 'start_tour_cities' %}">START TOUR</a>
+            <a class="mui-btn mui-btn--red" href="{% url 'stop_tour_cities' %}">STOP TOUR</a>
           </div>
         </div>
       </div>
@@ -30,3 +30,10 @@
   </div>
 </div>
 {% include "WDLG/footer.html" %}
+<body>
+<div id="wrap">
+   <div id="content">
+   This will be centered
+   </div>
+</div>
+</body>

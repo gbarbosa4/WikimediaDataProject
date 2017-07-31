@@ -1,5 +1,6 @@
 {% include "WDLG/header.html" %}
 {% load static %}
+<script type="text/javascript" src="{% static 'js/overlay.js' %}"></script>
 
 <div id="content-wrapper">
      <div class="mui--appbar-height"></div>
@@ -26,13 +27,13 @@
                  </option>
              {% endfor %}
          </select>
-         <input class="mui-btn mui-btn--red" style="visibility:visible" onclick="selected_option('{{hash_club_shield}}')" id="get_stadium" type="submit" value="GET STADIUM">
+         <input class="mui-btn mui-btn--red" style="visibility:visible" onclick="combo_selected_team('{{hash_club_shield}}')" id="get_stadium" type="submit" value="GET STADIUM">
       </div>
       </form>
       <br>
       <div class="mui--text-center">
         <tr>
-          <img src={{club_shield_image}} title="city" width="6%" align="center">
+          <img src={{club_shield_image}} title="shield" width="6%" align="center">
           <h4> {{club_selected}} - {{stadium_name}} </h4>
         </tr>
       </div>
@@ -50,46 +51,4 @@
     <h2 id="header2" class="mui-m-n"></h2>
   </div>
 
-<script>
-imagesArray = ["static/img/kmlfile.png"];
-labelArray = ["Generating KML file. \t The tour for the selected stadium will be ready in a moment."];
-
-function selected_option(hash_club_shield) {
-    var a = document.getElementById('combo_list').selectedIndex;
-    var club_selected = document.getElementById('combo_list')[a].text;
-
-    var i = 0;
-    while ( i<20 ){
-      club_name = hash_club_shield.split("|")[i].split("=")[0];
-      if ( club_name.localeCompare(club_selected) == 0 ){
-            club_shield = hash_club_shield.split("|")[i].split("=")[1];
-            i=20;
-      }
-      i++;
-    }
-    imagesArray.push(club_shield);
-    labelArray.push("Flying to the stadium ... "+club_selected);
-}
-
-$("#get_stadium").click(function () {
-  count = 0;
-  $("#modal").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-  $("#modal2").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-
-  setInterval(function () {
-    count = count + 1;
-    $("#image").fadeOut(0, function () {
-      $(this).attr("src", imagesArray[count]).fadeIn(0);
-    });
-    $("#header2").fadeOut(0, function () {
-      $(this).text(labelArray[count]).fadeIn(0);
-    });
-  }, 1500);
-});
-
-</script>
 {% include "WDLG/footer.html" %}

@@ -589,9 +589,7 @@ class GeneratorKML(object):
 
         return outfile
 
-    def generateKML_Nile_Tour_Experience(self,data_points):
-
-        print (data_points[0].split(",")[0])
+    def generateKML_Tour_Experience(self,data_points):
         gxns = '{' + nsmap['gx'] + '}'
         stylename = "sn_shaded_dot"
         stylename2 = "sn_shaded_dot2"
@@ -615,7 +613,7 @@ class GeneratorKML(object):
                                     id=stylename
                                 ),
                                 GX.Tour(
-                                    KML.name("Nile Experience"),
+                                    KML.name("Tour Experience"),
                                     GX.Playlist(),
                                 ),
                                 KML.Folder(
@@ -631,8 +629,8 @@ class GeneratorKML(object):
                 GX.duration(4),
                 GX.flyToMode("smooth"),
                 KML.LookAt(
-                    KML.longitude(31.2560),
-                    KML.latitude(15.30302),
+                    KML.longitude(str(data_points[0]).split(",")[0].split("['")[1]),
+                    KML.latitude(str(data_points[0]).split(",")[1].split("']")[0]),
                     KML.altitude(0),
                     KML.heading(0),
                     KML.tilt(0),
@@ -648,8 +646,8 @@ class GeneratorKML(object):
                 GX.duration(4),
                 GX.flyToMode("bounce"),
                 KML.LookAt(
-                    KML.longitude(data_points[0].split(",")[0]),
-                    KML.latitude(data_points[0].split(",")[1]),
+                    KML.longitude(str(data_points[0]).split(",")[0].split("['")[1]),
+                    KML.latitude(str(data_points[0]).split(",")[1].split("']")[0]),
                     KML.altitude(0),
                     KML.heading(-100),
                     KML.tilt(65),
@@ -669,8 +667,8 @@ class GeneratorKML(object):
                     GX.duration(1.75),
                     GX.flyToMode("smooth"),
                     KML.LookAt(
-                        KML.longitude(data_points[i].split(",")[0]),
-                        KML.latitude(data_points[i].split(",")[1]),
+                        KML.longitude(str(data_points[i]).split(",")[0].split("['")[1]),
+                        KML.latitude(str(data_points[i]).split(",")[1].split("']")[0]),
                         KML.altitude(0),
                         KML.heading(-100),
                         KML.tilt(45),
@@ -688,8 +686,7 @@ class GeneratorKML(object):
 
         return outfile
 
-    def generateKML_Nile_Line_Experience (self,data_points):
-        print(len(data_points))
+    def generateKML_Line_Track_Experience (self,data_points):
         gxns = '{' + nsmap['gx'] + '}'
         line_style = "line-style"
         stylename2 = "sn_shaded_dot2"
@@ -706,7 +703,7 @@ class GeneratorKML(object):
                                     id = line_style
                                 ),
                                 GX.Tour(
-                                    KML.name("Nile Experience"),
+                                    KML.name("Line Track Experience"),
                                     GX.Playlist(),
                                 ),
                                 KML.Folder(
@@ -726,8 +723,8 @@ class GeneratorKML(object):
                 GX.duration(2),
                 GX.flyToMode("smooth"),
                 KML.LookAt(
-                    KML.longitude(31.2560),
-                    KML.latitude(15.30302),
+                    KML.longitude(str(data_points[0]).split(",")[0].split("['")[1]),
+                    KML.latitude(str(data_points[0]).split(",")[1].split("']")[0]),
                     KML.altitude(0),
                     KML.heading(0),
                     KML.tilt(0),
@@ -749,11 +746,11 @@ class GeneratorKML(object):
                     KML.LineString(
                         KML.tessellate(0.1),
                         KML.coordinates("{lon},{lat},{alt} {lon2},{lat2},{alt2}".format(
-                            lon=float(data_points[i].split(",")[0]),
-                            lat=float(data_points[i].split(",")[1]),
+                            lon=float(str(data_points[i]).split(",")[0].split("['")[1]),
+                            lat=float(str(data_points[i]).split(",")[1].split("']")[0]),
                             alt=0,
-                            lon2=float(data_points[i+1].split(",")[0]),
-                            lat2=float(data_points[i+1].split(",")[1]),
+                            lon2=float(str(data_points[i+1]).split(",")[0].split("['")[1]),
+                            lat2=float(str(data_points[i+1]).split(",")[1].split("']")[0]),
                             alt2=0,
                         )
                         )
@@ -767,7 +764,7 @@ class GeneratorKML(object):
         i = 0
         while i < len(data_points)-1:
 
-            river_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(0.01)))
+            river_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(0.06)))
 
             river_doc.Document[gxns + "Tour"].Playlist.append(
                 GX.AnimatedUpdate(

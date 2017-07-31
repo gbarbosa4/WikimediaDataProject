@@ -10,6 +10,11 @@
     background-color:#2B7C00;
 }
 
+.mui-btn--green2{
+    width: 60%;
+    background-color:#2B7C00;
+}
+
 .mui-btn--green:hover{
      background: #92E565;
 }

@@ -4,20 +4,103 @@
 <div id="content-wrapper">
      <div class="mui--appbar-height"></div>
       <div class="mui--text-center">
-        <div class="mui--text-display2">The Longest Rivers In The World</div>
+        <h1> <img src="{% static 'img/river.png' %}" title="city" width="6%" align="middle">  The Longest Rivers In The World
       </div>
+
+      <br>
+
       <div class="mui-container-fluid">
-                <div class="mui-row">
-                     <div class="col-xs-12">
-                           <div id="spinnerDiv" style="display:none">
-                           <div class="modal"> </div>
-                              <div class="overlay loading-indicator">
-                               <div id="spinner-target"></div>
-                             </div>
-                          </div>
-                     </div>
-                </div>
+        <div class="mui-row">
+          <div class="mui--text-center">
+            <div class="mui-content">
+              <form method="POST" action="" id="rivers_options"> {% csrf_token %}
+                <table class="mui-table mui-table--bordered">
+                  {% for river in list_rivers %}
+                  <tbody>
+                    <div class="mui-col-md-4">
+                      <a id="river_button" class="mui-btn mui-btn--green2" onclick="javascript:selected_river_button('{{river.river}}');" value="{{river.river}}">{{forloop.counter}} - {{river.river}}</a>
+                    </div>
+                  </tbody>
+                  {% endfor %}
+                </table>
+              </form>
+              <br>
+            </div>
+          </div>
+        </div>
       </div>
+
+      <div id="overlay_river" class="modal2" style="display: none;">
+        <h2 id="label_river" class="mui-m-n"><img src="{% static 'img/river.png' %}" title="river" width="30" height="30" align="left">  </h2>
+        <h3></h3>
+        <div>
+          <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_tour()">START TOUR EXPERIENCE</a>
+          <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_line_track()">START LINE TRACK EXPERIENCE</a>
+          <div>
+            <a style="visibility:visible" class="mui-btn mui-btn--red" href = "{% url 'stop_experience' %}">STOP EXPERIENCE</a>
+            <a style="visibility:visible" class="mui-btn mui-btn--red" onclick="javascript:close()">CLOSE</a>
+          </div>
+        </div>
+      </div>
+
 </div>
+
+<script>
+
+var cookies;
+function readCookie(name,c,C,i){
+    if(cookies){ return cookies[name]; }
+
+    c = document.cookie.split('; ');
+    cookies = {};
+
+    for(i=c.length-1; i>=0; i--){
+       C = c[i].split('=');
+       cookies[C[0]] = C[1];
+    }
+
+    return cookies[name];
+}
+
+function start_tour(river_name){
+  const csrfmiddlewaretoken = readCookie('csrftoken');
+  console.info(csrfmiddlewaretoken);
+  var river_name = document.getElementById('label_river').innerText;
+
+  fetch('/tour_experience', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `csrfmiddlewaretoken=${csrfmiddlewaretoken}&river_name=${river_name}`,
+    credentials: 'include'
+  }).then(() => {
+    ///alert('done');
+  });
+}
+
+function start_line_track(river_name){
+  const csrfmiddlewaretoken = readCookie('csrftoken');
+  console.info(csrfmiddlewaretoken);
+  var river_name = document.getElementById('label_river').innerText;
+
+  fetch('/line_track_experience', {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: `csrfmiddlewaretoken=${csrfmiddlewaretoken}&river_name=${river_name}`,
+    credentials: 'include'
+  }).then(() => {
+    ///alert('done');
+  });
+}
+
+function close(){
+  alert("close");
+  document.getElementById('overlay_river').style.display = "none";
+}
+
+</script>
 
 {% include "WDLG/footer.html" %}

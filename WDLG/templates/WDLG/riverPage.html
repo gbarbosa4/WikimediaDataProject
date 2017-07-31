@@ -1,0 +1,20 @@
+{% include "WDLG/header.html" %}
+{% load static %}
+
+<div id="content-wrapper">
+     <div class="mui--appbar-height"></div>
+      <div class="mui--text-center">
+        <h1> <img src="{% static 'img/river.png' %}" title="city" width="6%" align="middle">  The Longest Rivers In The World
+      </div>
+
+      <div class="mui-container-fluid">
+        <div class="mui-row">
+          <div class="mui--text-center">
+            <a class="mui-btn mui-btn--red" href="{% url 'start_nile_experience' %}">START TOUR EXPERIENCE</a>
+          </div>
+          <br>
+        </div>
+      </div>
+</div>
+
+{% include "WDLG/footer.html" %}

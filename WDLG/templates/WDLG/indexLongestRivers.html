@@ -36,10 +36,7 @@
         <div>
           <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_tour()">START TOUR EXPERIENCE</a>
           <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_line_track()">START LINE TRACK EXPERIENCE</a>
-          <div>
-            <a style="visibility:visible" class="mui-btn mui-btn--red" href = "{% url 'stop_experience' %}">STOP EXPERIENCE</a>
-            <a style="visibility:visible" class="mui-btn mui-btn--red" onclick="javascript:close()">CLOSE</a>
-          </div>
+          <a style="visibility:visible" class="mui-btn mui-btn--red" href = "{% url 'stop_experience' %}">CLOSE EXPERIENCE</a>
         </div>
       </div>
 
@@ -96,7 +93,7 @@ function start_line_track(river_name){
   });
 }
 
-function close(){
+function close_overlay(){
   alert("close");
   document.getElementById('overlay_river').style.display = "none";
 }

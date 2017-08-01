@@ -35,19 +35,39 @@ class WikiApi(object):
         self.cache_dir = options.get('cache_dir') or '/tmp/wikiapicache'
 
     def getIndex_substring(self,string,resp):
-        index = 0
+            index = 0
+            resp = str(resp)
+            if string in resp:
+               c = string[0]
 
-        if string in resp:
-           c = string[0]
+               for ch in resp:
+                   if ch == c:
+                      if resp[index:index+len(string)] == string:
+                         return index
 
-           for ch in resp:
-               if ch == c:
-                  if resp[index:index+len(string)] == string:
-                     return index
+                   index += 1
 
-               index += 1
+            return -1
 
-        return -1
+    def get(self, url, params={}):
+        if self.caching_enabled:
+            cached_item_path = self._get_cache_item_path(
+                url=url,
+                params=params
+            )
+
+            cached_resp = self._get_cached_response(cached_item_path)
+
+            if cached_resp:
+                return cached_resp
+
+        resp = requests.get(url, params=params)
+        resp_content = resp.content
+
+        if self.caching_enabled:
+            self._cache_response(cached_item_path, resp_content)
+
+        return resp_content
 
     def replace(self, results):
         results = results.decode()
@@ -128,11 +148,10 @@ class WikiApi(object):
         return resp
 
     def scraping_infobox(self, result_xml):
-        wiki = WikiApi()
         hash_data = {}
-        index_i = wiki.getIndex_substring(("infobox").encode('utf-8'),result_xml)
-        index_f = wiki.getIndex_substring(("vertical-navbox").encode('utf-8'),result_xml)
-        result_xml = wiki.replace(result_xml[index_i:index_f])
+        index_i = self.getIndex_substring(("infobox").encode('utf-8'),result_xml)
+        index_f = self.getIndex_substring(("vertical-navbox").encode('utf-8'),result_xml)
+        result_xml = self.replace(result_xml[index_i:index_f])
         with open(file_name,'w') as f:
             f.write(result_xml)
         file = open(file_name, 'r')
@@ -158,16 +177,15 @@ class WikiApi(object):
         return hash_data
 
     def scraping_medal_table(self, result_xml):
-        wiki = WikiApi()
         hash_data_medals = {}
-        index_i = wiki.getIndex_substring(("|caption=").encode('utf-8'),result_xml)
+        index_i = self.getIndex_substring(("|caption=").encode('utf-8'),result_xml)
         if "2016 Summer Olympics" in str(result_xml):
             index_f = index_i + 380
         elif "2012 Summer Olympics" in str(result_xml):
             index_f = index_i + 700
         else:
-            index_f = wiki.getIndex_substring(("4 ||align").encode('utf-8'),result_xml)
-        result_xml = wiki.replace(result_xml[index_i:index_f])
+            index_f = self.getIndex_substring(("4 ||align").encode('utf-8'),result_xml)
+        result_xml = self.replace(result_xml[index_i:index_f])
 
         with open(file_name_medals,'w') as f:
             f.write(result_xml)
@@ -217,50 +235,29 @@ class WikiApi(object):
         return medal_table_dict
 
     def get_atributes_dbpedia_city(self, resp, attr):
-        wiki = WikiApi()
         if attr == "latitude":
-            lat_index_i = wiki.getIndex_substring("<geo:lat",resp)
-            lat_index_f = wiki.getIndex_substring("</geo:lat>",resp)
+            lat_index_i = self.getIndex_substring("<geo:lat",resp)
+            lat_index_f = self.getIndex_substring("</geo:lat>",resp)
             latitude = resp[lat_index_i:lat_index_f].split(">")[1]
             return latitude
         elif attr == "longitude":
-            long_index_i = wiki.getIndex_substring("<geo:long",resp)
-            long_index_f = wiki.getIndex_substring("</geo:long>",resp)
+            long_index_i = self.getIndex_substring("<geo:long",resp)
+            long_index_f = self.getIndex_substring("</geo:long>",resp)
             longitude = resp[long_index_i:long_index_f].split(">")[1]
             return longitude
         elif attr == "population":
-            popu_index_i = wiki.getIndex_substring("<dbo:populationTotal",resp)
-            popu_index_f = wiki.getIndex_substring("</dbo:populationTotal>",resp)
+            popu_index_i = self.getIndex_substring("<dbo:populationTotal",resp)
+            popu_index_f = self.getIndex_substring("</dbo:populationTotal>",resp)
             population = resp[popu_index_i:popu_index_f].split(">")[1]
             return population
         elif attr == "area":
-            area_index_i = wiki.getIndex_substring("<dbo:areaTotal",resp)
-            area_index_f = wiki.getIndex_substring("</dbo:areaTotal>",resp)
+            area_index_i = self.getIndex_substring("<dbo:areaTotal",resp)
+            area_index_f = self.getIndex_substring("</dbo:areaTotal>",resp)
             area = resp[area_index_i:area_index_f].split(">")[1]
             return float(area)/1000000.0
         elif attr == "image":
-            image_index_i = wiki.getIndex_substring("<foaf:depiction",resp)
-            image_index_f = wiki.getIndex_substring("<foaf:isPrimary",resp)
+            image_index_i = self.getIndex_substring("<foaf:depiction",resp)
+            image_index_f = self.getIndex_substring("<foaf:isPrimary",resp)
             print (image_index_i," ",image_index_f)
             image = resp[image_index_i:image_index_f]
             return image
-
-    def get(self, url, params={}):
-        if self.caching_enabled:
-            cached_item_path = self._get_cache_item_path(
-                url=url,
-                params=params
-            )
-
-            cached_resp = self._get_cached_response(cached_item_path)
-
-            if cached_resp:
-                return cached_resp
-
-        resp = requests.get(url, params=params)
-        resp_content = resp.content
-
-        if self.caching_enabled:
-            self._cache_response(cached_item_path, resp_content)
-
-        return resp_content

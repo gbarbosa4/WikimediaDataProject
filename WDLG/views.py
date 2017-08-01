@@ -13,9 +13,12 @@ from .objects.clubstadium import *
 from .objects.olympicgame import *
 from .objects.river import *
 from .objects.stadium import *
+
 from .utils.wikiapi import *
 from .utils.informationList import *
 from .utils.kml_generator import *
+from .utils.project_configuration import *
+from .utils.auxiliar_functions import *
 
 NUM_CITIES = 10
 NUM_RIVERS = 10
@@ -42,111 +45,16 @@ serverPath = "/var/www/html/"
 serverPath_query = "/tmp/"
 
 wikiapi = WikiApi({ 'locale' : 'en'})
+project_configuration = Project_configuration()
 informationList = InformationList()
+aux_function = Auxiliar_Functions()
 
 def index(request):
     return render(request, 'WDLG/index.html', {})
 
-def generate_kml(use_case, data_set, kml_name):
-	print("Generating KML file ...")
-	generator_kml = GeneratorKML(data_set, kml_name ,"")
-
-	if use_case == "Tour Cities":
-		kml_file = generator_kml.generateKML_Tour_Cities()
-		sendKML_ToGalaxy(kml_file, kml_name)
-
-	elif use_case == "Premier League Stadiums":
-		kml_file = generator_kml.generateKML_premierLeague_Stadiums()
-		write_FlyTo_andSend(kml_file.name)
-		sendKML_ToGalaxy(kml_file, kml_name)
-		time.sleep(10)
-		start_tour_premier_league()
-
-	elif use_case == "Longest Rivers":
-		kml_file = generator_kml.generateKML_Longest_Rivers()
-		sendKML_ToGalaxy(kml_file, kml_name)
-
-	elif use_case == "Tour Experience":
-		kml_file = generator_kml.generateKML_Tour_Experience(data_set)
-
-		ip_galaxy_master = get_galaxy_ip()
-		ip_server = get_server_ip()
-
-		sendKML_ToGalaxy(kml_file, kml_name)
-		time.sleep(5.0)
-
-		file = open("kml_tmp/query.txt", 'w+')
-		file.write("playtour=Tour Experience")
-		file.close()
-
-		os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
-		print ("Query file send!!")
-
-	elif use_case == "Line Track Experience":
-		kml_file = generator_kml.generateKML_Line_Track_Experience(data_set)
-        
-		ip_galaxy_master = get_galaxy_ip()
-		ip_server = get_server_ip()
-
-		sendKML_ToGalaxy(kml_file, kml_name)
-		time.sleep(5.0)
-
-		file = open("kml_tmp/query.txt", 'w+')
-		file.write("playtour=Line Track Experience")
-		file.close()
-
-		os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
-		print ("Query file send!!")
-
-	elif use_case == "Spanish Airports":
-		kml_file = generator_kml.generateKML_Spanish_Airports()
-		sendKML_ToGalaxy(kml_file, kml_name)
-
-	elif use_case == "Summer Olympic Games":
-		kml_file = generator_kml.generateKML_Olympic_Games()
-		sendKML_ToGalaxy(kml_file, kml_name)
-		write_FlyTo_andSend(kml_file.name)
-
-def sendKML_ToGalaxy(kml_file, kml_name):
-	ip_galaxy_master = get_galaxy_ip()
-	ip_server = get_server_ip()
-
-	file = open("kml_tmp/kmls.txt", 'w+')
-	file.write("http://" + str(ip_server) + ":8000/static/" + "empty_file.kml" + "\n")
-	file.close()
-
-	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
-
-	time.sleep(3)
-
-	file = open("kml_tmp/kmls.txt", 'w+')
-	file.write("http://" + str(ip_server) + ":8000/static/" + str(kml_name)+".kml" + "\n")
-	file.close()
-
-	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
-
-	print ("KML send!!")
-
-def write_galaxy_ip(galaxy_ip):
-    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/galaxy_ip', 'w+')
-    f.write(galaxy_ip)
-    f.close()
-
-def get_galaxy_ip():
-    f = open(os.path.dirname(os.path.dirname(os.path.abspath(__file__))) + '/galaxy_ip', 'r')
-    ip_galaxy_master = f.read()
-    f.close()
-    print(ip_galaxy_master)
-    return ip_galaxy_master
-
-def get_server_ip():
-	ni.ifaddresses('eth0')
-	ip_server = ni.ifaddresses('eth0')[2][0]['addr']
-	return ip_server
-
 def start_tour_cities(request):
-	ip_galaxy_master = get_galaxy_ip()
-	ip_server = get_server_ip()
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
 
 	file = open("kml_tmp/query.txt", 'w+')
 	file.write("playtour=Tour cities")
@@ -157,8 +65,8 @@ def start_tour_cities(request):
 	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": informationList.get_information_list("Populated_Cities")})
 
 def stop_tour_cities(request):
-	ip_galaxy_master = get_galaxy_ip()
-	ip_server = get_server_ip()
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
 
 	file = open("kml_tmp/query.txt", 'w+')
 	file.write("exittour=true")
@@ -168,46 +76,41 @@ def stop_tour_cities(request):
 
 	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": informationList.get_information_list("Populated_Cities")})
 
+def tour_experience(request):
+	river_name = ""
 
-def write_FlyTo_andSend(kml_file_name):
-	ip_galaxy_master = get_galaxy_ip()
-	ip_server = get_server_ip()
+	for key,value in request.POST.items():
+		if key == "river_name":
+			river_name = value
 
-	file = open(kml_file_name, 'r+')
-	line = file.read()
-	flyto_text = line.split("<LookAt>")[1].split("</LookAt")[0]
-	file.close()
+	data_points = informationList.get_information_list("Data_Points")
+	list_rivers = informationList.get_information_list("Longest_Rivers")
+	print("rrrr ",river_name)
 
-	file = open("kml_tmp/query.txt", 'w+')
-	file.write("flytoview=<LookAt>"+flyto_text+"</LookAt>" + '\n')
-	file.close()
+	project_configuration.generate_kml("Tour Experience", data_points, kml_file_name_river_tour+"_"+river_name)
 
-	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
-	#time.sleep(10)
-    #start_tour_premier_league()
-	#file = open("kml_tmp/query.txt", 'w+')
-	#file.seek(0)
-	#file.truncate()
-	#file.write("playtour=Stadium Tour")
-	#file.close()
-	#os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
-def start_tour_premier_league():
-	ip_galaxy_master = get_galaxy_ip()
-	ip_server = get_server_ip()
+def line_track_experience(request):
+	river_name = ""
 
-	file = open("kml_tmp/query.txt", 'w+')
-	file.write("playtour=Stadium Tour")
-	file.close()
+	for key,value in request.POST.items():
+		if key == "river_name":
+			river_name = value
 
-	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+	data_points = informationList.get_information_list("Data_Points")
+	list_rivers = informationList.get_information_list("Longest_Rivers")
+
+	project_configuration.generate_kml("Line Track Experience", data_points, kml_file_name_river_line_track+"_"+river_name)
+
+	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
 def stop_experience(request):
 	print("stop experience")
 	list_rivers = informationList.get_information_list("Longest_Rivers")
 
-	ip_galaxy_master = get_galaxy_ip()
-	ip_server = get_server_ip()
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
 
 	file = open("kml_tmp/query.txt", 'w+')
 	file.write("exittour=true")
@@ -217,30 +120,7 @@ def stop_experience(request):
 
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
-def getClubShieldImage(response_xml):
-	response_xml = wikiapi.replace(response_xml)
-	ind_i = getIndex_substring("infobox",response_xml)
-	ind_f = getIndex_substring("scope",response_xml)
-	response_xml = response_xml[ind_i:ind_f]
-	print("1st cut:... ",response_xml)
-	ind_i = getIndex_substring("src=\"",response_xml)
-	ind_f = getIndex_substring("\" width",response_xml)
-	return "https:"+response_xml[ind_i+len("src=\""):ind_f]
-
-def getIndex_substring(string,resp):
-        index = 0
-        resp = str(resp)
-        if string in resp:
-           c = string[0]
-
-           for ch in resp:
-               if ch == c:
-                  if resp[index:index+len(string)] == string:
-                     return index
-
-               index += 1
-
-        return -1
+#--------------- EVERY USE CASE HAVE THEIR OWN QUERY ----------------------------
 
 def populated_cities_query(request):
 
@@ -302,21 +182,9 @@ def populated_cities_query(request):
 
 	    rank = rank + 1
 
-	print ("----- CITY INFORMATION -----",list_cities[i])
-	print ("RANK: ",list_cities[i].rank)
-	print ("CITY: ",list_cities[i].city)
-	print ("LATITUDE: ",list_cities[i].latitude)
-	print ("LONGITUDE: ",list_cities[i].longitude)
-	print ("IMAGE: ",list_cities[i].image)
-	print ("POPULATION: ",list_cities[i].population)
-	print ("AREA: ",list_cities[i].area)
-	print ("DENSITY: ",list_cities[i].density)
-	print ("COUNTRY: ",list_cities[i].country)
-	print ("ELEVATION: ",list_cities[i].elevation)
-
 	informationList.set_information_list("Populated_Cities",list_cities)
 
-	generate_kml("Tour Cities", list_cities, kml_file_name_tour_city)
+	project_configuration.generate_kml("Tour Cities", list_cities, kml_file_name_tour_city)
 	#time.sleep(5)
 	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": list_cities})
 
@@ -372,7 +240,7 @@ def premierLeague_stadiums_query(request):
 				club_short_name = result["clubsLabel"]["value"]
 				hash_stadium_club[club_name] = stadium_name
 
-				hash_club_shield = hash_club_shield + club_name + "=" + getClubShieldImage(wikiapi.find(club_short_name)) + "|"
+				hash_club_shield = hash_club_shield + club_name + "=" + aux_function.getClubShieldImage(wikiapi.find(club_short_name)) + "|"
 
 				club_founded = result["founded"]["value"]
 				club_founded = club_founded.split("-")[0]
@@ -438,14 +306,10 @@ def premierLeague_stadiums_query(request):
 					  i=i+1
 					clubstadium.addClubShield(club_shield_image)
 
-		generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
+		project_configuration.generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
 
 	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image , "club_selected": club_selected, "hash_club_shield": hash_club_shield} )
 
-def getStadiumByClub(club, hash_stadium_club):
-    for key, value in hash_stadium_club.items():
-        if key == club:
-            return value
 
 def longest_rivers_query(request):
 
@@ -541,7 +405,7 @@ def longest_rivers_query(request):
 
 		informationList.set_information_list("Longest_Rivers",list_rivers)
 
-		generate_kml("Longest Rivers", list_rivers, kml_file_name_longest_rivers)
+		project_configuration.generate_kml("Longest Rivers", list_rivers, kml_file_name_longest_rivers)
 
 	else:
 		list_rivers = informationList.get_information_list("Longest_Rivers")
@@ -552,50 +416,12 @@ def longest_rivers_query(request):
 				if key == "river_name":
 						river_name = value
 
-		data_points = get_river_dynamic_points(river_name)
+		data_points = aux_function.get_river_dynamic_points(river_name)
 
 		informationList.set_information_list("Data_Points",data_points)
 		print(river_name+" Points saved.")
 
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers} )
-
-def get_river_dynamic_points(river_name):
-    data_points = []
-
-    with open("static/river_points/"+str(river_name)+".txt", 'r+') as file:
-        for line in file:
-            data_points.append(line.splitlines())
-
-    return data_points
-
-def tour_experience(request):
-	river_name = ""
-
-	for key,value in request.POST.items():
-		if key == "river_name":
-			river_name = value
-
-	data_points = informationList.get_information_list("Data_Points")
-	list_rivers = informationList.get_information_list("Longest_Rivers")
-	print("rrrr ",river_name)
-
-	generate_kml("Tour Experience", data_points, kml_file_name_river_tour+"_"+river_name)
-
-	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
-
-def line_track_experience(request):
-	river_name = ""
-
-	for key,value in request.POST.items():
-		if key == "river_name":
-			river_name = value
-
-	data_points = informationList.get_information_list("Data_Points")
-	list_rivers = informationList.get_information_list("Longest_Rivers")
-
-	generate_kml("Line Track Experience", data_points, kml_file_name_river_line_track+"_"+river_name)
-
-	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
 def spanish_airports_query(request):
 
@@ -652,15 +478,7 @@ def spanish_airports_query(request):
 
 	    rank = rank + 1
 
-	print ("----- AIRPORT  INFORMATION -----")
-	print ("AIRPORT: ",list_airports[i].airport)
-	print ("CITY: ",list_airports[i].city)
-	print ("LATITUDE: ",list_airports[i].latitude)
-	print ("LONGITUDE: ",list_airports[i].longitude)
-	print ("IMAGE: ",list_airports[i].image)
-	print ("OPENING: ",list_airports[i].opening)
-
-	generate_kml("Spanish Airports", list_airports, kml_file_name_spanish_airports)
+	project_configuration.generate_kml("Spanish Airports", list_airports, kml_file_name_spanish_airports)
 
 	return render(request, 'WDLG/indexSpanishAirports.html')
 
@@ -681,7 +499,7 @@ def olympic_games_query(request):
             hash_data = wikiapi.scraping_infobox(result_xml)
             hash_data_medals = wikiapi.scraping_medal_table(medals_result_xml)
 
-            data_list = do_data_list(hash_data)
+            data_list = aux_function.do_data_list(hash_data)
 
             for key,value in hash_data_medals.items():
                 medal_country_code_list.append(key)
@@ -729,63 +547,6 @@ def olympic_games_query(request):
 
         wikiapi.get_url_image(str(olympic_game_selected.year)+" Summer Olympics")
 
-        generate_kml("Summer Olympic Games", olympic_game_selected, kml_file_name_summer_olympic_games)
+        project_configuration.generate_kml("Summer Olympic Games", olympic_game_selected, kml_file_name_summer_olympic_games)
 
     return render(request, 'WDLG/indexSummerOlympicGames.html', {"host_city_list": host_city_list})
-
-
-def get_city_coordenates(city):
-    city = "\""+city+"\""
-    sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
-
-    sparql.setReturnFormat(JSON)
-
-    sparql.setQuery("""SELECT DISTINCT ?coord
-                        WHERE
-                        {
-                          ?city wdt:P31/wdt:P279* wd:Q515 .
-                          ?city wdt:P625 ?coord .
-                          ?city rdfs:label ?cityname .
-
-                          FILTER (regex(?cityname,"""+city+"""))
-                          FILTER (lang(?cityname) = "en")
-
-                          SERVICE wikibase:label {
-                            bd:serviceParam wikibase:language "en" .
-                          }
-
-                        }
-                        LIMIT 1""")
-
-    queryResults = sparql.query().convert()
-    for result in queryResults["results"]["bindings"]:
-        coord = result["coord"]["value"]
-
-    return coord
-
-
-def do_data_list(hash_data):
-    for key in hash_data:
-        if "city" in key:
-            host_city = hash_data[key]
-        if "Motto" in key:
-            lema = hash_data[key]
-        if "Nations" in key:
-            num_nations = hash_data[key]
-            if len(num_nations)>3:
-                num_nations = num_nations.split(" ")[0]
-        if "Athletes" in key:
-            num_athletes = hash_data[key]
-            if len(num_athletes)>6:
-                num_athletes = num_athletes.split(" (")[0]
-        if "Events" in key:
-            num_events = hash_data[key].split(" in")[0]
-        if "Opening" in key:
-            opening_date = hash_data[key]
-        if "Closing" in key:
-            closing_date = hash_data[key]
-        if "Stadium" in key:
-            stadium = hash_data[key]
-
-    data_list = [host_city,lema,num_nations,num_athletes,num_events,opening_date,closing_date,stadium]
-    return data_list

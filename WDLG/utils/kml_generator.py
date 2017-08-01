@@ -1913,13 +1913,3 @@ class GeneratorKML(object):
         outfile.close()
 
         return outfile
-
-    def set_color(self, color):
-        if color == "Yellow":
-            return simplekml.Color.yellow
-        if color == "Red":
-            return simplekml.Color.red
-        if color == "Green":
-            return simplekml.Color.green
-        if color == "Blue":
-            return simplekml.Color.blue

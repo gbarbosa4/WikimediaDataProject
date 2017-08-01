@@ -19,8 +19,8 @@ uri_scheme = 'https'
 api_uri = 'wikipedia.org/w/api.php'
 
 _uri = 'wikipedia.org/wiki/'
-file_name = "olympic_games_tmp_file.xml"
-file_name_medals = "olympic_games_medals_tmp_file.xml"
+file_name = "tmp_files/olympic_games_tmp_file.xml"
+file_name_medals = "tmp_files/olympic_games_medals_tmp_file.xml"
 
 class WikiApi(object):
 

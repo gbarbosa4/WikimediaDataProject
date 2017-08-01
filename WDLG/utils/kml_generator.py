@@ -36,7 +36,7 @@ class GeneratorKML(object):
                                     KML.IconStyle(
                                         KML.scale('2.5'),
                                         KML.Icon(
-                                            KML.href('img/city.png')
+                                            KML.href('../img/city.png')
                                         ),
                                     ),
                                     KML.LabelStyle(
@@ -258,7 +258,7 @@ class GeneratorKML(object):
         # print (etree.tostring(tour_doc, pretty_print=True))
 
         # output a KML file (named based on the Python script)
-        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(tour_doc, encoding="unicode"))
         outfile.close()
 
@@ -277,7 +277,7 @@ class GeneratorKML(object):
                                     KML.IconStyle(
                                         KML.scale('2.5'),
                                         KML.Icon(
-                                            KML.href('img/stadium.png')
+                                            KML.href('../img/stadium.png')
                                         ),
                                     ),
                                     KML.LabelStyle(
@@ -448,14 +448,14 @@ class GeneratorKML(object):
             )
         )
 
-        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(airports_doc, encoding="unicode"))
         outfile.close()
 
         return outfile
 
     def generateKML_Longest_Rivers(self):
-
+        gxns = '{' + nsmap['gx'] + '}'
         stylename = "sn_shaded_dot"
         stylename_orig = "sn_shaded_dot_orig"
         stylename_mouth = "sn_shaded_dot_mouth"
@@ -514,7 +514,11 @@ class GeneratorKML(object):
                 KML.Folder(
                     KML.name('Features'),
                     id='features',
-                )
+                ),
+                GX.Tour(
+                    KML.name('Longest Rivers Tour'),
+                    GX.Playlist(),
+                ),
             )
         )
 
@@ -583,7 +587,7 @@ class GeneratorKML(object):
                 )
             )
 
-        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(doc, encoding="unicode"))
         outfile.close()
 
@@ -680,7 +684,7 @@ class GeneratorKML(object):
             )
             i=i+1
 
-        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(tour_doc, encoding="unicode"))
         outfile.close()
 
@@ -781,7 +785,7 @@ class GeneratorKML(object):
 
             i = i+1
 
-        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(river_doc, encoding="unicode"))
         outfile.close()
 
@@ -1022,7 +1026,7 @@ class GeneratorKML(object):
         # print (etree.tostring(tour_doc, pretty_print=True))
 
         # output a KML file (named based on the Python script)
-        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(airports_doc, encoding="unicode"))
         outfile.close()
 
@@ -1098,9 +1102,9 @@ class GeneratorKML(object):
         coord_to_kml_second = coord_to_kml_dict[1]["second"]
         coord_to_kml_third = coord_to_kml_dict[1]["third"]
 
-        flag_first = "img/flags/"+str(values[0]).replace(" ","")+".png"
-        flag_second = "img/flags/"+str(values[2]).replace(" ","")+".png"
-        flag_third = "img/flags/"+str(values[4]).replace(" ","")+".png"
+        flag_first = "../img/flags/"+str(values[0]).replace(" ","")+".png"
+        flag_second = "../img/flags/"+str(values[2]).replace(" ","")+".png"
+        flag_third = "../img/flags/"+str(values[4]).replace(" ","")+".png"
 
         #------ Little cylinders.. every country number of separated medals. Bucle 3 voltes -------
         i = 1 #i=1 first, i=2, second i=3, third
@@ -1230,7 +1234,7 @@ class GeneratorKML(object):
                                 KML.IconStyle(
                                     KML.scale('3.5'),
                                     KML.Icon(
-                                        KML.href("img/"+str(self.data_set.year)+" Summer Olympics.png")
+                                        KML.href("../img/"+str(self.data_set.year)+" Summer Olympics.png")
                                     ),
                                 ),
                                 id="style_iconJJOO"
@@ -1908,7 +1912,7 @@ class GeneratorKML(object):
             ),
         ),
 
-        outfile = open(os.path.join("static/", self.kml_name+".kml"),"w+")
+        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
         outfile.write(etree.tostring(olympic_game_doc, encoding="unicode"))
         outfile.close()
 

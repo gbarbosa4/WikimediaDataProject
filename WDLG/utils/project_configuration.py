@@ -30,7 +30,7 @@ class Project_configuration(object):
     	ip_server = self.get_server_ip()
 
     	file = open("kml_tmp/kmls.txt", 'w+')
-    	file.write("http://" + str(ip_server) + ":8000/static/" + "empty_file.kml" + "\n")
+    	file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
     	file.close()
 
     	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
@@ -38,7 +38,7 @@ class Project_configuration(object):
     	time.sleep(3)
 
     	file = open("kml_tmp/kmls.txt", 'w+')
-    	file.write("http://" + str(ip_server) + ":8000/static/" + str(kml_name)+".kml" + "\n")
+    	file.write("http://" + str(ip_server) + ":8000/static/kml/" + str(kml_name)+".kml" + "\n")
     	file.close()
 
     	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
@@ -59,6 +59,24 @@ class Project_configuration(object):
     	file.close()
 
     	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+    def sendEarthOrbitFile_ToGalaxy(self):
+    	ip_galaxy_master = self.get_galaxy_ip()
+    	ip_server = self.get_server_ip()
+
+
+    	with open("kml_tmp/kmls.txt", 'a') as file:
+    	    	file.write("http://" + str(ip_server) + ":8000/static/utils/earth_rotation.kml\n")
+    	file.close()
+
+    	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+    	time.sleep(2)
+    	file = open("kml_tmp/query.txt", 'w+')
+    	file.write("playtour=EarthOrbit")
+    	file.close()
+
+    	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+    	print("Query.txt send!!")
 
     def start_tour_premier_league(self):
     	ip_galaxy_master = self.get_galaxy_ip()
@@ -88,6 +106,7 @@ class Project_configuration(object):
     	elif use_case == "Longest Rivers":
     		kml_file = generator_kml.generateKML_Longest_Rivers()
     		self.sendKML_ToGalaxy(kml_file, kml_name)
+    		self.sendEarthOrbitFile_ToGalaxy()
 
     	elif use_case == "Tour Experience":
     		kml_file = generator_kml.generateKML_Tour_Experience(data_set)
@@ -96,7 +115,7 @@ class Project_configuration(object):
     		ip_server = self.get_server_ip()
 
     		self.sendKML_ToGalaxy(kml_file, kml_name)
-    		time.sleep(2.0)
+    		time.sleep(0.75)
 
     		file = open("kml_tmp/query.txt", 'w+')
     		file.write("playtour=Tour Experience")
@@ -112,7 +131,7 @@ class Project_configuration(object):
     		ip_server = self.get_server_ip()
 
     		self.sendKML_ToGalaxy(kml_file, kml_name)
-    		time.sleep(2.0)
+    		time.sleep(0.75)
 
     		file = open("kml_tmp/query.txt", 'w+')
     		file.write("playtour=Line Track Experience")

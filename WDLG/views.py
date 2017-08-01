@@ -117,6 +117,15 @@ def stop_experience(request):
 	file.close()
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+	time.sleep(1.5)
+
+	file = open("kml_tmp/kmls.txt", 'w+')
+	file.write("http://" + str(ip_server) + ":8000/static/kml/"+ kml_file_name_longest_rivers + ".kml\n")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
+	project_configuration.sendEarthOrbitFile_ToGalaxy()
 
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
@@ -506,7 +515,7 @@ def olympic_games_query(request):
 
             counter = 0
 
-            with open("static/country_3code.txt", 'r+') as file:
+            with open("static/utils/country_3code.txt", 'r+') as file:
                 while counter<3:
                     for line in file:
                         if str(medal_country_code_list[counter]) in line:
@@ -519,7 +528,7 @@ def olympic_games_query(request):
 
             olympic_games_list.append(OlympicGame(data_list[0],year,data_list[1],data_list[2],data_list[3],data_list[4],hash_data_medals,data_list[5],data_list[6],data_list[7]))
 
-            with open("static/coord_olympic_games.txt", 'r+') as file:
+            with open("static/utils/coord_olympic_games.txt", 'r+') as file:
                 for line in file:
                     if line.split(" =")[0] == data_list[0]:
                         longitude = line.split(" =")[1].split(",")[0]

@@ -10,6 +10,9 @@ from pykml.parser import Schema
 from lxml import etree
 from WDLG.utils.cylinders import CylindersKml
 
+gxns = '{' + nsmap['gx'] + '}'
+stylename = "sn_shaded_dot"
+stylename2 = "sn_shaded_dot2"
 
 class GeneratorKML(object):
 
@@ -23,285 +26,228 @@ class GeneratorKML(object):
         self.kml_name = kml_name
         self.icon = icon;
 
-    def generateKML_Tour_Cities(self):
+    def KML_file_header(self, icon, tour_name):
 
-        # define a variable for the Google Extensions namespace URL string
-        gxns = '{' + nsmap['gx'] + '}'
-        stylename = "sn_shaded_dot"
-        stylename2 = "sn_shaded_dot2"
-        # start with a base KML tour and playlist
-        tour_doc = KML.kml(
-                        KML.Document(
-                                KML.Style(
-                                    KML.IconStyle(
-                                        KML.scale('2.5'),
-                                        KML.Icon(
-                                            KML.href('../img/city.png')
-                                        ),
-                                    ),
-                                    KML.LabelStyle(
-                                        KML.color("FF4CBB17"),
-                                        KML.scale(2)
-                                    ),
-                                    KML.BalloonStyle(
-                                        KML.text("$[description]")
-                                    ),
-                                    id=stylename
-                                ),
-                                GX.Tour(
-                                    KML.name("Tour cities"),
-                                    GX.Playlist(),
-                                ),
-                                KML.Folder(
-                                    KML.name('Features'),
-                                    id='features',
-                                ),
-                        ),
+        kml_doc = KML.kml(
+                     KML.Document(
+                       KML.Style(
+                         KML.IconStyle(
+                           KML.scale('2.5'),
+                           KML.Icon(
+                             KML.href("../img/"+icon)
+                           ),
+                         ),
+                         KML.LabelStyle(
+                           KML.color("FF4CBB17"),
+                           KML.scale(2)
+                         ),
+                         KML.BalloonStyle(
+                           KML.text("$[description]")
+                         ),
+                         id=stylename
+                       ),
+                       GX.Tour(
+                         KML.name(tour_name),
+                         GX.Playlist(),
+                       ),
+                       KML.Folder(
+                         KML.name('Features'),
+                         id='features',
+                       ),
+                     ),
+                  )
+
+        return kml_doc
+
+    def find_to_stand_over_the_placemark(self, data, kml_doc):
+        # rota fins estar a sobre de la ciutat i apropar-se
+        kml_doc.Document[gxns + "Tour"].Playlist.append(
+            GX.FlyTo(
+                GX.duration(6),
+                GX.flyToMode("smooth"),
+                KML.LookAt(
+                    KML.longitude(float(data.longitude)),
+                    KML.latitude(float(data.latitude)),
+                    KML.altitude(0),
+                    KML.heading(0),
+                    KML.tilt(0),
+                    KML.range(self.range),
+                    KML.altitudeMode("relativeToGround"),
+                )
+            ),
+        )
+
+        return kml_doc
+
+    def fly_to_the_placemark(self, data, kml_doc):
+        # fly to the data
+        kml_doc.Document[gxns + "Tour"].Playlist.append(
+            GX.FlyTo(
+                GX.duration(10),
+                GX.flyToMode("bounce"),
+                KML.LookAt(
+                    KML.longitude(float(data.longitude)),
+                    KML.latitude(float(data.latitude)),
+                    KML.altitude(0),
+                    KML.heading(0),
+                    KML.tilt(0),
+                    KML.name((data.city).upper()),
+                    KML.range(7500),
+                    KML.altitudeMode("relativeToGround"),
+                )
+            ),
+        )
+
+        return kml_doc
+
+    def show_placemark_balloon(self, data, kml_doc):
+        # show the placemark balloon
+        kml_doc.Document[gxns + "Tour"].Playlist.append(
+            GX.AnimatedUpdate(
+                GX.duration(1.0),
+                KML.Update(
+                    KML.targetHref(),
+                    KML.Change(
+                        KML.Placemark(
+                            KML.visibility(1),
+                            GX.balloonVisibility(1),
+                            targetId=data.city.replace(' ', '_')
+                        )
                     )
+                )
+            )
+        )
 
-        for data in self.data_set:
-            # import ipdb; ipdb.set_trace()
-            # fly to a space viewpoint
-            # rota fins estar a sobre de la ciutat i apropar-se
-            tour_doc.Document[gxns + "Tour"].Playlist.append(
+        kml_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(12.0)))
+
+        kml_doc.Document[gxns + "Tour"].Playlist.append(
+            GX.AnimatedUpdate(
+                GX.duration(0.5),
+                KML.Update(
+                    KML.targetHref(),
+                    KML.Change(
+                        KML.Placemark(
+                            GX.balloonVisibility(0),
+                            targetId=data.city.replace(' ', '_')
+                        )
+                    )
+                )
+            )
+        )
+
+        return kml_doc
+
+    def rotation_around_placemark(self, data, kml_doc):
+        # spin around the data
+        for aspect in range(0, 360, 10):
+            kml_doc.Document[gxns + "Tour"].Playlist.append(
                 GX.FlyTo(
-                    GX.duration(6),
+                    GX.duration(0.75),
                     GX.flyToMode("smooth"),
                     KML.LookAt(
                         KML.longitude(float(data.longitude)),
                         KML.latitude(float(data.latitude)),
                         KML.altitude(0),
-                        KML.heading(0),
-                        KML.tilt(0),
-                        KML.range(self.range),
+                        KML.heading(aspect),
+                        KML.tilt(60),
+                        KML.range(2000),
                         KML.altitudeMode("relativeToGround"),
+                    )
+                )
+            )
+
+        kml_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(1.0)))
+
+        return kml_doc
+
+    def add_placemark_with_balloon(self, data, kml_doc):
+        html_str = ""
+        with open(os.getcwd()+"/static/html_balloons/city_balloon.html", 'r+') as file:
+            for line in file:
+                html_str = html_str + str(line)
+        print("--------------")
+        print(html_str)
+        file.close()
+        # add a placemark for the data
+        kml_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name((data.city).upper()),
+                KML.description(html_str.format(
+                    city_name_upper=data.city.upper(),
+                    ranking=data.rank,
+                    city_name=data.city,
+                    image=data.image,
+                    population=data.population,
+                    country=data.country,
+                    area=data.area,
+                    elevation=data.elevation,
+                )
+                ),
+                KML.styleUrl('#{0}'.format(stylename)),
+                #KML.styleUrl('#{0}'.format(stylename)),
+                KML.Point(
+                    KML.extrude(0),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates("{lon},{lat},{alt}".format(
+                        lon=float(data.longitude),
+                        lat=float(data.latitude),
+                        alt=50,
+                    )
                     )
                 ),
+                id=data.city.replace(' ', '_')
             )
+        )
 
-            # fly to the data
-            tour_doc.Document[gxns + "Tour"].Playlist.append(
-                GX.FlyTo(
-                    GX.duration(10),
-                    GX.flyToMode("bounce"),
-                    KML.LookAt(
-                        KML.longitude(float(data.longitude)),
-                        KML.latitude(float(data.latitude)),
-                        KML.altitude(0),
-                        KML.heading(0),
-                        KML.tilt(0),
-                        KML.name((data.city).upper()),
-                        KML.range(7500),
-                        KML.altitudeMode("relativeToGround"),
-                    )
-                ),
-            )
+        return kml_doc
 
-            # show the placemark balloon
-            tour_doc.Document[gxns + "Tour"].Playlist.append(
-                GX.AnimatedUpdate(
-                    GX.duration(1.0),
-                    KML.Update(
-                        KML.targetHref(),
-                        KML.Change(
-                            KML.Placemark(
-                                KML.visibility(1),
-                                GX.balloonVisibility(1),
-                                targetId=data.city.replace(' ', '_')
-                            )
-                        )
-                    )
+    def get_away_from_placemark(self, data, kml_doc):
+        # fly to a space viewpoint. Allunyar-se de la ciutat per buscar el seguent punt
+        kml_doc.Document[gxns + "Tour"].Playlist.append(
+            GX.FlyTo(
+                GX.duration(12),
+                GX.flyToMode("bounce"),
+                KML.LookAt(
+                    KML.longitude(float(data.longitude)),
+                    KML.latitude(float(data.latitude)),
+                    KML.altitude(0),
+                    KML.heading(0),
+                    KML.tilt(0),
+                    KML.range(self.range),
+                    KML.altitudeMode("relativeToGround"),
                 )
-            )
+            ),
+        )
 
-            tour_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(12.0)))
+        return kml_doc
 
-            tour_doc.Document[gxns + "Tour"].Playlist.append(
-                GX.AnimatedUpdate(
-                    GX.duration(0.5),
-                    KML.Update(
-                        KML.targetHref(),
-                        KML.Change(
-                            KML.Placemark(
-                                GX.balloonVisibility(0),
-                                targetId=data.city.replace(' ', '_')
-                            )
-                        )
-                    )
-                )
-            )
-
-            # spin around the data
-            for aspect in range(0, 360, 10):
-                tour_doc.Document[gxns + "Tour"].Playlist.append(
-                    GX.FlyTo(
-                        GX.duration(0.75),
-                        GX.flyToMode("smooth"),
-                        KML.LookAt(
-                            KML.longitude(float(data.longitude)),
-                            KML.latitude(float(data.latitude)),
-                            KML.altitude(0),
-                            KML.heading(aspect),
-                            KML.tilt(60),
-                            KML.range(2000),
-                            KML.altitudeMode("relativeToGround"),
-                        )
-                    )
-                )
-            tour_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(1.0)))
-
-            # tour_doc.Document[gxns+"Tour"].Playlist.append(
-            #        GX.TourControl(GX.playMode("pause"))
-            #    )
-
-            # add a placemark for the data
-            tour_doc.Document.Folder.append(
-                KML.Placemark(
-                    KML.name((data.city).upper()),
-                    KML.description(
-                    "<table width='400' border='1' cellspacing='0' cellpadding='4' bgcolor='#E6E6E6'> \
-                      <tr> \
-                        <td colspan='2' align='center'> \
-                          <h3><font color='#000000'>{city_name_upper}</font></h3> \
-                        </td> \
-                      </tr> \
-                      <tr> \
-                        <td colspan='2' align='center'> \
-                          <img src='{image}' alt='picture' width='400' height='280' /> \
-                        </td> \
-                      </tr> \
-                      <tr></tr> \
-                      <tr> \
-                        <td colspan='2'> \
-                          <font size='4'><b>Ranking:</b></font> \
-                          <font size='4'>{ranking}</font> \
-                        </td> \
-                      </tr> \
-                      <tr> \
-                        <td colspan='2'> \
-                          <font size='4'><b>City name:</b></font> \
-                          <font size='4'>{city_name}</font> \
-                        </td> \
-                      </tr> \
-                      <tr> \
-                        <td colspan='2'> \
-                          <font size='4'><b>Country:</b></font> \
-                          <font size='4'>{country}</font> \
-                        </td> \
-                      </tr> \
-                      <tr> \
-                        <td colspan='2'> \
-                          <font size='4'><b>Population:</b></font> \
-                          <font size='4'>{population}</font> <font size='4'>million people</font> \
-                        </td> \
-                      </tr> \
-                      <tr> \
-                        <td colspan='2'> \
-                          <font size='4'><b>Area:</b></font> \
-                          <font size='4'>{area}</font> <font size='4'>square kilometers</font> \
-                        </td> \
-                      </tr> \
-                      <tr> \
-                        <td colspan='2'> \
-                          <font size='4'><b>Elevation:</b></font> \
-                          <font size='4'>{elevation}</font> <font size='4'>metres</font> \
-                        </td> \
-                      </tr> \
-                    </table>".format(
-                            city_name_upper=data.city.upper(),
-                            ranking=data.rank,
-                            city_name=data.city,
-                            image=data.image,
-                            population=data.population,
-                            country=data.country,
-                            area=data.area,
-                            elevation=data.elevation,
-                    )
-                    ),
-                    KML.styleUrl('#{0}'.format(stylename)),
-                    #KML.styleUrl('#{0}'.format(stylename)),
-                    KML.Point(
-                        KML.extrude(0),
-                        KML.altitudeMode("relativeToGround"),
-                        KML.coordinates("{lon},{lat},{alt}".format(
-                            lon=float(data.longitude),
-                            lat=float(data.latitude),
-                            alt=50,
-                        )
-                        )
-                    ),
-                    id=data.city.replace(' ', '_')
-                )
-            )
-
-
-            # fly to a space viewpoint. Allunyar-se de la ciutat per buscar el seguent punt
-            tour_doc.Document[gxns + "Tour"].Playlist.append(
-                GX.FlyTo(
-                    GX.duration(12),
-                    GX.flyToMode("bounce"),
-                    KML.LookAt(
-                        KML.longitude(float(data.longitude)),
-                        KML.latitude(float(data.latitude)),
-                        KML.altitude(0),
-                        KML.heading(0),
-                        KML.tilt(0),
-                        KML.range(self.range),
-                        KML.altitudeMode("relativeToGround"),
-                    )
-                ),
-            )
-
-        # check that the KML document is valid using the Google Extension XML Schema
-        # assert(Schema("kml22gx.xsd").validate(tour_doc))
-
-        # print (etree.tostring(tour_doc, pretty_print=True))
-
+    def save_kml_file(self, kml_name, kml_doc):
         # output a KML file (named based on the Python script)
-        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
-        outfile.write(etree.tostring(tour_doc, encoding="unicode"))
+        outfile = open(os.path.join("static/kml/",kml_name+".kml"),"w+")
+        outfile.write(etree.tostring(kml_doc, encoding="unicode"))
         outfile.close()
 
         return outfile
 
-    def generateKML_premierLeague_Stadiums(self):
+    def generateKML_Tour_Cities(self):
+        tour_kml_doc = self.KML_file_header("city.png","Tour cities")
 
-        # define a variable for the Google Extensions namespace URL string
-        gxns = '{' + nsmap['gx'] + '}'
-        stylename = "sn_shaded_dot"
-        stylename2 = "sn_shaded_dot2"
-        # start with a base KML tour and playlist
-        airports_doc = KML.kml(
-                        KML.Document(
-                                KML.Style(
-                                    KML.IconStyle(
-                                        KML.scale('2.5'),
-                                        KML.Icon(
-                                            KML.href('../img/stadium.png')
-                                        ),
-                                    ),
-                                    KML.LabelStyle(
-                                        KML.color("FF4CBB17"),
-                                        KML.scale(1.2)
-                                    ),
-                                    KML.BalloonStyle(
-                                        KML.text("$[description]")
-                                    ),
-                                    id=stylename
-                                ),
-                                KML.Folder(
-                                    KML.name('Features'),
-                                    id='features',
-                                ),
-                                GX.Tour(
-                                    KML.name('Stadium Tour'),
-                                    GX.Playlist(),
-                                ),
-                        ),
-                    )
+        for data in self.data_set:
+            tour_kml_doc = self.find_to_stand_over_the_placemark(data,tour_kml_doc)
+            tour_kml_doc = self.fly_to_the_placemark(data,tour_kml_doc)
+            tour_kml_doc = self.show_placemark_balloon(data,tour_kml_doc)
+            tour_kml_doc = self.rotation_around_placemark(data,tour_kml_doc)
+            tour_kml_doc = self.add_placemark_with_balloon(data,tour_kml_doc)
+            tour_kml_doc = self.get_away_from_placemark(data,tour_kml_doc)
+
+        return self.save_kml_file(self.kml_name, tour_kml_doc)
+
+
+    def generateKML_premierLeague_Stadiums(self):
+        stadiums_km_doc = self.KML_file_header("stadium.png","Stadium Tour")
 
         # fly to the data
-        airports_doc.Document.Folder.append(
+        stadiums_km_doc.Document[gxns + "Tour"].Playlist.append(
             GX.FlyTo(
                 GX.duration(10),
                 GX.flyToMode("bounce"),
@@ -320,7 +266,7 @@ class GeneratorKML(object):
         #GX.Wait(GX.duration(10.0))
 
         # show the placemark balloon
-        airports_doc.Document[gxns + "Tour"].Playlist.append(
+        stadiums_km_doc.Document[gxns + "Tour"].Playlist.append(
             GX.AnimatedUpdate(
                 GX.duration(1.0),
                 KML.Update(
@@ -336,9 +282,9 @@ class GeneratorKML(object):
             )
         )
 
-        airports_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(8.0)))
+        stadiums_km_doc.Document[gxns + "Tour"].Playlist.append(GX.Wait(GX.duration(8.0)))
 
-        airports_doc.Document[gxns + "Tour"].Playlist.append(
+        stadiums_km_doc.Document[gxns + "Tour"].Playlist.append(
             GX.AnimatedUpdate(
                 GX.duration(0.5),
                 KML.Update(
@@ -355,7 +301,7 @@ class GeneratorKML(object):
 
         # spin around the data
         for aspect in range(0, 360, 10):
-            airports_doc.Document[gxns + "Tour"].Playlist.append(
+            stadiums_km_doc.Document[gxns + "Tour"].Playlist.append(
                 GX.FlyTo(
                     GX.duration(0.80),
                     GX.flyToMode("smooth"),
@@ -372,7 +318,7 @@ class GeneratorKML(object):
             )
 
         # add a placemark/BalloonStyle for the data
-        airports_doc.Document.Folder.append(
+        stadiums_km_doc.Document.Folder.append(
             KML.Placemark(
                 KML.name((self.data_set.stadiumName).upper()),
                 KML.description(
@@ -449,7 +395,7 @@ class GeneratorKML(object):
         )
 
         outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
-        outfile.write(etree.tostring(airports_doc, encoding="unicode"))
+        outfile.write(etree.tostring(stadiums_km_doc, encoding="unicode"))
         outfile.close()
 
         return outfile
@@ -462,10 +408,6 @@ class GeneratorKML(object):
 
         doc = KML.kml(
             KML.Document(
-                GX.Tour(
-                    KML.name("Play me!"),
-                    GX.Playlist(),
-                ),
                 KML.Style(
                     KML.IconStyle(
                         KML.scale('2.5'),

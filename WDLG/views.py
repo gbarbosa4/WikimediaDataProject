@@ -124,7 +124,7 @@ def stop_experience(request):
 	file.close()
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
-
+	time.sleep(1.5)
 	project_configuration.sendEarthOrbitFile_ToGalaxy()
 
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})

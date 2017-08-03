@@ -1,1 +1,1 @@
-playtour=Stadium Tour
+playtour=Tour cities

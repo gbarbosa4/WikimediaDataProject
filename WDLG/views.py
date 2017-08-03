@@ -279,6 +279,15 @@ def premierLeague_stadiums_query(request):
 		informationList.set_information_list("Premier_League_Stadiums_aux",hash_club_shield)
 		stadium_name = ""
 
+		ip_galaxy_master = project_configuration.get_galaxy_ip()
+		ip_server = project_configuration.get_server_ip()
+
+		file = open("kml_tmp/kmls.txt", 'w+')
+		file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
+		file.close()
+
+		os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
 	else:
 		clubs_list = []
 		clubstadium_list = informationList.get_information_list("Premier_League_Stadiums")

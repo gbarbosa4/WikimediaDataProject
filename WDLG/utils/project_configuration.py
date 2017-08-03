@@ -30,15 +30,7 @@ class Project_configuration(object):
     	ip_server = self.get_server_ip()
 
     	file = open("kml_tmp/kmls.txt", 'w+')
-    	file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
-    	file.close()
-
-    	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
-
-    	time.sleep(3)
-
-    	file = open("kml_tmp/kmls.txt", 'w+')
-    	file.write("http://" + str(ip_server) + ":8000/static/kml/" + str(kml_name)+".kml" + "\n")
+    	file.write("http://" + str(ip_server) + ":8000/static/kml/" + str(kml_name)+".kml?a=" + str(int(round(time.time()))) + "\n")
     	file.close()
 
     	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)

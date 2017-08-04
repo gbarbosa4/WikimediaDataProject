@@ -2,22 +2,38 @@
 {% load static %}
 
 <div id="content-wrapper">
-     <div class="mui--appbar-height"></div>
+  <br>
+  <div class="mui--text-center">
+    <tr>
+      <h1><img src="{% static 'img/airport.png' %}" title="airports" width="6%" align="middle">  Spanish Airports</h1>
+    </tr>
+  </div>
+  <div class="mui-container-fluid">
+    <div class="mui-row">
       <div class="mui--text-center">
-        <div class="mui--text-display2">Spanish Airports</div>
+        <div class="mui-content">
+          <form method="POST" action=""> {% csrf_token %}
+            {% for airport in list_airports %}
+             <div>
+               <h4 text-align="left" vertical-align="middle" id='{{airport.airport}}' type="text" value='{{airport.airport}}'>{{airport.airport}} -- {{airport.city}} -- ({{airport.opening}})</h4>
+             </div>
+            {% endfor %}
+          </form>
+          <br>
+          <div>
+            <a class="mui-btn mui-btn--green" href="{% url 'start_tour_airports' %}">START TOUR</a>
+            <a class="mui-btn mui-btn--red" href="{% url 'stop_tour_airports' %}">STOP TOUR</a>
+          </div>
+        </div>
       </div>
-      <div class="mui-container-fluid">
-                <div class="mui-row">
-                     <div class="col-xs-12">
-                           <div id="spinnerDiv" style="display:none">
-                           <div class="modal"> </div>
-                              <div class="overlay loading-indicator">
-                               <div id="spinner-target"></div>
-                             </div>
-                          </div>
-                     </div>
-                </div>
-      </div>
+    </div>
+  </div>
 </div>
-
 {% include "WDLG/footer.html" %}
+<body>
+<div id="wrap">
+   <div id="content">
+   This will be centered
+   </div>
+</div>
+</body>

@@ -37,6 +37,7 @@ class WikiApi(object):
     def getIndex_substring(self,string,resp):
             index = 0
             resp = str(resp)
+            string = str(string)
             if string in resp:
                c = string[0]
 
@@ -149,8 +150,9 @@ class WikiApi(object):
 
     def scraping_infobox(self, result_xml):
         hash_data = {}
-        index_i = self.getIndex_substring(("infobox").encode('utf-8'),result_xml)
-        index_f = self.getIndex_substring(("vertical-navbox").encode('utf-8'),result_xml)
+        #print("--> ",result_xml)
+        index_i = self.getIndex_substring("infobox",result_xml)
+        index_f = self.getIndex_substring("vertical-navbox",result_xml)
         result_xml = self.replace(result_xml[index_i:index_f])
         with open(file_name,'w') as f:
             f.write(result_xml)
@@ -178,13 +180,14 @@ class WikiApi(object):
 
     def scraping_medal_table(self, result_xml):
         hash_data_medals = {}
-        index_i = self.getIndex_substring(("|caption=").encode('utf-8'),result_xml)
+        index_i = self.getIndex_substring("|caption=",result_xml) - 180
         if "2016 Summer Olympics" in str(result_xml):
             index_f = index_i + 380
         elif "2012 Summer Olympics" in str(result_xml):
             index_f = index_i + 700
         else:
-            index_f = self.getIndex_substring(("4 ||align").encode('utf-8'),result_xml)
+            index_f = index_i + 500
+            print("iiiiiiiiiiiiii ",index_f)
         result_xml = self.replace(result_xml[index_i:index_f])
 
         with open(file_name_medals,'w') as f:
@@ -198,6 +201,7 @@ class WikiApi(object):
         country = ""
         for line in lines:
             if re.match('|', line) is not None:
+                print(line)
                 if "flag" in line:
                     if counter < 4:
                         if "scope" in line:
@@ -206,6 +210,7 @@ class WikiApi(object):
                             country = line.split("|")[5]
 
                         counter = counter + 1
+                        print(country," flag")
                 if "||" in line:
                     if counter < 4:
                         if "align" not in line:
@@ -217,6 +222,7 @@ class WikiApi(object):
 
                             medal_table_dict[country] = values.replace("\n","")
                         else:
+                            print("hereeeee")
                             i = 2
                             values = "|"
                             while i<6:

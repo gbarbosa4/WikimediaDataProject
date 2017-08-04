@@ -1,1 +1,1 @@
-playtour=Tour cities
+flytoview=<LookAt><longitude>-0.127894</longitude><latitude>51.507336</latitude><altitude>0</altitude><heading>-55</heading><tilt>65</tilt><name>LONDON</name><range>70000</range><altitudeMode>relativeToGround</altitudeMode></LookAt>

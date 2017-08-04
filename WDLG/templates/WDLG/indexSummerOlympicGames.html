@@ -4,20 +4,59 @@
 <div id="content-wrapper">
      <div class="mui--appbar-height"></div>
       <div class="mui--text-center">
-        <div class="mui--text-display2">Summer Olympic Games</div>
+        <h1> <img src="{% static 'img/olympicgames.png' %}" title="games" width="6%" align="middle">  Summer Olympic Games
       </div>
-      <div class="mui-container-fluid">
-                <div class="mui-row">
-                     <div class="col-xs-12">
-                           <div id="spinnerDiv" style="display:none">
-                           <div class="modal"> </div>
-                              <div class="overlay loading-indicator">
-                               <div id="spinner-target"></div>
-                             </div>
-                          </div>
-                     </div>
-                </div>
-      </div>
-</div>
 
+      <br>
+
+      <div class="mui-container-fluid">
+        <div class="mui-row">
+          <div class="mui--text-center">
+            <div class="mui-content">
+              <form method="POST" action="" id="olympicgames_options"> {% csrf_token %}
+                <table class="mui-table mui-table--bordered">
+                  {% for host_city in host_city_list %}
+                  <tbody>
+                    <div class="mui-col-md-4">
+                      <a id="river_button" class="mui-btn mui-btn--green2" onclick="javascript:selected_olympicgame_button('{{host_city}}');" value="{{host_city}}">{{host_city}}</a>
+                    </div>
+                  </tbody>
+                  {% endfor %}
+                </table>
+              </form>
+              <br>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="overlay_river" class="modal2" style="display: none;">
+        <h2 id="label_river" class="mui-m-n"><img src="{% static 'img/river.png' %}" title="river" width="30" height="30" align="left">  </h2>
+        <h3></h3>
+        <div>
+          <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_tour()">START TOUR EXPERIENCE</a>
+          <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_line_track()">START LINE TRACK EXPERIENCE</a>
+          <a style="visibility:visible" class="mui-btn mui-btn--red" href = "{% url 'stop_experience' %}">CLOSE EXPERIENCE</a>
+        </div>
+      </div>
+
+</div>
+<script>
+function selected_olympicgame_button(host_city){
+
+    const csrfmiddlewaretoken = readCookie('csrftoken');
+    console.info(csrfmiddlewaretoken);
+
+    fetch('/summer_olympic_games', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      },
+      body: `csrfmiddlewaretoken=${csrfmiddlewaretoken}&host_city=${host_city}`,
+      credentials: 'include'
+    }).then(() => {
+      ///alert('done');
+    });
+}
+</script>
 {% include "WDLG/footer.html" %}

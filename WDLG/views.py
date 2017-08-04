@@ -129,6 +129,30 @@ def stop_experience(request):
 
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
+def start_tour_airports(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("playtour=Spanish Airports Tour")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+	return render(request, 'WDLG/indexSpanishAirports.html', {"list_airports": informationList.get_information_list("Spanish_Airports")})
+
+def stop_tour_airports(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("exittour=true")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+	return render(request, 'WDLG/indexSpanishAirports.html', {"list_airports": informationList.get_information_list("Spanish_Airports")})
+
 #--------------- EVERY USE CASE HAVE THEIR OWN QUERY ----------------------------
 
 def populated_cities_query(request):
@@ -496,9 +520,11 @@ def spanish_airports_query(request):
 
 	    rank = rank + 1
 
+	informationList.set_information_list("Spanish_Airports",list_airports)
+
 	project_configuration.generate_kml("Spanish Airports", list_airports, kml_file_name_spanish_airports)
 
-	return render(request, 'WDLG/indexSpanishAirports.html')
+	return render(request, 'WDLG/indexSpanishAirports.html', {"list_airports": list_airports})
 
 def olympic_games_query(request):
     print("OLYMPIC GAMES obtaining data...")
@@ -516,9 +542,7 @@ def olympic_games_query(request):
             medals_result_xml = wikiapi.find(str(year)+" Summer Olympics medal table")
             hash_data = wikiapi.scraping_infobox(result_xml)
             hash_data_medals = wikiapi.scraping_medal_table(medals_result_xml)
-
             data_list = aux_function.do_data_list(hash_data)
-
             for key,value in hash_data_medals.items():
                 medal_country_code_list.append(key)
 
@@ -551,7 +575,17 @@ def olympic_games_query(request):
 
         informationList.set_information_list("Olympic_Games",olympic_games_list)
 
+        ip_galaxy_master = project_configuration.get_galaxy_ip()
+        ip_server = project_configuration.get_server_ip()
+
+        file = open("kml_tmp/kmls.txt", 'w+')
+        file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
+        file.close()
+
+        os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
     else:
+        print("Summer Olympic Games ...")
         olympic_games_list = informationList.get_information_list("Olympic_Games")
 
         for key,value in request.POST.items():

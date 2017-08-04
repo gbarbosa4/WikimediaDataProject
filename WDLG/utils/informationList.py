@@ -6,6 +6,7 @@ class InformationList(object):
     olympicGamesList = None
     longest_rivers_list = None
     data_points = None
+    spanishAirportsList = None
 
     def __init__(self):
         print("New Information List")
@@ -23,6 +24,8 @@ class InformationList(object):
             self.longest_rivers_list = list
         if type == "Data_Points":
             self.data_points = list
+        if type == "Spanish_Airports":
+            self.spanishAirportsList = list
 
     def get_information_list(self,type):
         if type == "Olympic_Games":
@@ -37,3 +40,5 @@ class InformationList(object):
             return self.longest_rivers_list
         if type == "Data_Points":
             return self.data_points
+        if type == "Spanish_Airports":
+            return self.spanishAirportsList

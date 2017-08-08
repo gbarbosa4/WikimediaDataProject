@@ -4,44 +4,55 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 <script type="text/javascript" src="{% static 'js/overlay.js' %}"></script>
 
-<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Sigmar+One"/>
-<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Merienda+One"/>
-<link rel="stylesheet" type="text/css" href="//fonts.googleapis.com/css?family=Patrick+Hand"/>
+<link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
 
 <div id="sidedrawer" class="mui--no-user-select">
-  <div id="sidedrawer-brand" class="mui--appbar-line-height">
-      <center><span class="mui--text-title"><a href="/"><img style="width: 43%;" src="{% static 'img/logoWD.png' %}"/></a></span></center>
+  <div id="sidedrawer-brand" class="mui--appbar-height">
+      <center><span class="mui--text-title"><a href="/"><img style="width: 52%;" src="{% static 'img/logo_WDLGV.png' %}"/></a></span></center>
   </div>
+
   <div class="mui-divider"></div>
   <ul>
-    <strong id="menu_item1"><li class="menu item2"><img src="{% static 'img/city.png' %}" title="city" width="20%"><a href="{% url 'populated_cities' %}"><b>  Most Populated Cities</b></a></li></strong>
+    <li class="menu item2"><a href="{% url 'populated_cities' %}"><strong id="menu_item1"><img src="{% static 'img/city.png' %}" title="city" width="23%"><b>  Most Populated Cities</b></strong></a></li>
   </ul>
   <ul>
-    <strong id="menu_item2"><li class="menu item2"><img src="{% static 'img/stadium.png' %}" title="stadium" width="20%"><a href="{% url 'premierLeague_stadiums' %}"><b>  Premier League Stadiums</b></a></li></strong>
+    <li class="menu item2"><a href="{% url 'premierLeague_stadiums' %}"><strong id="menu_item2"><img src="{% static 'img/stadium.png' %}" title="stadium" width="23%"><b>  Premier League Stadiums</b></strong></a></li>
   </ul>
   <ul>
-    <strong id="menu_item3"><li class="menu item2"><img src="{% static 'img/river.png' %}" title="river" width="20%"><a href="{% url 'longest_rivers' %}"><b>  The Longest Rivers</b></a></li></strong>
+    <li class="menu item2"><a href="{% url 'longest_rivers' %}"><strong id="menu_item3"><img src="{% static 'img/river.png' %}" title="river" width="23%"><b>  The Longest Rivers</b></strong></a></li>
   </ul>
   <ul>
-    <strong id="menu_item4"><li class="menu item2"><img src="{% static 'img/airport.png' %}" title="airport" width="20%"><a href="{% url 'spanish_airports' %}"><b>  Spanish Airports</b></a></li></strong>
+    <li class="menu item2"><a href="{% url 'spanish_airports' %}"><strong id="menu_item4"><img src="{% static 'img/airport.png' %}" title="airport" width="23%"><b>  Spanish Airports</b></strong></a></li>
   </ul>
   <ul>
-    <strong id="menu_item5"><li class="menu item2"><img src="{% static 'img/olympicgames.png' %}" title="olympicgame" width="20%"><a href="{% url 'summer_olympic_games' %}"><b>  Summer Olympic Games</b></a></li></strong>
+    <li class="menu item2"><a href="{% url 'summer_olympic_games' %}"><strong id="menu_item5"><img src="{% static 'img/olympicgames.png' %}" title="olympicgame" width="23%"><b>  Summer Olympic Games</b></strong></a></li>
+  </ul>
+  <ul>
+    <li class="menu item2"><a href="{% url 'summer_olympic_games' %}"><strong id="menu_item5"><img src="{% static 'img/usa.png' %}" title="olympicgame" width="23%"><b>  States of the United States</b></strong></a></li>
   </ul>
 </div>
 
 <header id="header">
-  <div class="mui-appbar mui--appbar-line-height">
-    <div class="mui-container-fluid">
-      <table width="100%" height="50%">
+  <div class="mui-container-fluid">
+      <table width="100%">
         <tr style="vertical-align:middle;">
-          <td class="mui--appbar-height" align="left">
+          <td class="mui--appbar-height">
             <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
             <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
-            <span style="color:#E7FC3B;font-family: Sigmar One;font-size: 20px;" class="mui--text-title" align="center">Wikidata Liquid Galaxy Visualization</span>
+              <span style="color:#BEDEF1;font-family: Roboto;font-size: 24px;ont-style:bold;" class="menuApp" align="center">WIKIDATA LIQUID GALAXY VISUALIZATION</span>
           </td>
-          <td class="mui--appbar-height" align="right">
-            <a class="mui-appbar"><i class="material-icons">more_vert</i></a>
+          <td class="mui--text-center">
+          <div class="mui-dropdown">
+            <a id="appbar-more-vert" class="sidedrawer-toggle" data-mui-toggle="dropdown">
+              <i class="material-icons">more_vert</i></a>
+
+            <ul class="mui-dropdown__menu mui-dropdown__menu--right">
+              <li><a href="/docs/v1/getting-started/introduction">Clear KML's folder</a></li>
+              <li><a href="/docs/v1/getting-started/roadmap">Stop current Tour</a></li>
+              <li><a href="/support">Relaunch Liquid Galaxy</a></li>
+              <li><a href="/feedback">Clear Liquid Galaxy Cache</a></li>
+            </ul>
+          </div>
           </td>
         </tr>
       </table>

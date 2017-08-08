@@ -10,7 +10,6 @@
   padding: 1em;
 }
 
-
 [class*="overlay"] {
     position: fixed;
     z-index: 11000; // z-index: map-get($z-index, modal);
@@ -113,4 +112,42 @@
     /* needed styles for the overlay */
     z-index: 10; /* keep on top of other elements on the page */
     box-shadow: 0 0 0 9999px rgba(0,0,0,0.8);
+}
+
+.modal3 {
+    /* some styles to position the modal at the center of the page */
+    position: absolute;
+    top: 25%;
+    left: 50%;
+    width: 300px;
+    line-height: 200px;
+    height: 400px;
+    margin-left: -150px;
+    margin-top: -50px;
+    background-color: rgba(0,0,0,0.5);
+    text-align: center;
+    border-radius: 25px;
+
+    /* needed styles for the overlay */
+    z-index: 10; /* keep on top of other elements on the page */
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+}
+
+a.boxclose{
+    float: right;
+    margin-top:-1px;
+    margin-right:-1px;
+    cursor:pointer;
+    color: #000;
+    border: 2px solid #000000;
+    border-radius: 30px;
+    background: #fff;
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 0px;
+    padding: 11px 3px;
+}
+
+.boxclose:before {
+    content: "×";
 }

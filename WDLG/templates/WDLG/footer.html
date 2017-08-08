@@ -1,6 +1,26 @@
+{% load static %}
 <footer id="footer">
   <div class="mui-container-fluid">
-    <br>
-    Google Summer of Code 2017 - Guillem Barbosa Costa
+    <br> | Guillem Barbosa Costa - Google Summer of Code 2017 |
+    <div class="mui-content" align="right">
+        <a id="appbar-more-vert" class="sidedrawer-toggle" onclick="showLogos()">
+        <i class="material-icons">info</i></a>
+    </div>
   </div>
 </footer>
+
+<div id="overlay_logos" class="modal3" style="display: none;">
+  <a class="boxclose" id="boxclose" onclick="close_overlay()"></a>
+  <h2 id="label_river" class="mui-m-n"><img src="{% static 'img/logos_comuns.png' %}" title="river" width="98%" align="center"></h2>
+  <h3></h3>
+</div>
+
+<script>
+function showLogos(){
+  document.getElementById('overlay_logos').style.display = "block";
+}
+
+function close_overlay(){
+  document.getElementById('overlay_logos').style.display = "none";
+}
+</script>

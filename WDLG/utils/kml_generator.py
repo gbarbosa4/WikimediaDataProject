@@ -1,6 +1,7 @@
 import simplekml
 import os
 import traceback
+import collections
 from simplekml import Kml
 
 from pykml.factory import nsmap
@@ -13,8 +14,17 @@ gxns = '{' + nsmap['gx'] + '}'
 stylename = "stylename"
 stylename2 = "stylename2"
 stylename_icon = "style_only_icon"
+stylename_icon_flags1 = "style_only_icon_flag1"
+stylename_icon_flags2 = "style_only_icon_flag2"
+stylename_icon_flags3 = "style_only_icon_flag3"
 stylename_icon_label = "style_icon_label"
 stylename_icon_line_poly = "style_icon_line_poly"
+style_first = "style_first"
+style_second = "style_second"
+style_third = "style_third"
+style_golden = "style_golden"
+style_silver = "style_silver"
+style_bronze = "style_bronze"
 
 class GeneratorKML(object):
 
@@ -89,7 +99,10 @@ class GeneratorKML(object):
 
         return kml_doc
 
-    def KML_file_header_olympic_games(self, icon):
+    def KML_file_header_olympic_games(self):
+        flags_list = []
+        for country in self.data_set.medalTable:
+            flags_list.append(country)
 
         kml_doc = KML.kml(
                     KML.Document(
@@ -103,9 +116,36 @@ class GeneratorKML(object):
                         id=stylename_icon
                       ),
                       KML.Style(
+                        KML.IconStyle(
+                          KML.scale('3.5'),
+                          KML.Icon(
+                            KML.href("../img/flags/"+flags_list[0].replace(" ","")+".png")
+                          ),
+                        ),
+                        id=stylename_icon_flags1
+                      ),
+                      KML.Style(
+                        KML.IconStyle(
+                          KML.scale('3.5'),
+                          KML.Icon(
+                            KML.href("../img/flags/"+flags_list[1].replace(" ","")+".png")
+                          ),
+                        ),
+                        id=stylename_icon_flags2
+                      ),
+                      KML.Style(
+                        KML.IconStyle(
+                          KML.scale('3.5'),
+                          KML.Icon(
+                            KML.href("../img/flags/"+flags_list[2].replace(" ","")+".png")
+                          ),
+                        ),
+                        id=stylename_icon_flags3
+                      ),
+                      KML.Style(
                         KML.LabelStyle(
-                          KML.color("FF4CBB17"),
-                          KML.scale(2.5)
+                          KML.color("FFFFFFFF"),
+                          KML.scale(1.75)
                         ),
                         KML.IconStyle(
                           KML.scale('3.5'),
@@ -133,7 +173,107 @@ class GeneratorKML(object):
                           KML.fill(1),
                           KML.outline(1),
                         ),
-                        id=stylename_icon_line_poly
+                        id=style_first
+                      ),
+                      KML.Style(
+                        KML.IconStyle(
+                          KML.scale('4.0'),
+                          KML.Icon(
+                            KML.href("")
+                          ),
+                        ),
+                        KML.LineStyle(
+                          KML.color("ffee7920"),
+                          KML.colorMode("normal"),
+                          KML.width(5000),
+                        ),
+                        KML.PolyStyle(
+                          KML.color("ffee7920"),
+                          KML.colorMode("normal"),
+                          KML.fill(1),
+                          KML.outline(1),
+                        ),
+                        id=style_second
+                      ),
+                      KML.Style(
+                        KML.IconStyle(
+                          KML.scale('4.0'),
+                          KML.Icon(
+                            KML.href("")
+                          ),
+                        ),
+                        KML.LineStyle(
+                          KML.color("fff3b17f"),
+                          KML.colorMode("normal"),
+                          KML.width(5000),
+                        ),
+                        KML.PolyStyle(
+                          KML.color("fff3b17f"),
+                          KML.colorMode("normal"),
+                          KML.fill(1),
+                          KML.outline(1),
+                        ),
+                        id=style_third
+                      ),
+                      KML.Style(
+                        KML.IconStyle(
+                          KML.scale('4.0'),
+                          KML.Icon(
+                            KML.href("")
+                          ),
+                        ),
+                        KML.LineStyle(
+                          KML.color("ff00d7ff"),
+                          KML.colorMode("normal"),
+                          KML.width(5000),
+                        ),
+                        KML.PolyStyle(
+                          KML.color("ff00d7ff"),
+                          KML.colorMode("normal"),
+                          KML.fill(1),
+                          KML.outline(1),
+                        ),
+                        id=style_golden
+                      ),
+                      KML.Style(
+                        KML.IconStyle(
+                          KML.scale('4.0'),
+                          KML.Icon(
+                            KML.href("")
+                          ),
+                        ),
+                        KML.LineStyle(
+                          KML.color("ffc0c0c0"),
+                          KML.colorMode("normal"),
+                          KML.width(5000),
+                        ),
+                        KML.PolyStyle(
+                          KML.color("ffc0c0c0"),
+                          KML.colorMode("normal"),
+                          KML.fill(1),
+                          KML.outline(1),
+                        ),
+                        id=style_silver
+                      ),
+                      KML.Style(
+                        KML.IconStyle(
+                          KML.scale('4.0'),
+                          KML.Icon(
+                            KML.href("")
+                          ),
+                        ),
+                        KML.LineStyle(
+                          KML.color("ff53788c"),
+                          KML.colorMode("normal"),
+                          KML.width(5000),
+                        ),
+                        KML.PolyStyle(
+                          KML.color("ff53788c"),
+                          KML.colorMode("normal"),
+                          KML.fill(1),
+                          KML.outline(1),
+                        ),
+                        id=style_bronze
                       ),
                       GX.Tour(
                         KML.name("Tour Name"),
@@ -388,6 +528,43 @@ class GeneratorKML(object):
 
         return kml_doc
 
+    def placemark_olympic_games_case(self, name, style, coordinates, kml_doc):
+
+        kml_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.name(name),
+                KML.styleUrl('#{0}'.format(style)),
+                KML.Point(
+                    KML.extrude(1),
+                    KML.altitudeMode("relativeToGround"),
+                    KML.coordinates(coordinates),
+                ),
+            ),
+        ),
+
+        return kml_doc
+
+    def placemark_polygon_olympic_games_case(self, style, coordinates, kml_doc):
+
+        kml_doc.Document.Folder.append(
+            KML.Placemark(
+                KML.styleUrl('#{0}'.format(style)),
+                KML.MultiGeometry(
+                    KML.Polygon(
+                        KML.extrude(0),
+                        KML.altitudeMode("absolute"),
+                        KML.outerBoundaryIs(
+                            KML.LinearRing(
+                                KML.coordinates(coordinates),
+                            ),
+                        ),
+                    ),
+                ),
+            ),
+        ),
+
+        return kml_doc
+
     def save_kml_file(self, kml_name, kml_doc):
         # output a KML file (named based on the Python script)
         outfile = open(os.path.join("static/kml/",kml_name+".kml"),"w+")
@@ -598,46 +775,77 @@ class GeneratorKML(object):
 
         return data_dict
 
-    def medals_data_cylinders(self, data, medal):
+    def medals_data_cylinders(self, data, num_medals, medal, kml_doc):
         pointer_medal = data[0][medal]
         coord_to_kml_medal = data[1][medal]
+        if medal == "golden":
+            kml_doc = self.placemark_polygon_olympic_games_case(style_golden,coord_to_kml_medal,kml_doc)
+        if medal == "silver":
+            kml_doc = self.placemark_polygon_olympic_games_case(style_silver,coord_to_kml_medal,kml_doc)
+        if medal == "bronze":
+            kml_doc = self.placemark_polygon_olympic_games_case(style_bronze,coord_to_kml_medal,kml_doc)
 
         alt_medal = str(pointer_medal).split(",")[2]
         num_alt_medal = float(alt_medal)/3.0
         pointer_medal_label = str(pointer_medal).replace(str(alt_medal),str(num_alt_medal))
+        kml_doc = self.placemark_olympic_games_case(num_medals,stylename_icon_label,pointer_medal_label,kml_doc)
 
-    def podium_data_cylinders(self, data, medal_table, position, index_value):
+        return kml_doc
+
+    def podium_data_cylinders(self, data, name, medal_table, position, kml_doc):
+        i = 0
         pointer = data[0][position]
+        if position == "first":
+            kml_doc = self.placemark_olympic_games_case("",stylename_icon_flags1,pointer,kml_doc)
+            i=1
+        if position == "second":
+            kml_doc = self.placemark_olympic_games_case("",stylename_icon_flags2,pointer,kml_doc)
+            i=2
+        if position == "third":
+            kml_doc = self.placemark_olympic_games_case("",stylename_icon_flags3,pointer,kml_doc)
+            i=3
+
         alt = str(pointer).split(",")[2]
         pointer_label = str(pointer).replace(str(alt),str(float(alt)-3000.0))
+        kml_doc = self.placemark_olympic_games_case(name[0],stylename_icon_label,pointer_label,kml_doc)
         pointer_medals = str(pointer).replace(str(alt),str(float(alt)-5000.0))
+        kml_doc = self.placemark_olympic_games_case("Total: "+name[1]+" medals.",stylename_icon_label,pointer_medals,kml_doc)
         coord_to_kml = data[1][position]
-        flag = "../img/flags/"+str("China").replace(" ","")+".png"
+        if position == "first":
+            kml_doc = self.placemark_polygon_olympic_games_case(style_first,coord_to_kml,kml_doc)
+        if position == "second":
+            kml_doc = self.placemark_polygon_olympic_games_case(style_second,coord_to_kml,kml_doc)
+        if position == "third":
+            kml_doc = self.placemark_polygon_olympic_games_case(style_third,coord_to_kml,kml_doc)
+
         #------ Little cylinders.. every country number of separated medals. Bucle 3 voltes -------
-        i=1
-        while i<=3:
-            data_list = []
-            data_list.append(float(str(pointer).split(",")[1]))
-            data_list.append(float(str(pointer).split(",")[0]))
-            data_list.append(medal_table)
-            data_list.append("cylinder_medals")
+        data_list = []
+        data_list.append(float(str(pointer).split(",")[1]))
+        data_list.append(float(str(pointer).split(",")[0]))
+        data_list.append(medal_table)
+        data_list.append("cylinder_medals")
 
-            data_dict_medals = self.preparing_KML_data(data_list,"medals","medals",i)
+        data_dict_medals = self.preparing_KML_data(data_list,"medals","medals",i)
 
-            cilinder_medals = CylindersKml("",data_dict_medals)
-            coord_to_kml_dict_medals = cilinder_medals.makeKML()
+        cilinder_medals = CylindersKml("",data_dict_medals)
+        coord_to_kml_dict_medals = cilinder_medals.makeKML()
 
-            self.medals_data_cylinders(coord_to_kml_dict_medals,"golden")
-            self.medals_data_cylinders(coord_to_kml_dict_medals,"silver")
-            self.medals_data_cylinders(coord_to_kml_dict_medals,"bronze")
+        print("-- ",position," ",data_dict_medals["description"][0])
+        print(data_dict_medals["description"][1])
+        print(data_dict_medals["description"][2])
+        print(data_dict_medals["description"][3])
 
-            i = i+1
+        kml_doc = self.medals_data_cylinders(coord_to_kml_dict_medals,data_dict_medals["description"][1],"golden",kml_doc)
+        kml_doc = self.medals_data_cylinders(coord_to_kml_dict_medals,data_dict_medals["description"][2],"silver",kml_doc)
+        kml_doc = self.medals_data_cylinders(coord_to_kml_dict_medals,data_dict_medals["description"][3],"bronze",kml_doc)
+
+        return kml_doc
 
     def generateKML_Olympic_Games(self):
+        olympic_games_kml_doc = self.KML_file_header_olympic_games()
         longitude = float(self.data_set.longitude)
         latitude = float(self.data_set.latitude)
 
-        olympic_games_kml_doc = self.KML_file_header_olympic_games("")
         fly_to_params = [6.0,0,-55,65,self.data_set.hostCity,70000]
         olympic_games_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,olympic_games_kml_doc)
         olympic_games_kml_doc = self.add_placemark_simple(self.data_set,self.data_set.hostCity+" "+str(self.data_set.year),stylename_icon_label,"",25000,olympic_games_kml_doc)
@@ -650,18 +858,12 @@ class GeneratorKML(object):
         data_list.append(self.data_set.hostCity + " " + str(self.data_set.year))
 
         data_dict = self.preparing_KML_data(data_list,"total","podium",0)
-
+        print(data_dict)
         cilinders = CylindersKml("",data_dict)
         coord_to_kml_dict = cilinders.makeKML()
 
-        self.podium_data_cylinders(coord_to_kml_dict,self.data_set.medalTable,"first",int(0))
-        self.podium_data_cylinders(coord_to_kml_dict,self.data_set.medalTable,"second",int(2))
-        self.podium_data_cylinders(coord_to_kml_dict,self.data_set.medalTable,"third",int(4))
+        olympic_games_kml_doc = self.podium_data_cylinders(coord_to_kml_dict,[data_dict["description"][0],data_dict["description"][1]],self.data_set.medalTable,"first",olympic_games_kml_doc)
+        olympic_games_kml_doc = self.podium_data_cylinders(coord_to_kml_dict,[data_dict["description"][2],data_dict["description"][3]],self.data_set.medalTable,"second",olympic_games_kml_doc)
+        olympic_games_kml_doc =self.podium_data_cylinders(coord_to_kml_dict,[data_dict["description"][4],data_dict["description"][5]],self.data_set.medalTable,"third",olympic_games_kml_doc)
 
-
-
-        outfile = open(os.path.join("static/kml/", self.kml_name+".kml"),"w+")
-        outfile.write(etree.tostring(olympic_games_kml_doc, encoding="unicode"))
-        outfile.close()
-
-        return outfile
+        return self.save_kml_file(self.kml_name, olympic_games_kml_doc)

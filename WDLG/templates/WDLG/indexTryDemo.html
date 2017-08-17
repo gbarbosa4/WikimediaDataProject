@@ -1,0 +1,25 @@
+{% include "WDLG/header.html" %}
+{% load static %}
+
+<div id="content-wrapper">
+  <br>
+  <div class="mui--text-center">
+    <tr>
+      <h1><img src="{% static 'img/demo.png' %}" title="demo" width="6%" align="middle">  Try the Demo</h1>
+    </tr>
+  </div>
+  <div class="mui--text-center">
+    <h3><img src="{% static 'img/lleida_icon.jpg' %}" title="city" width="8%" align="middle"> <b>Lleida Tour</b> </h3>
+    <h4> Travel through the city of Lleida and enjoy this great city. </h4>
+    <a class="mui-btn mui-btn--green" href="{% url 'start_lleida_tour' %}">START DEMO</a>
+    <a class="mui-btn mui-btn--red" href="{% url 'stop_tour_demo' %}">STOP DEMO</a>
+  </div>
+  <br></br>
+  <div class="mui--text-center">
+    <tr><h3><img src="{% static 'img/bayern_icon.png' %}" title="city" width="4%" align="middle"> <b>Allianz Arena Tour</b> </h3></tr>
+    <h4> Visit the Bayern stadium, one of the most important in Europe, located in the city of Munich. <h4>
+    <a class="mui-btn mui-btn--green" href="{% url 'start_bayern_tour' %}">START DEMO</a>
+    <a class="mui-btn mui-btn--red" href="{% url 'stop_tour_demo' %}">STOP DEMO</a>
+  </div>
+</div>
+{% include "WDLG/footer.html" %}

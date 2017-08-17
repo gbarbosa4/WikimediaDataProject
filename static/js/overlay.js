@@ -1,78 +1,5 @@
 $( document ).ready(function() {
 
-$("#menu_item1").click(function () {
-
-  imagesArray = ["","static/img/wikidata.png", "static/img/dataanalysis.png", "static/img/kmlfile.png"];
-  labelArray = ["","Wikidata query. \t Most Populated Cities in the World", "Analyzing data. \t Getting information about the cities.", "Generating KML file. \t The tour will be ready in a moment."];
-
-  count = 0;
-  $("#modal").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-  $("#modal2").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-
-  setInterval(function () {
-    count = count + 1;
-    $("#image").fadeOut(0, function () {
-      $(this).attr("src", imagesArray[count]).fadeIn(0);
-    });
-    $("#header2").fadeOut(0, function () {
-      $(this).text(labelArray[count]).fadeIn(0);
-    });
-  }, 3400);
-});
-
-
-$("#menu_item2").click(function () {
-
-  imagesArray = ["","static/img/wikidata.png","static/img/dataanalysis.png","static/img/premierleague.png"];
-  labelArray = ["","Wikidata query.\t Premier League 2016-2017 Stadiums","Analyzing Data.\t Getting information about clubs and stadiums.",""];
-
-  count = 0;
-  $("#modal").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-  $("#modal2").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-
-  setInterval(function () {
-    count = count + 1;
-    $("#image").fadeOut(0, function () {
-      $(this).attr("src", imagesArray[count]).fadeIn(0);
-    });
-    $("#header2").fadeOut(0, function () {
-      $(this).text(labelArray[count]).fadeIn(0);
-    });
-  }, 3400);
-});
-
-$("#menu_item3").click(function () {
-
-  imagesArray = ["","static/img/wikidata.png","static/img/dataanalysis.png","static/img/premierleague.png","static/img/kmlfile.png"];
-  labelArray = ["","Wikidata query.\t The Longest Rivers in the World.","Analyzing Data.\t Getting rivers information.","Generating KML file.\t The rotation will be ready in a few seconds..."];
-
-  count = 0;
-  $("#modal").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-  $("#modal2").fadeOut(0, function () {
-    $(this).css("display", "block").fadeIn(0);
-  });
-
-  setInterval(function () {
-    count = count + 1;
-    $("#image").fadeOut(0, function () {
-      $(this).attr("src", imagesArray[count]).fadeIn(0);
-    });
-    $("#header2").fadeOut(0, function () {
-      $(this).text(labelArray[count]).fadeIn(0);
-    });
-  }, 3400);
-});
-
 $("#get_stadium").click(function () {
   count = 0;
   $("#modal").fadeOut(0, function () {
@@ -92,6 +19,7 @@ $("#get_stadium").click(function () {
     });
   }, 1500);
 });
+
 
 });
 

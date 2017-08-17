@@ -25,10 +25,10 @@
     <li class="menu item2"><a href="{% url 'spanish_airports' %}"><strong id="menu_item4"><img src="{% static 'img/airport.png' %}" title="airport" width="23%"><b>  Spanish Airports</b></strong></a></li>
   </ul>
   <ul>
-    <li class="menu item2"><a href="{% url 'summer_olympic_games' %}"><strong id="menu_item5"><img src="{% static 'img/olympicgames.png' %}" title="olympicgame" width="23%"><b>  Summer Olympic Games</b></strong></a></li>
+    <li class="menu item2"><a href="{% url 'summer_olympic_games' %}"><strong id="menu_item5"><img src="{% static 'img/olympicgames.png' %}" title="olympicgame" width="25%"><b>  Summer Olympic Games</b></strong></a></li>
   </ul>
   <ul>
-    <li class="menu item2"><a href="{% url 'summer_olympic_games' %}"><strong id="menu_item5"><img src="{% static 'img/usa.png' %}" title="olympicgame" width="23%"><b>  States of the United States</b></strong></a></li>
+    <li class="menu item2"><a href="{% url 'try_demo' %}"><strong id="menu_item6"><img src="{% static 'img/demo.png' %}" title="demo" width="26%"><b>  Try the Demo</b></strong></a></li>
   </ul>
 </div>
 
@@ -39,7 +39,7 @@
           <td class="mui--appbar-height">
             <a class="sidedrawer-toggle mui--visible-xs-inline-block mui--visible-sm-inline-block js-show-sidedrawer">☰</a>
             <a class="sidedrawer-toggle mui--hidden-xs mui--hidden-sm js-hide-sidedrawer"><i class="material-icons">menu</i></a>
-              <span style="color:#BEDEF1;font-family: Roboto;font-size: 24px;ont-style:bold;" class="menuApp" align="center">WIKIDATA LIQUID GALAXY VISUALIZATION</span>
+              <span style="color:#BEDEF1;font-family: Roboto;font-size: 24px;font-style:bold;" class="menuApp" align="center">WIKIDATA LIQUID GALAXY VISUALIZATION</span>
           </td>
           <td class="mui--text-center">
           <div class="mui-dropdown">
@@ -47,10 +47,14 @@
               <i class="material-icons">more_vert</i></a>
 
             <ul class="mui-dropdown__menu mui-dropdown__menu--right">
-              <li><a href="/docs/v1/getting-started/introduction">Clear KML's folder</a></li>
-              <li><a href="/docs/v1/getting-started/roadmap">Stop current Tour</a></li>
-              <li><a href="/support">Relaunch Liquid Galaxy</a></li>
-              <li><a href="/feedback">Clear Liquid Galaxy Cache</a></li>
+              <li class="mui-form"><a style="color:#000000; font-family: Patrick; font-size: 15px;font-style:bold;" href="{% url 'clear_KML_folder' %}">
+                <i class="material-icons">folder</i> Clear KML's folder</a></li>
+              <li class="mui-form"><a style="color:#000000; font-family: Patrick; font-size: 15px;font-style:bold;" href="{% url 'stop_current_tour' %}">
+                <i class="material-icons">cancel</i> Stop current Tour</a></li>
+              <li class="mui-form"><a style="color:#000000; font-family: Patrick; font-size: 15px;font-style:bold;" href="{% url 'relaunch_LG' %}">
+                <i class="material-icons">refresh</i> Relaunch Liquid Galaxy</a></li>
+              <li class="mui-form"><a style="color:#000000; font-family: Patrick; font-size: 15px;font-style:bold;" href="{% url 'clear_LG_cache' %}">
+                <i class="material-icons">delete</i> Clear Liquid Galaxy Cache</a></li>
             </ul>
           </div>
           </td>
@@ -71,3 +75,132 @@
     <h2></h2>
     <h2 id="header2" class="mui-m-n"></h2>
   </div>
+
+  <script>
+
+  $("#menu_item1").click(function () {
+
+    imagesArray = ["","static/img/wikidata.png", "static/img/dataanalysis.png", "static/img/kmlfile.png"];
+    labelArray = ["","Wikidata query. \t Most Populated Cities in the World", "Analyzing data. \t Getting information about the cities.", "Generating KML file. \t The tour will be ready in a moment."];
+
+    count = 0;
+    $("#modal").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    $("#modal2").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    setInterval(function () {
+      count = count + 1;
+      $("#image").fadeOut(0, function () {
+        $(this).attr("src", imagesArray[count]).fadeIn(0);
+      });
+      $("#header2").fadeOut(0, function () {
+        $(this).text(labelArray[count]).fadeIn(0);
+      });
+    }, 3400);
+  });
+
+  $("#menu_item2").click(function () {
+
+    imagesArray = ["","static/img/wikidata.png","static/img/dataanalysis.png","static/img/premierleague.png"];
+    labelArray = ["","Wikidata query.\t Premier League 2016-2017 Stadiums","Analyzing Data.\t Getting information about clubs and stadiums.",""];
+
+    count = 0;
+    $("#modal").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    $("#modal2").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    setInterval(function () {
+      count = count + 1;
+      $("#image").fadeOut(0, function () {
+        $(this).attr("src", imagesArray[count]).fadeIn(0);
+      });
+      $("#header2").fadeOut(0, function () {
+        $(this).text(labelArray[count]).fadeIn(0);
+      });
+    }, 3400);
+  });
+
+  $("#menu_item3").click(function () {
+
+    imagesArray = ["","static/img/wikidata.png","static/img/dataanalysis.png","static/img/kmlfile.png"];
+    labelArray = ["","Wikidata query.\t The Longest Rivers in the World.","Analyzing Data.\t Getting rivers information.","Generating KML file.\t The rotation will be ready in a few seconds..."];
+
+    count = 0;
+    $("#modal").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    $("#modal2").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    setInterval(function () {
+      count = count + 1;
+      $("#image").fadeOut(0, function () {
+        $(this).attr("src", imagesArray[count]).fadeIn(0);
+      });
+      $("#header2").fadeOut(0, function () {
+        $(this).text(labelArray[count]).fadeIn(0);
+      });
+    }, 3400);
+  });
+
+  $("#menu_item4").click(function () {
+
+    imagesArray = ["","static/img/wikidata.png","static/img/dataanalysis.png","static/img/kmlfile.png"];
+    labelArray = ["","Wikidata query.\t The Spanish Airports","Analyzing Data.\t Getting airports information.","Generating KML file.\t The tour will be ready in a moment..."];
+
+    count = 0;
+    $("#modal").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    $("#modal2").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    setInterval(function () {
+      count = count + 1;
+      $("#image").fadeOut(0, function () {
+        $(this).attr("src", imagesArray[count]).fadeIn(0);
+      });
+      $("#header2").fadeOut(0, function () {
+        $(this).text(labelArray[count]).fadeIn(0);
+      });
+    }, 3400);
+  });
+
+  $("#menu_item5").click(function () {
+
+    imagesArray = ["","static/img/wikidata.png","static/img/dataanalysis.png","static/img/kmlfile.png"];
+    labelArray = ["","Wikidata query.\t Summer Olympic Games recopilation","Analyzing Data.\t All the olympic games information obtained is being analyzed.","Generating KML file.\t All is ready to show the Summer Olympic Games."];
+
+    count = 0;
+    $("#modal").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    $("#modal2").fadeOut(0, function () {
+      $(this).css("display", "block").fadeIn(0);
+    });
+
+    setInterval(function () {
+      count = count + 1;
+      $("#image").fadeOut(0, function () {
+        $(this).attr("src", imagesArray[count]).fadeIn(0);
+      });
+      $("#header2").fadeOut(0, function () {
+        $(this).text(labelArray[count]).fadeIn(0);
+      });
+    }, 3400);
+  });
+
+  </script>

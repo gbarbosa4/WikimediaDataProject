@@ -18,7 +18,7 @@
                   {% for river in list_rivers %}
                   <tbody>
                     <div class="mui-col-md-4">
-                      <a id="river_button" class="mui-btn mui-btn--green2" onclick="javascript:selected_river_button('{{river.river}}');" value="{{river.river}}">{{forloop.counter}} - {{river.river}}</a>
+                      <input id="river_button" class="mui-btn mui-btn--blue" onclick="javascript:selected_river_button('{{river.river}}');" value="{{forloop.counter}} - {{river.river}}"></input>
                     </div>
                   </tbody>
                   {% endfor %}
@@ -31,12 +31,25 @@
       </div>
 
       <div id="overlay_river" class="modal2" style="display: none;">
-        <h2 id="label_river" class="mui-m-n"><img src="{% static 'img/river.png' %}" title="river" width="30" height="30" align="left">  </h2>
+        <a class="boxclose2" id="boxclose2" onclick="close_overlay_river()"></a>
+        <h2 id="label_river" class="mui-m-n" align="center" style="color:#000000;font-family: New Century Schoolbook;font-size: 24px;font-style:bold;"></h2>
         <h3></h3>
-        <div>
-          <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_tour()">START TOUR EXPERIENCE</a>
+
+        <div style="width:420px;">
+          <div style="float: left; margin-left: 10px;">
+            <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_tour()">START TOUR EXPERIENCE</a>
+          </div>
+          <div style="float: right; margin-right: 25px">
+            <a style="visibility:visible" class="mui-btn mui-btn--red" href = "{% url 'stop_experience' %}">STOP</a>
+          </div>
+        </div>
+        <div style="float: left; margin-left: 10px;">
           <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_line_track()">START LINE TRACK EXPERIENCE</a>
-          <a style="visibility:visible" class="mui-btn mui-btn--red" href = "{% url 'stop_experience' %}">CLOSE EXPERIENCE</a>
+        </div>
+        <h3></h3>
+        <div style="float: left;">
+          <h4> <b>Tour Experience:</b> Tour on the river from a height where you can follow all its progress.</h4>
+          <h4> <b>Line Track Experience:</b> From a higher view, show the route of the river following the trace with a line.</h4>
         </div>
       </div>
 
@@ -93,8 +106,7 @@ function start_line_track(river_name){
   });
 }
 
-function close_overlay(){
-  alert("close");
+function close_overlay_river(){
   document.getElementById('overlay_river').style.display = "none";
 }
 

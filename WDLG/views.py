@@ -1,11 +1,15 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, N3, RDF
 import os
 import time
 import netifaces as ni
 import locale
+import shutil
+import cairosvg
+import urllib.request
 
 from .objects.airport import *
 from .objects.city import *
@@ -33,11 +37,14 @@ airports_list = []
 
 kml_file_name_tour_city = "kml_file_tour_city"
 kml_file_name_premierLeague_stadium = "kml_file_premierLeague_stadium"
+kml_file_name_tour_premierLeague_stadium = "kml_file_name_tour_premierLeague_stadiums"
 kml_file_name_longest_rivers = "kml_file_longest_rivers"
 kml_file_name_river_tour= "kml_file_tour_experience"
 kml_file_name_river_line_track = "kml_file_line_track_experience"
 kml_file_name_spanish_airports = "kml_file_spanish_airports"
 kml_file_name_summer_olympic_games = "kml_file_summer_olympic_game"
+kml_file_name_lleida_tour_demo = "kml_file_lleida_tour_demo"
+kml_file_name_bayern_tour_demo = "kml_file_bayern_tour_demo"
 
 file_kmls_txt_path = "kml_tmp/kmls.txt"
 file_query_txt_path = "kml_tmp/query.txt"
@@ -50,7 +57,104 @@ informationList = InformationList()
 aux_function = Auxiliar_Functions()
 
 def index(request):
+    ip_galaxy_master = project_configuration.get_galaxy_ip()
+    ip_server = project_configuration.get_server_ip()
+
+    project_configuration.flyTo_initialize()
+
+    file = open("kml_tmp/kmls.txt", 'w+')
+    file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
+    file.close()
+
+    os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
     return render(request, 'WDLG/index.html', {})
+
+def start_lleida_tour(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("playtour=Lleida Tour")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+	return HttpResponse(status=204)
+
+def start_bayern_tour(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("playtour=Bayern Tour")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+	return HttpResponse(status=204)
+
+def stop_tour_demo(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("exittour=true")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+	return HttpResponse(status=204)
+
+def clear_KML_folder(request):
+    folder = os.getcwd()+"/static/kml/"
+    ip_galaxy_master = project_configuration.get_galaxy_ip()
+    ip_server = project_configuration.get_server_ip()
+
+    file = open("kml_tmp/kmls.txt", 'w+')
+    file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
+    file.close()
+
+    os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
+    for file in os.listdir(folder):
+        file_path = os.path.join(folder,file)
+        print(file_path)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
+
+    return HttpResponse(status=204)
+
+def stop_current_tour(request):
+    ip_galaxy_master = project_configuration.get_galaxy_ip()
+    ip_server = project_configuration.get_server_ip()
+
+    file = open("kml_tmp/query.txt", 'w+')
+    file.write("exittour=true")
+    file.close()
+
+    os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+    return HttpResponse(status=204)
+
+def relaunch_LG(request):
+    ip_galaxy_master = project_configuration.get_galaxy_ip()
+
+    os.system("sshpass -p lqgalaxy ssh lg@" + ip_galaxy_master + \
+              " './bin/lg-relaunch '")
+
+    return HttpResponse(status=204)
+
+def clear_LG_cache(request):
+    ip_galaxy_master = project_configuration.get_galaxy_ip()
+
+    os.system("sshpass -p lqgalaxy ssh lg@" + ip_galaxy_master + \
+              " 'rm -r /home/lg/.googleearth/Cache/* '")
+
+    return HttpResponse(status=204)
 
 def start_tour_cities(request):
 	ip_galaxy_master = project_configuration.get_galaxy_ip()
@@ -76,6 +180,51 @@ def stop_tour_cities(request):
 
 	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": informationList.get_information_list("Populated_Cities")})
 
+def start_tour_stadiums(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+	path_stadiums_tour_kmlfolder = "static/kml/kml_file_name_tour_premierLeague_stadiums.kml"
+
+	clubs_list = []
+	clubstadium_list = informationList.get_information_list("Premier_League_Stadiums")
+	for clubstadium in clubstadium_list:
+		clubs_list.append(clubstadium.clubName)
+	clubs_list.sort()
+
+	file = open("kml_tmp/kmls.txt", 'w+')
+	file.write("http://" + str(ip_server) + ":8000/" + path_stadiums_tour_kmlfolder + "?a=" + str(int(round(time.time()))) + "\n")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
+	time.sleep(2.0)
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("playtour=Tour Stadiums")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+	print("Query.txt send!")
+	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list, "club_shield_image": "../static/img/white.png"})
+
+def stop_tour_stadiums(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	clubs_list = []
+	clubstadium_list = informationList.get_information_list("Premier_League_Stadiums")
+	for clubstadium in clubstadium_list:
+		clubs_list.append(clubstadium.clubName)
+	clubs_list.sort()
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("exittour=true")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list, "club_shield_image": "../static/img/white.png"})
+
 def tour_experience(request):
 	river_name = ""
 
@@ -85,9 +234,8 @@ def tour_experience(request):
 
 	data_points = informationList.get_information_list("Data_Points")
 	list_rivers = informationList.get_information_list("Longest_Rivers")
-	print("rrrr ",river_name)
 
-	project_configuration.generate_kml("Tour Experience", data_points, kml_file_name_river_tour+"_"+river_name)
+	project_configuration.generate_kml("Tour Experience", data_points, "", kml_file_name_river_tour+"_"+river_name)
 
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
@@ -101,7 +249,7 @@ def line_track_experience(request):
 	data_points = informationList.get_information_list("Data_Points")
 	list_rivers = informationList.get_information_list("Longest_Rivers")
 
-	project_configuration.generate_kml("Line Track Experience", data_points, kml_file_name_river_line_track+"_"+river_name)
+	project_configuration.generate_kml("Line Track Experience", data_points, "", kml_file_name_river_line_track+"_"+river_name)
 
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
 
@@ -117,17 +265,8 @@ def stop_experience(request):
 	file.close()
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
-	time.sleep(1.5)
 
-	file = open("kml_tmp/kmls.txt", 'w+')
-	file.write("http://" + str(ip_server) + ":8000/static/kml/"+ kml_file_name_longest_rivers + ".kml\n")
-	file.close()
-
-	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
-	time.sleep(1.5)
-	project_configuration.sendEarthOrbitFile_ToGalaxy()
-
-	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers})
+	return HttpResponse(status=204)
 
 def start_tour_airports(request):
 	ip_galaxy_master = project_configuration.get_galaxy_ip()
@@ -158,6 +297,7 @@ def stop_tour_airports(request):
 def populated_cities_query(request):
 
 	print ("Obtaining data ...\n")
+	project_configuration.flyTo_initialize()
 	list_cities = []
 	rank = 1
 	i = 0
@@ -206,7 +346,8 @@ def populated_cities_query(request):
 
 	    country = result["countryLabel"]["value"]
 
-	    image = result["image"]["value"]
+	    image_link = result["image"]["value"]
+	    image = "../img/cities/image_"+city+".png"
 
 	    elevation = result["elevation"]["value"]
 
@@ -217,13 +358,14 @@ def populated_cities_query(request):
 
 	informationList.set_information_list("Populated_Cities",list_cities)
 
-	project_configuration.generate_kml("Tour Cities", list_cities, kml_file_name_tour_city)
+	project_configuration.generate_kml("Tour Cities", list_cities, "", kml_file_name_tour_city)
 	#time.sleep(5)
 	return render(request, 'WDLG/indexPopulatedCities.html', {"list_cities": list_cities})
 
 def premierLeague_stadiums_query(request):
 
 	print ("Obtaining data ...\n")
+	project_configuration.flyTo_initialize()
 	clubstadium_list = []
 	hash_club_shield = ""
 	hash_stadium_club = {}
@@ -268,12 +410,17 @@ def premierLeague_stadiums_query(request):
 			or str(cityinstance) == wikidata_instance+"Q18511725"):
 
 				stadium_name = result["stadiumLabel"]["value"]
+				stadium_name = stadium_name.replace("'","")
 
 				club_name = result["clubName"]["value"]
+
 				club_short_name = result["clubsLabel"]["value"]
 				hash_stadium_club[club_name] = stadium_name
-
-				hash_club_shield = hash_club_shield + club_name + "=" + aux_function.getClubShieldImage(wikiapi.find(club_short_name)) + "|"
+				#Watford icon shield pronblem
+				if "Watford" in club_name:
+				   hash_club_shield = hash_club_shield + club_name + "=" + "../img/Watford_icon.png" + "|"
+				else:
+				   hash_club_shield = hash_club_shield + club_name + "=" + aux_function.getClubShieldImage(wikiapi.find(club_short_name)) + "|"
 
 				club_founded = result["founded"]["value"]
 				club_founded = club_founded.split("-")[0]
@@ -282,8 +429,9 @@ def premierLeague_stadiums_query(request):
 
 				club_city = result["cityLabel"]["value"]
 
-				stadium_image = result["image"]["value"]
-
+				stadium_image_link = result["image"]["value"]
+				stadium_image = "../img/stadiums/"+stadium_name.replace(" ","")+".jpg"
+				#urllib.request.urlretrieve(stadium_image_link, stadium_name+".jpg")
 				stadium_capacity = result["capacity"]["value"]
 
 				coord = result["coord"]["value"]
@@ -293,7 +441,32 @@ def premierLeague_stadiums_query(request):
 
 				clubstadium_list.append(ClubStadium(stadium_name, club_short_name, club_name, club_founded, club_coach, club_city, stadium_image, stadium_capacity))
 				clubstadium_list[i].coordinates(longitude,latitude)
+				clubstadium_list[i].addClubShield(aux_function.getClubShieldImage(wikiapi.find(club_short_name)))
 				i=i+1
+
+		hull = False
+		swa = False
+        #Query exception (Hull and Swansea are not in the result list)
+		for club in hash_stadium_club:
+		   if club == "Hull City Association Football Club":
+		   		   hull = True
+		   if club == "Swansea City Association Football Club":
+		   		   swa = True
+
+		if hull == False:
+		   club_stadium = ClubStadium("KCOM Stadium","Hull City A.F.C.","Hull City Association Football Club",1904,"Leonid Slutski","Kingston upon Hull","../img/stadiums/KCOMStadium.jpg",25404)
+		   club_stadium.coordinates(-0.367778,53.746111)
+		   #club_stadium.addClubShield("../static/img/Hull_icon.png")
+		   clubstadium_list.append(club_stadium)
+		   hash_stadium_club["Hull City Association Football Club"] = "KCOM Stadium"
+		   hash_club_shield = hash_club_shield + "Hull City Association Football Club" + "=" + "../img/Hull_icon.png" + "|"
+		if swa == False:
+		   club_stadium = ClubStadium("Liberty Stadium","Swansea City A.F.C.","Swansea City Association Football Club",1912,"Paul Clement","Swansea (Wales)","../img/stadiums/LibertyStadium.jpg",21088)
+		   club_stadium.coordinates(-3.9351,51.6422)
+		   #club_stadium.addClubShield("../static/img/Swansea_icon.png")
+		   clubstadium_list.append(club_stadium)
+		   hash_stadium_club["Swansea City Association Football Club"] = "Liberty Stadium"
+		   hash_club_shield = hash_club_shield + "Swansea City Association Football Club" + "=" + "../img/Swansea_icon.png" + "|"
 
 		for club in hash_stadium_club:
 		   clubs_list.append(club)
@@ -306,11 +479,13 @@ def premierLeague_stadiums_query(request):
 		ip_galaxy_master = project_configuration.get_galaxy_ip()
 		ip_server = project_configuration.get_server_ip()
 
-		file = open("kml_tmp/kmls.txt", 'w+')
-		file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
-		file.close()
+		#file = open("kml_tmp/kmls.txt", 'w+')
+		#file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
+		#file.close()
 
-		os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+		#os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
+		project_configuration.generate_kml("Tour Premier League Stadiums",clubstadium_list,"",kml_file_name_tour_premierLeague_stadium)
 
 	else:
 		clubs_list = []
@@ -342,20 +517,27 @@ def premierLeague_stadiums_query(request):
 					while i<20:
 					  club_name = hash_club_shield.split("|")[i].split("=")[0];
 					  if club_name == club_selected:
-					    print("equalssss")
 					    club_shield_image = hash_club_shield.split("|")[i].split("=")[1]
 					    i=20
 					  i=i+1
-					clubstadium.addClubShield(club_shield_image)
+					if "Swansea" in club_name:
+					    clubstadium.addClubShield(club_shield_image.replace("static",""))
+					elif "Hull" in club_name:
+					    clubstadium.addClubShield(club_shield_image.replace("static",""))
+					elif "Watford" in club_name:
+					    clubstadium.addClubShield(club_shield_image.replace("static",""))
+					else:
+					    clubstadium.addClubShield(club_shield_image)
 
-		project_configuration.generate_kml("Premier League Stadiums", clubstadium_selected, kml_file_name_premierLeague_stadium)
+		project_configuration.generate_kml("Premier League Stadiums", clubstadium_selected, club_shield_image, kml_file_name_premierLeague_stadium)
 
-	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image , "club_selected": club_selected, "hash_club_shield": hash_club_shield} )
+	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image, "club_selected": club_selected, "hash_club_shield": hash_club_shield} )
 
 
 def longest_rivers_query(request):
 
 	print ("Obtaining data longest rivers ...\n")
+	project_configuration.flyTo_initialize()
 	list_rivers = []
 	rank = 1
 	i = 1
@@ -447,7 +629,7 @@ def longest_rivers_query(request):
 
 		informationList.set_information_list("Longest_Rivers",list_rivers)
 
-		project_configuration.generate_kml("Longest Rivers", list_rivers, kml_file_name_longest_rivers)
+		project_configuration.generate_kml("Longest Rivers", list_rivers, "", kml_file_name_longest_rivers)
 
 	else:
 		list_rivers = informationList.get_information_list("Longest_Rivers")
@@ -468,6 +650,7 @@ def longest_rivers_query(request):
 def spanish_airports_query(request):
 
 	print ("Obtaining data ...\n")
+	project_configuration.flyTo_initialize()
 	list_airports = []
 	rank = 1
 	i = 1
@@ -522,13 +705,13 @@ def spanish_airports_query(request):
 
 	informationList.set_information_list("Spanish_Airports",list_airports)
 
-	project_configuration.generate_kml("Spanish Airports", list_airports, kml_file_name_spanish_airports)
+	project_configuration.generate_kml("Spanish Airports", list_airports, "", kml_file_name_spanish_airports)
 
 	return render(request, 'WDLG/indexSpanishAirports.html', {"list_airports": list_airports})
 
 def olympic_games_query(request):
     print("OLYMPIC GAMES obtaining data...")
-
+    project_configuration.flyTo_initialize()
     olympic_games_list = []
     host_city_list = []
 
@@ -599,6 +782,15 @@ def olympic_games_query(request):
 
         wikiapi.get_url_image(str(olympic_game_selected.year)+" Summer Olympics")
 
-        project_configuration.generate_kml("Summer Olympic Games", olympic_game_selected, kml_file_name_summer_olympic_games)
+        project_configuration.generate_kml("Summer Olympic Games", olympic_game_selected, "", kml_file_name_summer_olympic_games)
 
     return render(request, 'WDLG/indexSummerOlympicGames.html', {"host_city_list": host_city_list})
+
+def try_demo(request):
+    project_configuration.flyTo_initialize()
+    lleida_data = ["../img/cities/image_Lleida.png","Catalonia","Lleida","Segrià",212.3,155,138144,"Àngel Ros i Domingo"]
+    bayern_data = ["../img/stadiums/AllianzArena.jpg","FC Bayern Munich","../img/bayern_icon.png","May 2005","340 million","105 x 68 m","Munich",75000]
+    project_configuration.generate_kml("Demo Lleida", lleida_data, "", kml_file_name_lleida_tour_demo)
+    time.sleep(1.0)
+    project_configuration.generate_kml("Demo Bayern", bayern_data, "", kml_file_name_bayern_tour_demo)
+    return render(request, 'WDLG/indexTryDemo.html')

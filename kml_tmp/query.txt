@@ -1,1 +1,1 @@
-playtour=EarthOrbit
+playtour=Lleida Tour

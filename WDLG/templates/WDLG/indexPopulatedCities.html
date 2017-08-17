@@ -15,7 +15,7 @@
           <form method="POST" action=""> {% csrf_token %}
             {% for city in list_cities %}
              <div>
-               <h4 text-align="left" vertical-align="middle" id='{{city.city}}' type="text" value='{{city.city}}'>{{city.rank}}. {{city.city}} ({{city.country}}) ->  {{city.population}} people.</h4>
+               <h4 text-align="left" vertical-align="middle" id='{{city.city}}' type="text" value='{{city.city}}'>{{city.rank}}. <b>{{city.city}}</b> ({{city.country}}) ->  {{city.population}} people.</h4>
              </div>
             {% endfor %}
           </form>

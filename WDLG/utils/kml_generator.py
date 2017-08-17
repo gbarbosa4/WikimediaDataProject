@@ -2,6 +2,7 @@ import simplekml
 import os
 import traceback
 import collections
+import types
 from simplekml import Kml
 
 from pykml.factory import nsmap
@@ -39,6 +40,10 @@ class GeneratorKML(object):
         self.icon = icon;
 
     def KML_file_header(self, icon, tour_name):
+        if tour_name == "Stadium Tour":
+            icon_ok = icon[0]
+        else:
+            icon_ok = "../img/"+icon[0]
 
         kml_doc = KML.kml(
                      KML.Document(
@@ -46,11 +51,11 @@ class GeneratorKML(object):
                          KML.IconStyle(
                            KML.scale('2.5'),
                            KML.Icon(
-                             KML.href("../img/"+icon[0])
+                             KML.href(icon_ok)
                            ),
                          ),
                          KML.LabelStyle(
-                           KML.color("FF4CBB17"),
+                           KML.color("ff80ccff"),
                            KML.scale(2)
                          ),
                          KML.BalloonStyle(
@@ -70,7 +75,7 @@ class GeneratorKML(object):
                            ),
                          ),
                          KML.LabelStyle(
-                           KML.color("FF4CBB17"),
+                           KML.color("ff80ccff"),
                            KML.scale(4)
                          ),
                          KML.LineStyle(
@@ -313,7 +318,7 @@ class GeneratorKML(object):
         kml_doc.Document[gxns + "Tour"].Playlist.append(
             GX.FlyTo(
                 GX.duration(params[0]),
-                GX.flyToMode("smooth"),
+                GX.flyToMode("bounce"),
                 KML.LookAt(
                     KML.longitude(longitude),
                     KML.latitude(latitude),
@@ -329,8 +334,9 @@ class GeneratorKML(object):
 
         return kml_doc
 
-    def show_placemark_balloon(self, duration, kml_doc):
+    def show_placemark_balloon(self, duration, target, kml_doc):
         # show the placemark balloon
+
         kml_doc.Document[gxns + "Tour"].Playlist.append(
             GX.AnimatedUpdate(
                 GX.duration(1.0),
@@ -340,6 +346,7 @@ class GeneratorKML(object):
                         KML.Placemark(
                             KML.visibility(1),
                             GX.balloonVisibility(1),
+                            targetId=target.replace(' ', '_')
                         )
                     )
                 )
@@ -356,6 +363,7 @@ class GeneratorKML(object):
                     KML.Change(
                         KML.Placemark(
                             GX.balloonVisibility(0),
+                            targetId=target.replace(' ', '_')
                         )
                     )
                 )
@@ -365,6 +373,14 @@ class GeneratorKML(object):
         return kml_doc
 
     def rotation_around_placemark(self, data, params, kml_doc):
+        if type(data) is list:
+            print("list")
+            longitude = data[0]
+            latitude = data[1]
+        else:
+            longitude = data.longitude
+            latitude = data.latitude
+
         # spin around the data
         for aspect in range(0, 360, 10):
             kml_doc.Document[gxns + "Tour"].Playlist.append(
@@ -372,8 +388,8 @@ class GeneratorKML(object):
                 GX.duration(params[0]),
                     GX.flyToMode("smooth"),
                     KML.LookAt(
-                        KML.longitude(float(data.longitude)),
-                        KML.latitude(float(data.latitude)),
+                        KML.longitude(float(longitude)),
+                        KML.latitude(float(latitude)),
                         KML.altitude(params[1]),
                         KML.heading(aspect),
                         KML.tilt(params[2]),
@@ -388,39 +404,53 @@ class GeneratorKML(object):
         return kml_doc
 
     def add_placemark_with_balloon(self, data, pm_name, html_name, hash_values, style, kml_doc):
+        if type(data) is list:
+            longitude = data[0]
+            latitude = data[1]
+        else:
+            longitude = data.longitude
+            latitude = data.latitude
+
         html_str = ""
         with open(os.getcwd()+"/static/html_balloons/" + html_name, 'r+') as file:
             for line in file:
                 html_str = html_str + str(line)
         file.close()
+
+        html_str = html_str.format(
+            str(hash_values[0]),
+            str(hash_values[1]),
+            str(hash_values[2]),
+            str(hash_values[3]),
+            str(hash_values[4]),
+            str(hash_values[5]),
+            str(hash_values[6]),
+            str(hash_values[7])
+        )
+
+        with open(os.getcwd()+"/static/css/style_balloon.css", 'r+') as file:
+            for line in file:
+                html_str = html_str + str(line)
+        file.close()
+
         # add a placemark for the data
         kml_doc.Document.Folder.append(
             KML.Placemark(
                 KML.name((pm_name).upper()),
-                KML.description(html_str.format(
-                    str(hash_values[0]),
-                    str(hash_values[1]),
-                    str(hash_values[2]),
-                    str(hash_values[3]),
-                    str(hash_values[4]),
-                    str(hash_values[5]),
-                    str(hash_values[6]),
-                    str(hash_values[7])
-                )
+                KML.description(html_str
                 ),
                 KML.styleUrl('#{0}'.format(style)),
-                #KML.styleUrl('#{0}'.format(stylename)),
                 KML.Point(
                     KML.extrude(0),
                     KML.altitudeMode("relativeToGround"),
                     KML.coordinates("{lon},{lat},{alt}".format(
-                        lon=float(data.longitude),
-                        lat=float(data.latitude),
+                        lon=float(longitude),
+                        lat=float(latitude),
                         alt=50,
                     )
                     )
                 ),
-                id=pm_name
+                id=pm_name.replace(' ', '_')
             )
         )
 
@@ -431,6 +461,7 @@ class GeneratorKML(object):
           KML.Placemark(
             KML.name(pm_name.upper()),
             KML.MultiGeometry(
+                KML.styleUrl('#{0}'.format(style)),
                 KML.Point(
                     KML.extrude(0),
                     KML.altitudeMode("relativeToGround"),
@@ -446,9 +477,9 @@ class GeneratorKML(object):
                      '{0},{1},{2} '.format(float(data[2]),float(data[3]),data[6]),
                      '{0},{1},{2} '.format(float(data[0]),float(data[1]),data[6])
                   ),
-                )
-            ),
-            KML.styleUrl('#{0}'.format(style)),
+                ),
+             ),
+             id=pm_name.replace(' ', '_')
           )
         )
 
@@ -479,8 +510,9 @@ class GeneratorKML(object):
                     )
                     )
                 ),
-            )
-        )
+                id=pm_name.replace(' ', '_')
+              )
+         )
 
         return kml_doc
 
@@ -502,7 +534,7 @@ class GeneratorKML(object):
                     )
                     )
                 ),
-                id = iid
+                id = iid.replace(' ', '_')
             )
         )
 
@@ -581,14 +613,15 @@ class GeneratorKML(object):
             latitude = float(data.latitude)
 
             tour_kml_doc = self.find_to_stand_over_the_placemark(6.0,longitude,latitude,tour_kml_doc)
-            fly_to_params = [4.0,0,0,0,data.city,7500]
+            fly_to_params = [8.0,0,0,30,data.city,12500]
             tour_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,tour_kml_doc)
-            tour_kml_doc = self.show_placemark_balloon(12.0,tour_kml_doc)
-            rotation_params = [0.75,0,60,2000]
+            tour_kml_doc = self.show_placemark_balloon(10.0,data.city,tour_kml_doc)
+            rotation_params = [0.85,0,60,2000]
             tour_kml_doc = self.rotation_around_placemark(data,rotation_params,tour_kml_doc)
 
             hash_values = []
             hash_values.append(str(data.city).upper())
+            print(str(data.image))
             hash_values.append(str(data.image))
             hash_values.append(str(data.rank))
             hash_values.append(str(data.city))
@@ -602,14 +635,42 @@ class GeneratorKML(object):
 
         return self.save_kml_file(self.kml_name, tour_kml_doc)
 
+    def generateKML_Tour_PremierLeague_Stadiums(self):
+        tour_stadiums_kml_doc = self.KML_file_header(["stadium.png",""],"Tour Stadiums")
 
-    def generateKML_premierLeague_Stadiums(self):
-        stadiums_kml_doc = self.KML_file_header(["stadium.png",""],"Stadium Tour")
+        for data in self.data_set:
+            longitude = float(data.longitude)
+            latitude = float(data.latitude)
+
+            fly_to_params = [9.0,0,0,70,data.stadiumName,1000]
+            tour_stadiums_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,tour_stadiums_kml_doc)
+            tour_stadiums_kml_doc = self.show_placemark_balloon(10.0,data.stadiumName,tour_stadiums_kml_doc)
+            rotation_params = [0.80,0,70,600]
+            tour_stadiums_kml_doc = self.rotation_around_placemark(data,rotation_params,tour_stadiums_kml_doc)
+
+            hash_values = []
+            hash_values.append(str(data.stadiumName).upper())
+            hash_values.append(str(data.stadiumImage))
+            print(data.stadiumImage)
+            hash_values.append(str(data.clubName))
+            hash_values.append(str(data.clubShieldImage))
+            hash_values.append(str(data.clubFounded))
+            hash_values.append(str(data.clubCoach))
+            hash_values.append(str(data.clubCity))
+            hash_values.append(str(data.stadiumCapacity))
+
+            stadiums_kml_doc = self.add_placemark_with_balloon(data,data.stadiumName,"stadium_balloon.html",hash_values,stylename,tour_stadiums_kml_doc)
+            stadiums_kml_doc = self.get_away_from_placemark(data,stadiums_kml_doc)
+
+        return self.save_kml_file(self.kml_name, tour_stadiums_kml_doc)
+
+    def generateKML_premierLeague_Stadiums(self, icon):
+        stadiums_kml_doc = self.KML_file_header([icon,""],"Stadium Tour")
         longitude = float(self.data_set.longitude)
         latitude = float(self.data_set.latitude)
-        fly_to_params = [6.0,0,0,70,self.data_set.stadiumName,400]
+        fly_to_params = [6.0,0,0,70,self.data_set.stadiumName,800]
         stadiums_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,stadiums_kml_doc)
-        stadiums_kml_doc = self.show_placemark_balloon(8.0,stadiums_kml_doc)
+        stadiums_kml_doc = self.show_placemark_balloon(10.0,self.data_set.stadiumName,stadiums_kml_doc)
         rotation_params = [0.80,0,70,600]
         stadiums_kml_doc = self.rotation_around_placemark(self.data_set,rotation_params,stadiums_kml_doc)
 
@@ -719,7 +780,7 @@ class GeneratorKML(object):
             airoprts_kml_doc = self.find_to_stand_over_the_placemark(6.0,longitude,latitude,airoprts_kml_doc)
             fly_to_params = [10.0,0,0,0,data.city,7500]
             airoprts_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,airoprts_kml_doc)
-            airoprts_kml_doc = self.show_placemark_balloon(12.0,airoprts_kml_doc)
+            airoprts_kml_doc = self.show_placemark_balloon(12.0,data.city,airoprts_kml_doc)
             rotation_params = [1.25,0,60,2000]
             airoprts_kml_doc = self.rotation_around_placemark(data,rotation_params,airoprts_kml_doc)
 
@@ -830,11 +891,6 @@ class GeneratorKML(object):
         cilinder_medals = CylindersKml("",data_dict_medals)
         coord_to_kml_dict_medals = cilinder_medals.makeKML()
 
-        print("-- ",position," ",data_dict_medals["description"][0])
-        print(data_dict_medals["description"][1])
-        print(data_dict_medals["description"][2])
-        print(data_dict_medals["description"][3])
-
         kml_doc = self.medals_data_cylinders(coord_to_kml_dict_medals,data_dict_medals["description"][1],"golden",kml_doc)
         kml_doc = self.medals_data_cylinders(coord_to_kml_dict_medals,data_dict_medals["description"][2],"silver",kml_doc)
         kml_doc = self.medals_data_cylinders(coord_to_kml_dict_medals,data_dict_medals["description"][3],"bronze",kml_doc)
@@ -858,7 +914,7 @@ class GeneratorKML(object):
         data_list.append(self.data_set.hostCity + " " + str(self.data_set.year))
 
         data_dict = self.preparing_KML_data(data_list,"total","podium",0)
-        print(data_dict)
+
         cilinders = CylindersKml("",data_dict)
         coord_to_kml_dict = cilinders.makeKML()
 
@@ -867,3 +923,67 @@ class GeneratorKML(object):
         olympic_games_kml_doc =self.podium_data_cylinders(coord_to_kml_dict,[data_dict["description"][4],data_dict["description"][5]],self.data_set.medalTable,"third",olympic_games_kml_doc)
 
         return self.save_kml_file(self.kml_name, olympic_games_kml_doc)
+
+    def generateKML_DemoLleida(self):
+        tour_kml_doc = self.KML_file_header(["city.png",""],"Lleida Tour")
+
+        longitude = 0.626044
+        latitude = 41.617421
+
+        tour_kml_doc = self.find_to_stand_over_the_placemark(6.0,longitude,latitude,tour_kml_doc)
+        fly_to_params = [8.0,0,0,30,"lleida",12500]
+        tour_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,tour_kml_doc)
+        tour_kml_doc = self.show_placemark_balloon(10.0,"lleida",tour_kml_doc)
+        rotation_params = [1.2,0,60,2000]
+        tour_kml_doc = self.rotation_around_placemark([longitude,latitude],rotation_params,tour_kml_doc)
+
+        hash_values = []
+        print(str(self.data_set[0]))
+        hash_values.append(str(self.data_set[0]))
+        hash_values.append(str(self.data_set[1]))
+        hash_values.append(str(self.data_set[2]))
+        hash_values.append(str(self.data_set[3]))
+        hash_values.append(str(self.data_set[4]))
+        hash_values.append(str(self.data_set[5]))
+        hash_values.append(str(self.data_set[6]))
+        hash_values.append(str(self.data_set[7]))
+
+        tour_kml_doc = self.add_placemark_with_balloon([longitude,latitude],"lleida","lleida_balloon.html",hash_values,stylename,tour_kml_doc)
+
+        outfile = open(os.path.join("static/demos/",self.kml_name+".kml"),"w+")
+        outfile.write(etree.tostring(tour_kml_doc, encoding="unicode"))
+        outfile.close()
+
+        return outfile
+
+    def generateKML_DemoBayern(self):
+        tour_kml_doc = self.KML_file_header(["bayern_icon.png",""],"Bayern Tour")
+
+        longitude = 11.624753
+        latitude = 48.218775
+
+        tour_kml_doc = self.find_to_stand_over_the_placemark(6.0,longitude,latitude,tour_kml_doc)
+        fly_to_params = [6.0,0,0,70,"Allianz Arena",750]
+        tour_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,tour_kml_doc)
+        tour_kml_doc = self.show_placemark_balloon(10.0,"Allianz Arena",tour_kml_doc)
+        rotation_params = [1.2,0,70,600]
+        tour_kml_doc = self.rotation_around_placemark([longitude,latitude],rotation_params,tour_kml_doc)
+
+        hash_values = []
+        print(str(self.data_set[0]))
+        hash_values.append(str(self.data_set[0]))
+        hash_values.append(str(self.data_set[1]))
+        hash_values.append(str(self.data_set[2]))
+        hash_values.append(str(self.data_set[3]))
+        hash_values.append(str(self.data_set[4]))
+        hash_values.append(str(self.data_set[5]))
+        hash_values.append(str(self.data_set[6]))
+        hash_values.append(str(self.data_set[7]))
+
+        tour_kml_doc = self.add_placemark_with_balloon([longitude,latitude],"Allianz Arena","bayern_balloon.html",hash_values,stylename,tour_kml_doc)
+
+        outfile = open(os.path.join("static/demos/",self.kml_name+".kml"),"w+")
+        outfile.write(etree.tostring(tour_kml_doc, encoding="unicode"))
+        outfile.close()
+
+        return outfile

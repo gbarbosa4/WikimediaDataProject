@@ -95,23 +95,80 @@
   text-align: center;
 }
 
+.modal_premier {
+    /* some styles to position the modal at the center of the page */
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 100px;
+    line-height: 200px;
+    height: 100px;
+    margin-left: -150px;
+    margin-top: -100px;
+    background-color: #fff;
+    text-align: center;
+    border-radius: 10px;
+
+    /* needed styles for the overlay */
+    z-index: 10; /* keep on top of other elements on the page */
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.8);
+}
+
+.modal_olympic_games {
+    /* some styles to position the modal at the center of the page */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 400px;
+    line-height: 200px;
+    height: 300px;
+    margin-left: -150px;
+    margin-top: -100px;
+    background-color: #fff;
+    text-align: center;
+    border-radius: 10px;
+
+    /* needed styles for the overlay */
+    z-index: 10; /* keep on top of other elements on the page */
+    box-shadow: 0 0 0 9999px rgba(0,0,0,0.8);
+}
+
 .modal2 {
     /* some styles to position the modal at the center of the page */
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 360px;
+    width: 400px;
     line-height: 200px;
-    height: 240px;
+    height: 300px;
     margin-left: -150px;
     margin-top: -100px;
     background-color: #fff;
     text-align: center;
-    border-radius: 25px;
+    border-radius: 10px;
 
     /* needed styles for the overlay */
     z-index: 10; /* keep on top of other elements on the page */
     box-shadow: 0 0 0 9999px rgba(0,0,0,0.8);
+}
+
+a.boxclose2{
+    float: right;
+    margin-top: 3px;
+    margin-right: 3px;
+    cursor:pointer;
+    color: #000;
+    border: 1px solid rgba(0,0,0,0.8);
+    border-radius: 30px;
+    background: rgba(0,0,0,0.1);
+    font-size: 30px;
+    font-weight: bold;
+    line-height: 0px;
+    padding: 11px 3px;
+}
+
+.boxclose2:before {
+    content: "×";
 }
 
 .modal3 {
@@ -139,9 +196,9 @@ a.boxclose{
     margin-right:-1px;
     cursor:pointer;
     color: #000;
-    border: 2px solid #000000;
+    border: 1px solid rgba(0,0,0,0.8);
     border-radius: 30px;
-    background: #fff;
+    background: rgba(0,0,0,0.1);
     font-size: 30px;
     font-weight: bold;
     line-height: 0px;

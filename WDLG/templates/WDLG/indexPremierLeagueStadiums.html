@@ -1,9 +1,10 @@
 {% include "WDLG/header.html" %}
 {% load static %}
-<script type="text/javascript" src="{% static 'js/overlay.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/overlay.js' %}">
+
+</script>
 
 <div id="content-wrapper">
-     <div class="mui--appbar-height"></div>
       <div class="mui--text-center">
         <h1> <img src="{% static 'img/stadium.png' %}" title="city" width="6%" align="middle">  Premier League Stadiums
       </div>
@@ -17,9 +18,9 @@
 
       <br>
 
-      <form method = "post" name="combo" action = "{% url 'premierLeague_stadiums' %}">{% csrf_token %}
+      <form method="post" name="combo" action = "{% url 'premierLeague_stadiums' %}">{% csrf_token %}
         <div class="mui--text-center">
-         <select class = "mui-btn mui-btn--blue" id="combo_list" name="combo_list">
+         <select class = "dropdown" id="combo_list" name="combo_list">
              <option selected="selected" disabled>Select the team</option>
              {% for club in clubs_list %}
                  <option value="{{club}}">
@@ -27,9 +28,14 @@
                  </option>
              {% endfor %}
          </select>
-         <input class="mui-btn mui-btn--red" style="visibility:visible" onclick="combo_selected_team('{{hash_club_shield}}')" id="get_stadium" type="submit" value="GET STADIUM">
+         <input class="mui-btn mui-btn--blue2" style="visibility:visible" onclick="combo_selected_team('{{hash_club_shield}}')" id="get_stadium" type="submit" value="GET STADIUM">
       </div>
       </form>
+
+      <div class="mui--text-center">
+        <a class="mui-btn mui-btn--green" width="260px" href="{% url 'start_tour_stadiums' %}"> START PREMIER LEAGUE TOUR </a>
+        <a class="mui-btn mui-btn--red" width="260px" href="{% url 'stop_tour_stadiums' %}"> STOP TOUR </a>
+      </div>
       <br>
       <div class="mui--text-center">
         <tr>
@@ -39,16 +45,17 @@
       </div>
 </div>
 
-<div id="modal" class="modal" style="display: none;"></div>
+<div id="modal" class="modal_premier" style="display: none;"></div>
   <div id="modal2" class="overlay loading-indicator" style="display: none;">
     <h2 id="header1" class="mui-m-n">Please wait...</h2>
     <h2></h2>
     <h2></h2>
     <h2></h2>
     <h2></h2>
-    <img id="image" src="https://upload.wikimedia.org/wikipedia/commons/d/d2/Solid_white.png" title="shield" width="10" height="10">
+    <img id="image" class="square" src="static/img/white.png" title="shield" width="10%" height="10%">
     <h2></h2>
     <h2 id="header2" class="mui-m-n"></h2>
   </div>
+
 
 {% include "WDLG/footer.html" %}

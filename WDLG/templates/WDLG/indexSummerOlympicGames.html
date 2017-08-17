@@ -18,7 +18,7 @@
                   {% for host_city in host_city_list %}
                   <tbody>
                     <div class="mui-col-md-4">
-                      <a id="river_button" class="mui-btn mui-btn--green2" onclick="javascript:selected_olympicgame_button('{{host_city}}');" value="{{host_city}}">{{host_city}}</a>
+                      <a class="mui-btn mui-btn--blue" value="{{host_city}}" id="get_olympic_game" onclick="javascript:selected_olympicgame_button('{{host_city}}');" > {{host_city}} </a>
                     </div>
                   </tbody>
                   {% endfor %}
@@ -30,19 +30,23 @@
         </div>
       </div>
 
-      <div id="overlay_river" class="modal2" style="display: none;">
-        <h2 id="label_river" class="mui-m-n"><img src="{% static 'img/river.png' %}" title="river" width="30" height="30" align="left">  </h2>
-        <h3></h3>
-        <div>
-          <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_tour()">START TOUR EXPERIENCE</a>
-          <a style="visibility:visible" class="mui-btn mui-btn--green" onclick="javascript:start_line_track()">START LINE TRACK EXPERIENCE</a>
-          <a style="visibility:visible" class="mui-btn mui-btn--red" href = "{% url 'stop_experience' %}">CLOSE EXPERIENCE</a>
+      <div id="modal" class="modal_premier" style="display: none;"></div>
+        <div id="modal2" class="overlay loading-indicator" style="display: none;">
+          <h2 id="header1" class="mui-m-n">Please wait...</h2>
+          <h2></h2>
+
+          <h2 id="header2" class="mui-m-n"></h2>
+          <h2 id="header3" class="mui-m-n"></h2>
         </div>
-      </div>
 
 </div>
 <script>
 function selected_olympicgame_button(host_city){
+
+    document.getElementById('modal').style.display = "block";
+    document.getElementById('modal2').style.display = "block";
+    document.getElementById('image').src = "{% static 'img/olympicgames.png' %}";
+    document.getElementById('header2').innerText = "You have selected -> "+host_city+"\n"+"Now it starts the flight to the city.";
 
     const csrfmiddlewaretoken = readCookie('csrftoken');
     console.info(csrfmiddlewaretoken);
@@ -55,7 +59,8 @@ function selected_olympicgame_button(host_city){
       body: `csrfmiddlewaretoken=${csrfmiddlewaretoken}&host_city=${host_city}`,
       credentials: 'include'
     }).then(() => {
-      ///alert('done');
+      document.getElementById('modal').style.display = "none";
+      document.getElementById('modal2').style.display = "none";
     });
 }
 </script>

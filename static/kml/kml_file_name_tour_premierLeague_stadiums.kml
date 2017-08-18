@@ -17,7 +17,7 @@
       &lt;font size='5'&gt;Manchester United Football Club&lt;/font&gt; 
     &lt;/td&gt; 
     &lt;td colspan='2' align='center'&gt; 
-      &lt;img src='https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/170px-Manchester_United_FC_crest.svg.png' alt='picture' width='50' height='50' /&gt; 
+      &lt;img src='https://upload.wikimedia.org/wikipedia/en/thumb/7/7a/Manchester_United_FC_crest.svg/220px-Manchester_United_FC_crest.svg.png' alt='picture' width='50' height='50' /&gt; 
     &lt;/td&gt; 
   &lt;/tr&gt; 
   &lt;tr&gt; 
@@ -1969,7 +1969,7 @@ h2 a {
       &lt;font size='5'&gt;Watford Football Club&lt;/font&gt; 
     &lt;/td&gt; 
     &lt;td colspan='2' align='center'&gt; 
-      &lt;img src='https:' alt='picture' width='50' height='50' /&gt; 
+      &lt;img src='../img/Watford_icon.png' alt='picture' width='50' height='50' /&gt; 
     &lt;/td&gt; 
   &lt;/tr&gt; 
   &lt;tr&gt; 
@@ -2213,7 +2213,7 @@ h2 a {
       &lt;font size='5'&gt;Hull City Association Football Club&lt;/font&gt; 
     &lt;/td&gt; 
     &lt;td colspan='2' align='center'&gt; 
-      &lt;img src='None' alt='picture' width='50' height='50' /&gt; 
+      &lt;img src='../img/Hull_icon.png' alt='picture' width='50' height='50' /&gt; 
     &lt;/td&gt; 
   &lt;/tr&gt; 
   &lt;tr&gt; 
@@ -2335,7 +2335,7 @@ h2 a {
       &lt;font size='5'&gt;Swansea City Association Football Club&lt;/font&gt; 
     &lt;/td&gt; 
     &lt;td colspan='2' align='center'&gt; 
-      &lt;img src='None' alt='picture' width='50' height='50' /&gt; 
+      &lt;img src='../img/Swansea_icon.png' alt='picture' width='50' height='50' /&gt; 
     &lt;/td&gt; 
   &lt;/tr&gt; 
   &lt;tr&gt; 

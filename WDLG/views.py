@@ -442,6 +442,10 @@ def premierLeague_stadiums_query(request):
 				clubstadium_list.append(ClubStadium(stadium_name, club_short_name, club_name, club_founded, club_coach, club_city, stadium_image, stadium_capacity))
 				clubstadium_list[i].coordinates(longitude,latitude)
 				clubstadium_list[i].addClubShield(aux_function.getClubShieldImage(wikiapi.find(club_short_name)))
+
+				if "Watford" in club_name:
+				   clubstadium_list[i].addClubShield("../img/Watford_icon.png")
+
 				i=i+1
 
 		hull = False
@@ -460,6 +464,8 @@ def premierLeague_stadiums_query(request):
 		   clubstadium_list.append(club_stadium)
 		   hash_stadium_club["Hull City Association Football Club"] = "KCOM Stadium"
 		   hash_club_shield = hash_club_shield + "Hull City Association Football Club" + "=" + "../img/Hull_icon.png" + "|"
+		   club_stadium.addClubShield("../img/Hull_icon.png")
+
 		if swa == False:
 		   club_stadium = ClubStadium("Liberty Stadium","Swansea City A.F.C.","Swansea City Association Football Club",1912,"Paul Clement","Swansea (Wales)","../img/stadiums/LibertyStadium.jpg",21088)
 		   club_stadium.coordinates(-3.9351,51.6422)
@@ -467,6 +473,7 @@ def premierLeague_stadiums_query(request):
 		   clubstadium_list.append(club_stadium)
 		   hash_stadium_club["Swansea City Association Football Club"] = "Liberty Stadium"
 		   hash_club_shield = hash_club_shield + "Swansea City Association Football Club" + "=" + "../img/Swansea_icon.png" + "|"
+		   club_stadium.addClubShield("../img/Swansea_icon.png")
 
 		for club in hash_stadium_club:
 		   clubs_list.append(club)
@@ -520,18 +527,10 @@ def premierLeague_stadiums_query(request):
 					    club_shield_image = hash_club_shield.split("|")[i].split("=")[1]
 					    i=20
 					  i=i+1
-					if "Swansea" in club_name:
-					    clubstadium.addClubShield(club_shield_image.replace("static",""))
-					elif "Hull" in club_name:
-					    clubstadium.addClubShield(club_shield_image.replace("static",""))
-					elif "Watford" in club_name:
-					    clubstadium.addClubShield(club_shield_image.replace("static",""))
-					else:
-					    clubstadium.addClubShield(club_shield_image)
 
 		project_configuration.generate_kml("Premier League Stadiums", clubstadium_selected, club_shield_image, kml_file_name_premierLeague_stadium)
 
-	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": club_shield_image, "club_selected": club_selected, "hash_club_shield": hash_club_shield} )
+	return render(request, 'WDLG/indexPremierLeagueStadiums.html', {"clubs_list": clubs_list , "stadium_name": stadium_name, "club_shield_image": str(club_shield_image).replace("../","static/"), "club_selected": club_selected, "hash_club_shield": hash_club_shield} )
 
 
 def longest_rivers_query(request):

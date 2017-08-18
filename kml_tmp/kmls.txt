@@ -1,1 +1,2 @@
-http://10.160.67.49:8000/static/utils/empty_file.kml
+http://10.160.67.49:8000/static/kml/kml_file_longest_rivers.kml?a=1503071492
+http://10.160.67.49:8000/static/utils/earth_rotation.kml

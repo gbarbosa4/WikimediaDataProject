@@ -40,7 +40,8 @@ function combo_selected_team(hash_club_shield) {
       }
       i++;
     }
-    imagesArray.push(club_shield);
+
+    imagesArray.push(club_shield.replace("../","static/"));
     labelArray.push("Flying to the stadium ... "+club_selected);
 }
 

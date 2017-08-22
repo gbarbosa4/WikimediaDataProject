@@ -13,7 +13,7 @@ class OlympicGame(object):
     latitude = None
     longitude = None
 
-    def __init__(self, host_city, year, lema, num_nations, num_athletes, num_events, medal_table, opening_date, closing_date, stadium):
+    def __init__(self, host_city, year, lema, num_nations, num_athletes, num_events, medal_table, opening_date, closing_date, stadium_name):
         self.hostCity = host_city
         self.year = year
         self.lema = lema
@@ -23,7 +23,7 @@ class OlympicGame(object):
         self.medalTable = medal_table
         self.openingDate = opening_date
         self.closingDate = closing_date
-        self.stadium = stadium
+        self.stadiumName = stadium_name
 
     def coordinates(self, longitude, latitude): #longitude E/W, latitude S/N
         self.longitude = longitude

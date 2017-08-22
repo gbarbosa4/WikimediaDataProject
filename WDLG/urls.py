@@ -16,6 +16,7 @@ urlpatterns = [
     url(r'^spanish_airports', views.spanish_airports_query, name ='spanish_airports'),
     url(r'^start_tour_airports', views.start_tour_airports, name ='start_tour_airports'),
     url(r'^stop_tour_airports', views.stop_tour_airports, name ='stop_tour_airports'),
+    url(r'^summer_olympic_games_aux', views.olympic_games_query_aux, name ='summer_olympic_games_aux'),
     url(r'^summer_olympic_games', views.olympic_games_query, name ='summer_olympic_games'),
     url(r'^try_demo', views.try_demo, name ='try_demo'),
     url(r'^start_lleida_tour', views.start_lleida_tour, name ='start_lleida_tour'),

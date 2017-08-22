@@ -2,6 +2,9 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect
 from django.http import HttpResponse
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+
 from SPARQLWrapper import SPARQLWrapper, JSON, XML, N3, RDF
 import os
 import time
@@ -713,78 +716,88 @@ def olympic_games_query(request):
     project_configuration.flyTo_initialize()
     olympic_games_list = []
     host_city_list = []
+    games_list = []
 
-    if len(request.POST) == 0:
-        year = 2016
-        i=0
-        while year > 1990:
-            medal_country_code_list = []
-            medal_country_name_list = []
-            result_xml = wikiapi.find(str(year)+" Summer Olympics")
-            medals_result_xml = wikiapi.find(str(year)+" Summer Olympics medal table")
-            hash_data = wikiapi.scraping_infobox(result_xml)
-            hash_data_medals = wikiapi.scraping_medal_table(medals_result_xml)
-            data_list = aux_function.do_data_list(hash_data)
-            for key,value in hash_data_medals.items():
-                medal_country_code_list.append(key)
+    year = 2016
+    i=0
+    while year > 1990:
+        medal_country_code_list = []
+        medal_country_name_list = []
+        result_xml = wikiapi.find(str(year)+" Summer Olympics")
+        medals_result_xml = wikiapi.find(str(year)+" Summer Olympics medal table")
+        hash_data = wikiapi.scraping_infobox(result_xml)
+        hash_data_medals = wikiapi.scraping_medal_table(medals_result_xml)
+        data_list = aux_function.do_data_list(hash_data)
+        for key,value in hash_data_medals.items():
+            medal_country_code_list.append(key)
 
-            counter = 0
+        counter = 0
 
-            with open("static/utils/country_3code.txt", 'r+') as file:
-                while counter<3:
-                    for line in file:
-                        if str(medal_country_code_list[counter]) in line:
-                            hash_data_medals[line.split("|")[1].replace("\n","")] = hash_data_medals.pop(str(medal_country_code_list[counter]))
-                            counter = counter + 1
-                            if counter == 3:
-                                break
-                            else:
-                                file.seek(0)
-
-            olympic_games_list.append(OlympicGame(data_list[0],year,data_list[1],data_list[2],data_list[3],data_list[4],hash_data_medals,data_list[5],data_list[6],data_list[7]))
-
-            with open("static/utils/coord_olympic_games.txt", 'r+') as file:
+        with open("static/utils/country_3code.txt", 'r+') as file:
+            while counter<3:
                 for line in file:
-                    if line.split(" =")[0] == data_list[0]:
-                        longitude = line.split(" =")[1].split(",")[0]
-                        latitude = line.split(" =")[1].split(",")[1]
+                    if str(medal_country_code_list[counter]) in line:
+                        hash_data_medals[line.split("|")[1].replace("\n","")] = hash_data_medals.pop(str(medal_country_code_list[counter]))
+                        counter = counter + 1
+                        if counter == 3:
+                            break
+                        else:
+                            file.seek(0)
 
-            olympic_games_list[i].coordinates(longitude,latitude)
-            host_city_list.append(data_list[0]+" "+str(year))
-            print ("Wait a moment please... year-> ",year)
-            year = year - 4
-            i = i+1
+        olympic_games_list.append(OlympicGame(data_list[0],year,data_list[1],data_list[2],data_list[3],data_list[4],hash_data_medals,data_list[5],data_list[6],data_list[7]))
 
-        informationList.set_information_list("Olympic_Games",olympic_games_list)
+        with open("static/utils/coord_olympic_games.txt", 'r+') as file:
+            for line in file:
+                if line.split(" =")[0] == data_list[0]:
+                    longitude = line.split(" =")[1].split(",")[0]
+                    latitude = line.split(" =")[1].split(",")[1]
 
-        ip_galaxy_master = project_configuration.get_galaxy_ip()
-        ip_server = project_configuration.get_server_ip()
+        olympic_games_list[i].coordinates(longitude,latitude)
+        host_city_list.append(data_list[0]+" "+str(year))
+        print ("Wait a moment please... year-> ",year)
+        year = year - 4
+        i = i+1
 
-        file = open("kml_tmp/kmls.txt", 'w+')
-        file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
-        file.close()
+    informationList.set_information_list("Olympic_Games",olympic_games_list)
 
-        os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+    ip_galaxy_master = project_configuration.get_galaxy_ip()
+    ip_server = project_configuration.get_server_ip()
 
-    else:
-        print("Summer Olympic Games ...")
-        olympic_games_list = informationList.get_information_list("Olympic_Games")
+    file = open("kml_tmp/kmls.txt", 'w+')
+    file.write("http://" + str(ip_server) + ":8000/static/utils/" + "empty_file.kml" + "\n")
+    file.close()
 
-        for key,value in request.POST.items():
-            if key == "host_city":
-                host_city_selected = value
+    os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+    print("............:::",len(request.POST))
+    return render(request, 'WDLG/indexSummerOlympicGames.html', {"host_city_list": host_city_list, "labels_list": ["hhhhhhh","rerresfd"]})
 
-        for olympic_game in olympic_games_list:
-            if (olympic_game.hostCity+" "+str(olympic_game.year)) == host_city_selected:
-                olympic_game_selected = olympic_game
-                break
+def olympic_games_query_aux(request):
+    print("Summer Olympic Games else...")
+    olympic_game_selected = ""
+    host_city_list = []
+    games_list = []
+    olympic_games_list = informationList.get_information_list("Olympic_Games")
 
-        wikiapi.get_url_image(str(olympic_game_selected.year)+" Summer Olympics")
+    for key,value in request.POST.items():
+        if key == "host_city":
+            host_city_selected = value
 
-        project_configuration.generate_kml("Summer Olympic Games", olympic_game_selected, "", kml_file_name_summer_olympic_games)
+    for olympic_game in olympic_games_list:
+        if (olympic_game.hostCity+" "+str(olympic_game.year)) == host_city_selected:
+            olympic_game_selected = olympic_game
+            games_list.append(olympic_game)
+            break
 
-    return render(request, 'WDLG/indexSummerOlympicGames.html', {"host_city_list": host_city_list})
+    olympic_game_image = wikiapi.get_url_image(str(olympic_game_selected.year)+" Summer Olympics")
+    print(olympic_game_image)
+    project_configuration.generate_kml("Summer Olympic Games", olympic_game_selected, "", kml_file_name_summer_olympic_games)
 
+    labels_list = [str(games_list[0].hostCity),str(games_list[0].lema),str(games_list[0].numNations),str(games_list[0].numAthletes),str(games_list[0].numEvents),str(games_list[0].openingDate),str(games_list[0].closingDate),str(games_list[0].stadiumName)]
+
+    return JsonResponse({"host_city_list": host_city_list, "labels_list": labels_list, "image": olympic_game_image})
+    #return render(request, 'WDLG/indexSummerOlympicGames.html', {"host_city_list": host_city_list, "labels_list": ["hola","adeu"]})
+
+@csrf_exempt
 def try_demo(request):
     project_configuration.flyTo_initialize()
     lleida_data = ["../img/cities/image_Lleida.png","Catalonia","Lleida","Segrià",212.3,155,138144,"Àngel Ros i Domingo"]

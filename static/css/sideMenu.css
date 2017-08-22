@@ -51,7 +51,7 @@ buttons {
   position: fixed;
   top: 0;
   bottom: 0;
-  width: 200px;
+  width: 300px;
   left: -200px;
   overflow: auto;
   z-index: 2;
@@ -78,7 +78,7 @@ buttons {
 
 @media (min-width: 768px) {
   #header {
-    left: 200px;
+    left: 300px;
   }
 
   #sidedrawer {
@@ -86,11 +86,11 @@ buttons {
   }
 
   #content-wrapper {
-    margin-left: 200px;
+    margin-left: 300px;
   }
 
   #footer {
-    margin-left: 200px;
+    margin-left: 300px;
   }
 
   body.hide-sidedrawer #header {
@@ -183,7 +183,7 @@ a:link
 
 #sidedrawer strong {
  display: block;
- padding: 15px 22px;
+ padding: 8px 10px;
  cursor: pointer;
 }
 /**passar ratoli per sobre*/
@@ -204,8 +204,8 @@ a:link
 }
 
 #sidedrawer .menu a {
-    font-family: Merienda One;
-  	font-size: 12px;
+    font-family: Arial;
+  	font-size: 14px;
   	font-style: normal;
   	font-variant: normal;
     color: inherit;

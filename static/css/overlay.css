@@ -157,7 +157,7 @@ a.boxclose2{
     margin-top: 3px;
     margin-right: 3px;
     cursor:pointer;
-    color: #000;
+    color: #ff0000;
     border: 1px solid rgba(0,0,0,0.8);
     border-radius: 30px;
     background: rgba(0,0,0,0.1);
@@ -195,7 +195,7 @@ a.boxclose{
     margin-top:-1px;
     margin-right:-1px;
     cursor:pointer;
-    color: #000;
+    color: #ff0000;
     border: 1px solid rgba(0,0,0,0.8);
     border-radius: 30px;
     background: rgba(0,0,0,0.1);

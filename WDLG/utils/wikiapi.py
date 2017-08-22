@@ -132,6 +132,7 @@ class WikiApi(object):
                         print ("image-> ",image)
             cairosvg.svg2png(url=url_image, write_to=page+".png")
             os.rename(str(os.getcwd())+"/"+page+".png", "static/img/"+page+".png")
+        return "static/img/"+page+".png"
 
     def dbpedia(self, city_name):
 

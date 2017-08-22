@@ -2,7 +2,6 @@
 {% load static %}
 
 <div id="content-wrapper">
-     <div class="mui--appbar-height"></div>
       <div class="mui--text-center">
         <h1> <img src="{% static 'img/olympicgames.png' %}" title="games" width="6%" align="middle">  Summer Olympic Games
       </div>
@@ -30,6 +29,14 @@
         </div>
       </div>
 
+      <div id="more_olympic_games_info" class="mui-container-fluid" style="display: block;"></div>
+        <h3 id="host_city" align="center" style="display: none;"> <img src="" id="image" width="6%" align="middle"> </h3>
+        <h4 id="lema" align="center" style="display: block;"> </h4>
+        <h4 id="number" align="center" display="inline" style="display: block;"> </h4>
+        <h4 id="dates" align="center" style="display: block;"> </h4>
+        <h4 id="stadium_name" align="center" style="display: block;"> </h4>
+      </div>
+
       <div id="modal" class="modal_premier" style="display: none;"></div>
         <div id="modal2" class="overlay loading-indicator" style="display: none;">
           <h2 id="header1" class="mui-m-n">Please wait...</h2>
@@ -42,25 +49,41 @@
 </div>
 <script>
 function selected_olympicgame_button(host_city){
-
     document.getElementById('modal').style.display = "block";
     document.getElementById('modal2').style.display = "block";
     document.getElementById('image').src = "{% static 'img/olympicgames.png' %}";
     document.getElementById('header2').innerText = "You have selected -> "+host_city+"\n"+"Now it starts the flight to the city.";
 
+    motto = "[ Motto ] : ";
+    num_nations = "[ Nations Participating ] : ";
+    num_athletes = "   [ Athletes Participating ] : ";
+    num_events = "   [ Total Events ] : ";
+    opening_date = "[ Opening Date ] :"
+    closing_date = "   [ Closing Date ] :"
+    stadium_name = "[ Stadium Name ] :"
+
     const csrfmiddlewaretoken = readCookie('csrftoken');
     console.info(csrfmiddlewaretoken);
 
-    fetch('/summer_olympic_games', {
+    fetch('/summer_olympic_games_aux', {
       method: "POST",
       headers: {
         "Content-Type": "application/x-www-form-urlencoded"
       },
       body: `csrfmiddlewaretoken=${csrfmiddlewaretoken}&host_city=${host_city}`,
       credentials: 'include'
-    }).then(() => {
+    }).then(function(response) {
       document.getElementById('modal').style.display = "none";
       document.getElementById('modal2').style.display = "none";
+      response.json().then(function(data) {
+        document.getElementById('host_city').style.display = "block";
+        document.getElementById('host_city').innerText = host_city;
+        document.getElementById('image').src = "{% static 'img/olympicgames.png' %}";
+        document.getElementById('lema').innerText = motto.concat(data.labels_list[1]);
+        document.getElementById('number').innerText = num_nations.concat(data.labels_list[2]).concat("   "+num_athletes.concat(data.labels_list[3])).concat("   "+num_events.concat(data.labels_list[4]));
+        document.getElementById('dates').innerText = opening_date.concat(data.labels_list[5]).closing_date.concat(data.labels_list[6]);
+        document.getElementById('stadium_name').innerText = stadium_name.concat(data.labels_list[7]);
+      });
     });
 }
 </script>

@@ -678,6 +678,7 @@ def spanish_airports_query(request):
 	dict_airports_data["Tenerife"] = "10.472.404|58.461"
 	dict_airports_data["Las Palmas"] = "12.093.645|111.996"
 	dict_airports_data["Alicante"] = "12.344.945|87.113"
+	dict_airports_data["Gran Canaria"] = "12.093.645|111.996"
 
 	print ("Obtaining data ...\n")
 	project_configuration.flyTo_initialize()
@@ -711,6 +712,8 @@ def spanish_airports_query(request):
 		LIMIT """+str(NUM_AIRPORTS))
 
 	queryResults = sparql.query().convert()
+	passangers = ""
+	air_movements = ""
 
 	for result in queryResults["results"]["bindings"]:
 
@@ -736,8 +739,11 @@ def spanish_airports_query(request):
 
 	    image = result["image"]["value"]
 
-	    passangers = dict_airports_data[city].split("|")[0]
-	    air_movements = dict_airports_data[city].split("|")[1]
+	    try:
+	       passangers = dict_airports_data[city].split("|")[0]
+	       air_movements = dict_airports_data[city].split("|")[1]
+	    except Exception:
+	       print("Exception ",city)
 
 	    list_airports.append(Airport(airport, image, opening, city, passangers, air_movements))
 	    list_airports[rank-1].coordinates(longitude,latitude)

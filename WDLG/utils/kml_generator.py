@@ -777,20 +777,20 @@ class GeneratorKML(object):
             longitude = float(data.longitude)
             latitude = float(data.latitude)
 
-            airoprts_kml_doc = self.find_to_stand_over_the_placemark(6.0,longitude,latitude,airoprts_kml_doc)
-            fly_to_params = [10.0,0,0,0,data.city,7500]
-            airoprts_kml_doc = self.fly_to_the_placemark(longitude,latitude,"bounce",fly_to_params,airoprts_kml_doc)
+            airoprts_kml_doc = self.find_to_stand_over_the_placemark(3.0,longitude,latitude,airoprts_kml_doc)
+            fly_to_params = [9.0,0,0,70,data.city,7500]
+            airoprts_kml_doc = self.fly_to_the_placemark(longitude,latitude,fly_to_params,"bounce",airoprts_kml_doc)
             airoprts_kml_doc = self.show_placemark_balloon(12.0,data.city,airoprts_kml_doc)
-            rotation_params = [1.25,0,60,2000]
+            rotation_params = [0.85,0,70,2000]
             airoprts_kml_doc = self.rotation_around_placemark(data,rotation_params,airoprts_kml_doc)
 
             hash_values = []
-            hash_values.append(str(data.city).upper())
+            hash_values.append(str(data.airport).upper())
+            hash_values.append(str(data.image))
             hash_values.append(str(data.city))
-            hash_values.append(str(data.city))
-            hash_values.append(str(data.city))
-            hash_values.append(str(data.city))
-            hash_values.append(str(data.city))
+            hash_values.append(str(data.opening))
+            hash_values.append(str(data.passangers))
+            hash_values.append(str(data.air_movements))
             hash_values.append(str(data.city))
             hash_values.append(str(data.city))
 

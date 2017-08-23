@@ -2,10 +2,10 @@
 {% load static %}
 
 <div id="content-wrapper">
-  <br>
   <div class="mui--text-center">
     <tr>
       <h1><img src="{% static 'img/airport.png' %}" title="airports" width="6%" align="middle">  Spanish Airports</h1>
+      <h4> Start Tour to see all the airports in Spanish. </h4>
     </tr>
   </div>
   <div class="mui-container-fluid">
@@ -15,11 +15,10 @@
           <form method="POST" action=""> {% csrf_token %}
             {% for airport in list_airports %}
              <div>
-               <h4 text-align="left" vertical-align="middle" id='{{airport.airport}}' type="text" value='{{airport.airport}}'>{{airport.airport}} -- {{airport.city}} -- ({{airport.opening}})</h4>
+               <h4 text-align="left" vertical-align="middle" id='{{airport.airport}}' type="text" value='{{airport.airport}}'> <b>{{airport.airport}}</b> -- {{airport.city}} -- ({{airport.opening}})</h4>
              </div>
             {% endfor %}
           </form>
-          <br>
           <div>
             <a class="mui-btn mui-btn--green" href="{% url 'start_tour_airports' %}">START TOUR</a>
             <a class="mui-btn mui-btn--red" href="{% url 'stop_tour_airports' %}">STOP TOUR</a>

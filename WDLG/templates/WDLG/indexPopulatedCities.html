@@ -2,10 +2,10 @@
 {% load static %}
 
 <div id="content-wrapper">
-  <br>
   <div class="mui--text-center">
     <tr>
       <h1><img src="{% static 'img/city.png' %}" title="city" width="6%" align="middle">  Most Populated Cities In The World</h1>
+      <h4><i class="material-icons">help</i> text here ....</h4>
     </tr>
   </div>
   <div class="mui-container-fluid">
@@ -19,7 +19,6 @@
              </div>
             {% endfor %}
           </form>
-          <br>
           <div>
             <a class="mui-btn mui-btn--green" href="{% url 'start_tour_cities' %}">START TOUR</a>
             <a class="mui-btn mui-btn--red" href="{% url 'stop_tour_cities' %}">STOP TOUR</a>

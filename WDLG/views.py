@@ -664,6 +664,20 @@ def longest_rivers_query(request):
 	return render(request, 'WDLG/indexLongestRivers.html', {"list_rivers": list_rivers} )
 
 def spanish_airports_query(request):
+	dict_airports_data = {}
+	dict_airports_data["Barcelona"] = "44.154.693|307.864"
+	dict_airports_data["Madrid"] = "50.420183|378.150"
+	dict_airports_data["Bilbao"] = "4.588.265|45.105"
+	dict_airports_data["Sevilla"] = "3.884.146|42.380"
+	dict_airports_data["Lanzarote"] = "5.883.039|49.575"
+	dict_airports_data["Fuerteventura"] = "6.676.817|45.456"
+	dict_airports_data["Ibiza"] = "7.416.368|72.503"
+	dict_airports_data["Valencia"] = "5.799.104|62.798"
+	dict_airports_data["Mallorca"] = "26.253.882|197.639"
+	dict_airports_data["Málaga"] = "16.672.776|123.700"
+	dict_airports_data["Tenerife"] = "10.472.404|58.461"
+	dict_airports_data["Las Palmas"] = "12.093.645|111.996"
+	dict_airports_data["Alicante"] = "12.344.945|87.113"
 
 	print ("Obtaining data ...\n")
 	project_configuration.flyTo_initialize()
@@ -693,6 +707,7 @@ def spanish_airports_query(request):
         }
 
 		GROUP BY ?airport ?airportLabel ?cityLabel
+        ORDER BY (?city)
 		LIMIT """+str(NUM_AIRPORTS))
 
 	queryResults = sparql.query().convert()
@@ -706,15 +721,25 @@ def spanish_airports_query(request):
 	    latitude = coord.split("(")[1].split(" ")[1]
 	    latitude = latitude[:len(latitude) - 1]
 
-	    image = result["image"]["value"]
-
 	    opening = result["opening"]["value"]
+	    #print(opening)
 	    opening = opening.split("-")[0]
-	    print(opening)
 
 	    city = result["cityLabel"]["value"]
+	    print(city)
+	    if city == "Majorca":
+	       city = "Mallorca"
+	    if city == "Seville":
+	       city = "Sevilla"
+	    if "Las Palmas" in city:
+	       city = "Lanzarote"
 
-	    list_airports.append(Airport(airport, image, opening, city))
+	    image = result["image"]["value"]
+
+	    passangers = dict_airports_data[city].split("|")[0]
+	    air_movements = dict_airports_data[city].split("|")[1]
+
+	    list_airports.append(Airport(airport, image, opening, city, passangers, air_movements))
 	    list_airports[rank-1].coordinates(longitude,latitude)
 
 	    rank = rank + 1

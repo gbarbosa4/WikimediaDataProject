@@ -119,7 +119,7 @@ def stop_tour_demo(request):
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
 	time.sleep(1.5)
-	project_configuration.flyTo_initialize()    
+	project_configuration.flyTo_initialize()
 
 	return HttpResponse(status=204)
 
@@ -822,7 +822,7 @@ def try_demo(request):
 	project_configuration.generate_kml("Demo Lleida", lleida_data, "", kml_file_name_lleida_tour_demo)
 	time.sleep(1.0)
 	project_configuration.generate_kml("Demo Bayern", bayern_data, "", kml_file_name_bayern_tour_demo)
-
+	time.sleep(2.5)
 	with open("kml_tmp/kmls.txt", 'a') as file:
 	    		file.write("http://" + str(ip_server) + ":8000/static/demos/kml_file_summer_olympic_game_92.kml" + "\n")
 	file.close()

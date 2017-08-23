@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^try_demo', views.try_demo, name ='try_demo'),
     url(r'^start_lleida_tour', views.start_lleida_tour, name ='start_lleida_tour'),
     url(r'^start_bayern_tour', views.start_bayern_tour, name ='start_bayern_tour'),
+    url(r'^start_barcelona92', views.start_barcelona92, name ='start_barcelona92'),
     url(r'^stop_tour_demo', views.stop_tour_demo, name ='stop_tour_demo'),
     url(r'^clear_KML_folder', views.clear_KML_folder, name ='clear_KML_folder'),
     url(r'^stop_current_tour', views.stop_current_tour, name ='stop_current_tour'),

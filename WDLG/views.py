@@ -97,6 +97,18 @@ def start_bayern_tour(request):
 
 	return HttpResponse(status=204)
 
+def start_barcelona92(request):
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	file = open("kml_tmp/query.txt", 'w+')
+	file.write("flytoview=<LookAt><longitude>2.176944444</longitude><latitude>41.3825</latitude><altitude>0</altitude><heading>-55</heading><tilt>65</tilt><name>BARCELONA</name><range>70000</range><altitudeMode>relativeToGround</altitudeMode></LookAt>")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+
+	return HttpResponse(status=204)
+
 def stop_tour_demo(request):
 	ip_galaxy_master = project_configuration.get_galaxy_ip()
 	ip_server = project_configuration.get_server_ip()
@@ -106,6 +118,8 @@ def stop_tour_demo(request):
 	file.close()
 
 	os.system("sshpass -p 'lqgalaxy' scp " + file_query_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath_query)
+	time.sleep(1.5)
+	project_configuration.flyTo_initialize()    
 
 	return HttpResponse(status=204)
 
@@ -789,20 +803,30 @@ def olympic_games_query_aux(request):
             break
 
     olympic_game_image = wikiapi.get_url_image(str(olympic_game_selected.year)+" Summer Olympics")
-    print(olympic_game_image)
+    print("qq  ",olympic_game_image)
     project_configuration.generate_kml("Summer Olympic Games", olympic_game_selected, "", kml_file_name_summer_olympic_games)
 
     labels_list = [str(games_list[0].hostCity),str(games_list[0].lema),str(games_list[0].numNations),str(games_list[0].numAthletes),str(games_list[0].numEvents),str(games_list[0].openingDate),str(games_list[0].closingDate),str(games_list[0].stadiumName)]
 
-    return JsonResponse({"host_city_list": host_city_list, "labels_list": labels_list, "image": olympic_game_image})
+    return JsonResponse({"host_city_list": host_city_list, "labels_list": labels_list, "image_olympic_game": olympic_game_image})
     #return render(request, 'WDLG/indexSummerOlympicGames.html', {"host_city_list": host_city_list, "labels_list": ["hola","adeu"]})
 
 @csrf_exempt
 def try_demo(request):
-    project_configuration.flyTo_initialize()
-    lleida_data = ["../img/cities/image_Lleida.png","Catalonia","Lleida","Segrià",212.3,155,138144,"Àngel Ros i Domingo"]
-    bayern_data = ["../img/stadiums/AllianzArena.jpg","FC Bayern Munich","../img/bayern_icon.png","May 2005","340 million","105 x 68 m","Munich",75000]
-    project_configuration.generate_kml("Demo Lleida", lleida_data, "", kml_file_name_lleida_tour_demo)
-    time.sleep(1.0)
-    project_configuration.generate_kml("Demo Bayern", bayern_data, "", kml_file_name_bayern_tour_demo)
-    return render(request, 'WDLG/indexTryDemo.html')
+	ip_galaxy_master = project_configuration.get_galaxy_ip()
+	ip_server = project_configuration.get_server_ip()
+
+	project_configuration.flyTo_initialize()
+	lleida_data = ["../img/cities/image_Lleida.png","Catalonia","Lleida","Segrià",212.3,155,138144,"Àngel Ros i Domingo"]
+	bayern_data = ["../img/stadiums/AllianzArena.jpg","FC Bayern Munich","../img/bayern_icon.png","May 2005","340 million","105 x 68 m","Munich",75000]
+	project_configuration.generate_kml("Demo Lleida", lleida_data, "", kml_file_name_lleida_tour_demo)
+	time.sleep(1.0)
+	project_configuration.generate_kml("Demo Bayern", bayern_data, "", kml_file_name_bayern_tour_demo)
+
+	with open("kml_tmp/kmls.txt", 'a') as file:
+	    		file.write("http://" + str(ip_server) + ":8000/static/demos/kml_file_summer_olympic_game_92.kml" + "\n")
+	file.close()
+
+	os.system("sshpass -p 'lqgalaxy' scp " + file_kmls_txt_path + " lg@"+ ip_galaxy_master +":" + serverPath)
+
+	return render(request, 'WDLG/indexTryDemo.html')

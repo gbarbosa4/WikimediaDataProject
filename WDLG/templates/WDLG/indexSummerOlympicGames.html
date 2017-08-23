@@ -29,12 +29,19 @@
         </div>
       </div>
 
-      <div id="more_olympic_games_info" class="mui-container-fluid" style="display: block;"></div>
-        <h3 id="host_city" align="center" style="display: none;"> <img src="" id="image" width="6%" align="middle"> </h3>
-        <h4 id="lema" align="center" style="display: block;"> </h4>
-        <h4 id="number" align="center" display="inline" style="display: block;"> </h4>
-        <h4 id="dates" align="center" style="display: block;"> </h4>
-        <h4 id="stadium_name" align="center" style="display: block;"> </h4>
+      <div id="more_olympic_games_info" class="mui-container-fluid" style="display: block; margin-bottom:-50"></div>
+        <img src="" id="image_olympic_game" width="7%" style="float:rigth; margin-bottom:-50; margin-left:-10;"/>
+        <h3 id="host_city" align="center" style="display: none;"> </h3>
+        <table>
+          <tbody>
+            <div class="mui-col-md-12">
+              <h4 style="color:#013757;" id="lema" align="center" style="display: block;"> </h4>
+              <h4 style="color:#013757;" id="number" align="center" display="inline" style="display: block;"> </h4>
+              <h4 style="color:#013757;" id="dates" align="center" style="display: block;"> </h4>
+              <h4 style="color:#013757;" id="stadium_name" align="center" style="display: block;"> </h4>
+            </div>
+          </tbody>
+        </table>
       </div>
 
       <div id="modal" class="modal_premier" style="display: none;"></div>
@@ -56,11 +63,11 @@ function selected_olympicgame_button(host_city){
 
     motto = "[ Motto ] : ";
     num_nations = "[ Nations Participating ] : ";
-    num_athletes = "   [ Athletes Participating ] : ";
-    num_events = "   [ Total Events ] : ";
-    opening_date = "[ Opening Date ] :"
-    closing_date = "   [ Closing Date ] :"
-    stadium_name = "[ Stadium Name ] :"
+    num_athletes = " \t [ Athletes Participating ] : ";
+    num_events = " \t [ Total Events ] : ";
+    opening_date = "[ Opening Date ] : "
+    closing_date = " \t[ Closing Date ] : "
+    stadium_name = "[ Stadium Name ] : "
 
     const csrfmiddlewaretoken = readCookie('csrftoken');
     console.info(csrfmiddlewaretoken);
@@ -78,10 +85,10 @@ function selected_olympicgame_button(host_city){
       response.json().then(function(data) {
         document.getElementById('host_city').style.display = "block";
         document.getElementById('host_city').innerText = host_city;
-        document.getElementById('image').src = "{% static 'img/olympicgames.png' %}";
+        document.getElementById('image_olympic_game').src = data.image_olympic_game;
         document.getElementById('lema').innerText = motto.concat(data.labels_list[1]);
-        document.getElementById('number').innerText = num_nations.concat(data.labels_list[2]).concat("   "+num_athletes.concat(data.labels_list[3])).concat("   "+num_events.concat(data.labels_list[4]));
-        document.getElementById('dates').innerText = opening_date.concat(data.labels_list[5]).closing_date.concat(data.labels_list[6]);
+        document.getElementById('number').innerText = num_nations.concat(data.labels_list[2]).concat("   ".concat(num_athletes.concat(data.labels_list[3]))).concat("   ".concat(num_events.concat(data.labels_list[4])));
+        document.getElementById('dates').innerText = opening_date.concat(data.labels_list[5]).concat(closing_date.concat(data.labels_list[6]));
         document.getElementById('stadium_name').innerText = stadium_name.concat(data.labels_list[7]);
       });
     });

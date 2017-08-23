@@ -1,1 +1,1 @@
-http://10.160.67.49:8000/static/kml/kml_file_summer_olympic_game.kml?a=1503411742
+http://10.160.67.49:8000/static/utils/empty_file.kml

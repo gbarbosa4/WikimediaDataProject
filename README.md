@@ -42,5 +42,9 @@ Follow step by step instructions for installing the project
 
     http://[Your IP]:8000
 
-    
+
+##  Built with
+
+· Python3   · Django    · Material Design
+
 

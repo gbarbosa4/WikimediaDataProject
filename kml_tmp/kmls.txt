@@ -1,2 +1,1 @@
-http://10.160.67.49:8000/static/kml/kml_file_tour_city.kml?a=1503655548
-http://10.160.67.49:8000/static/utils/earth_rotation_zoom.kml
+http://10.160.67.49:8000/static/utils/empty_file.kml

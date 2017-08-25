@@ -25,4 +25,7 @@ if __name__ == "__main__":
     f.write(galaxy_ip)
     f.close()
 
+    command = "ssh-keyscan -H "+str(galaxy_ip)+" >> ~/.ssh/known_hosts"
+    os.system(command)
+
     execute_from_command_line(sys.argv)

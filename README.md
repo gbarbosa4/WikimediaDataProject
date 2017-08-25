@@ -50,5 +50,5 @@ Follow step by step instructions for installing the project
 
 ## Licensing
 
-[MIT License](https://github.com/LiquidGalaxyLAB/WikimediaDataProject/blob/master/LICENSE) - Copyright (c) 2017 Guillem         Barbosa Costa
-    
+[MIT License](../master/LICENSE) - Copyright (c) 2017 Guillem Barbosa Costa
+     

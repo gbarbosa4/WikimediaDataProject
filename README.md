@@ -45,6 +45,9 @@ Follow step by step instructions for installing the project
 
 ##  Built with
 
-· Python3   · Django    · Material Design
+    · Python3   · Django    · Material Design
 
+## Licensing
+
+    [MIT License](../master/LICENSE) - Copyright (c) 2017 Guillem Barbosa Costa
 

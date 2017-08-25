@@ -52,3 +52,4 @@ Follow step by step instructions for installing the project
 
 [MIT License](../master/LICENSE) - Copyright (c) 2017 Guillem Barbosa Costa
      
+<img src="https://github.com/gbarbosa4/WikimediaDataProject/blob/master/static/img/google_summer_code.jpg" height="100">

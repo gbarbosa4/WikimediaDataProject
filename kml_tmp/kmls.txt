@@ -1,1 +1,3 @@
-http://10.160.67.49:8000/static/utils/empty_file.kml
+http://10.160.67.49:8000/static/demos/kml_file_lleida_tour_demo.kml
+http://10.160.67.49:8000/static/demos/kml_file_bayern_tour_demo.kml
+http://10.160.67.49:8000/static/demos/kml_file_summer_olympic_game_92.kml

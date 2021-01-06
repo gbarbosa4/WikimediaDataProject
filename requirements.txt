@@ -3,7 +3,7 @@ beautifulsoup4==4.6.0
 bs4==0.0.1
 xcffib==0.3.6
 cairocffi==0.7.2
-CairoSVG==1.0.19
+CairoSVG==2.5.1
 certifi==2017.4.17
 cffi==1.5.2
 chardet==3.0.3
